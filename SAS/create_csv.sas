@@ -86,8 +86,8 @@ run;
 *making PIR categories
 *******************************************************;
 data pcbs; set pcbs; 
-PIR=.;
-if indfmpir=. then PIR=.;
+Pir_cat=.;
+if indfmpir=. then Pir_cat=.;
 else if indfmpir <1 then Pir_cat=1;
 else if indfmpir >=1 and indfmpir <= 3 then pir_cat=2;
 else if indfmpir >3 then pir_cat=3;
@@ -2224,7 +2224,19 @@ run;
 
 
 *create dataset;
-data studypop; set pcbs;
+data studypop; 
+set pcbs (keep = Ridageyr age_cat bmxbmi bmi_cat3 smoke_cpn indfmpir Pir_cat dmdeduc2 edu_cat race_cat ridreth1 
+riagendr male female smq040 smoke3cat yrssmoke numcigs smokepackyrs Lbxcot sddsrvyr wtspo2yr LBd052lc LBd066lc 
+LBd074lc LBd087lc LBd099lc LBd101lc LBd105lc LBd110lc LBd118lc LBDPCBLC LBd128lc LBd138lc LBd146lc LBd149lc 
+LBd151lc LBd153lc LBd156lc LBd157lc LBd167lc LBDHXCLC LBd170lc LBd172lc LBd177lc LBd178lc LBd180lc LBd183lc 
+LBd187lc LBd189lc LBd194lc LBd195lc LBd196lc LBd199lc LBd206lc LBDTC2LC lbdtcdlc LBdd01lc LBdd02lc LBdd03lc 
+LBdd04lc LBdd05lc LBdd07lc lbdf01lc lbdf02lc lbdf03lc lbdf04lc lbdf05lc lbdf06lc lbdf07lc lbdf08lc lbdf09lc 
+lbdf10lc lbxpcbla lbxhxcla non_ortho_noteq ndl_all lbx074la lbx099la lbx138la lbx153la lbx170la lbx180la 
+lbx187la lbx194la lbx196la lbx199la teq lbxtcdla lbxd01la lbxd02la lbxd03la lbxd04la lbxd05la LBXD07la lbxf01la 
+Lbxf02la lbxf03la lbxf04la lbxf05la lbxf06la lbxf07la lbxf08la lbxf09la lbxpcbla lbxhxcla lbx105la lbx118la 
+lbx156la lbx157la lbx167la lbx189la wtspo2yr studypop ndl_all_cat NONT_cat teq_cat tsmean100 telomean cotinine_cat
+lbxcot sdmvpsu sdmvstra mcq220 age_cent age_sq ndl_all_cat nont_cat teq_cat lbxwbcsi lbxlypct lbxnepct lbxeopct 
+lbxbapct lbxmopct);
 where studypop = 1;
 run;
 
