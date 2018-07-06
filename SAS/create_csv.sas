@@ -2236,7 +2236,10 @@ lbx187la lbx194la lbx196la lbx199la teq lbxtcdla lbxd01la lbxd02la lbxd03la lbxd
 Lbxf02la lbxf03la lbxf04la lbxf05la lbxf06la lbxf07la lbxf08la lbxf09la lbxpcbla lbxhxcla lbx105la lbx118la 
 lbx156la lbx157la lbx167la lbx189la wtspo2yr studypop ndl_all_cat NONT_cat teq_cat tsmean100 telomean cotinine_cat
 lbxcot sdmvpsu sdmvstra mcq220 age_cent age_sq ndl_all_cat nont_cat teq_cat lbxwbcsi lbxlypct lbxnepct lbxeopct 
-lbxbapct lbxmopct);
+lbxbapct lbxmopct LBd052lc LBd066lc LBd074lc LBd087lc LBd099lc LBd101lc LBd105lc LBd110lc LBd118lc LBDPCBLC LBd128lc 
+LBd138lc LBd146lc LBd149lc LBd151lc LBd153lc LBd156lc LBd157lc LBd167lc LBDHXCLC LBd170lc LBd172lc LBd177lc 
+LBd178lc LBd180lc LBd183lc LBd187lc LBd189lc LBd194lc LBd195lc LBd196lc LBd199lc LBd206lc LBDTC2LC lbdtcdlc LBdd01lc LBdd02lc LBdd03lc LBdd04lc LBdd05lc LBdd07lc lbdf01lc lbdf02lc lbdf03lc 
+lbdf04lc lbdf05lc lbdf06lc lbdf07lc lbdf08lc lbdf09lc lbdf10lc lipids);
 where studypop = 1;
 run;
 
