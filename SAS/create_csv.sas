@@ -1,6 +1,7 @@
 libname box "C:\Users\Lizzy\OneDrive\Columbia\Summer 2018\MixturesWorkshop\From Ami";
-
+libname sas "C:\Users\Lizzy\OneDrive\Columbia\Summer 2018\MixturesWorkshop\SAS";
 **restart;
+
 data pcbs; set box.pcbs;
 run;
 
@@ -216,7 +217,7 @@ else if packyrs60=1 then smokepackyrs=3;
 run;
 
 proc freq data=pcbs;
-tables smokepackyrs;
+tables smokepackyrs numcigs;
 where studypop=1;
 run;
 
@@ -231,10 +232,10 @@ run;
 *remove people who are not in the genetic subset
 
 THIS CODE DOES NOT WORLK--SUBSETS TO ZERO;
-data pcbs1; set pcbs;
-if ridageyr < 20 or ridageyr > 85 then delete;
-if T_S_mean =.  then delete;
-run;
+*data pcbs1; set pcbs;
+*if ridageyr < 20 or ridageyr > 85 then delete;
+*if T_S_mean =.  then delete;
+*run;
 *studypop;
 
 data pcbs; set pcbs;
@@ -597,7 +598,7 @@ run;
 
 ***non-dioxin-like (all);
 data pcbs; set pcbs;
-ndl_all= log (lbx074la + lbx099la + lbx138la + lbx153la + lbx170la + 
+ndl_all= log(lbx074la + lbx099la + lbx138la + lbx153la + lbx170la + 
 	lbx180la + lbx187la + lbx194la + lbx196la + lbx199la);
 run;
 
@@ -2222,11 +2223,18 @@ table sdmvstra sdmvpsu;
 where studypop=1;
 run;
 
+data sas.studypop1; 
+set pcbs;
+where studypop = 1;
+run;
+
+proc contents data = studypop1;
+run;
 
 *create dataset;
 data studypop; 
-set pcbs (keep = Ridageyr age_cat bmxbmi bmi_cat3 smoke_cpn indfmpir Pir_cat dmdeduc2 edu_cat race_cat ridreth1 
-riagendr male female smq040 smoke3cat yrssmoke numcigs smokepackyrs Lbxcot sddsrvyr wtspo2yr LBd052lc LBd066lc 
+set sas.studypop1 (keep = seqn Ridageyr age_cat bmxbmi bmi_cat3 indfmpir Pir_cat dmdeduc2 edu_cat race_cat ridreth1 
+riagendr Lbxcot sddsrvyr wtspo2yr LBd052lc LBd066lc 
 LBd074lc LBd087lc LBd099lc LBd101lc LBd105lc LBd110lc LBd118lc LBDPCBLC LBd128lc LBd138lc LBd146lc LBd149lc 
 LBd151lc LBd153lc LBd156lc LBd157lc LBd167lc LBDHXCLC LBd170lc LBd172lc LBd177lc LBd178lc LBd180lc LBd183lc 
 LBd187lc LBd189lc LBd194lc LBd195lc LBd196lc LBd199lc LBd206lc LBDTC2LC lbdtcdlc LBdd01lc LBdd02lc LBdd03lc 
@@ -2234,13 +2242,16 @@ LBdd04lc LBdd05lc LBdd07lc lbdf01lc lbdf02lc lbdf03lc lbdf04lc lbdf05lc lbdf06lc
 lbdf10lc lbxpcbla lbxhxcla non_ortho_noteq ndl_all lbx074la lbx099la lbx138la lbx153la lbx170la lbx180la 
 lbx187la lbx194la lbx196la lbx199la teq lbxtcdla lbxd01la lbxd02la lbxd03la lbxd04la lbxd05la LBXD07la lbxf01la 
 Lbxf02la lbxf03la lbxf04la lbxf05la lbxf06la lbxf07la lbxf08la lbxf09la lbxpcbla lbxhxcla lbx105la lbx118la 
-lbx156la lbx157la lbx167la lbx189la wtspo2yr studypop ndl_all_cat NONT_cat teq_cat tsmean100 telomean cotinine_cat
-lbxcot sdmvpsu sdmvstra mcq220 age_cent age_sq ndl_all_cat nont_cat teq_cat lbxwbcsi lbxlypct lbxnepct lbxeopct 
+lbx156la lbx157la lbx167la lbx189la wtspo2yr ndl_all_cat NONT_cat teq_cat tsmean100 telomean cotinine_cat
+lbxcot sdmvpsu sdmvstra mcq220 ndl_all_cat nont_cat teq_cat lbxwbcsi lbxlypct lbxnepct lbxeopct 
 lbxbapct lbxmopct LBd052lc LBd066lc LBd074lc LBd087lc LBd099lc LBd101lc LBd105lc LBd110lc LBd118lc LBDPCBLC LBd128lc 
 LBd138lc LBd146lc LBd149lc LBd151lc LBd153lc LBd156lc LBd157lc LBd167lc LBDHXCLC LBd170lc LBd172lc LBd177lc 
-LBd178lc LBd180lc LBd183lc LBd187lc LBd189lc LBd194lc LBd195lc LBd196lc LBd199lc LBd206lc LBDTC2LC lbdtcdlc LBdd01lc LBdd02lc LBdd03lc LBdd04lc LBdd05lc LBdd07lc lbdf01lc lbdf02lc lbdf03lc 
-lbdf04lc lbdf05lc lbdf06lc lbdf07lc lbdf08lc lbdf09lc lbdf10lc lipids);
-where studypop = 1;
+LBd178lc LBd180lc LBd183lc LBd187lc LBd189lc LBd194lc LBd195lc LBd196lc LBd199lc LBd206lc LBDTC2LC lbdtcdlc LBdd01lc 
+LBdd02lc LBdd03lc LBdd04lc LBdd05lc LBdd07lc lbdf01lc lbdf02lc lbdf03lc 
+lbdf04lc lbdf05lc lbdf06lc lbdf07lc lbdf08lc lbdf09lc lbdf10lc);
+run;
+
+proc contents data = studypop;
 run;
 
 proc export data=work.studypop
