@@ -93,23 +93,23 @@ cbind(colnames(x), group4)
 ## Group Lasso
 
 ```{r models}
-fit_lasso_3 <- grpreg(x, y, group3, penalty = "grLasso")
-fit_MCP_3 <- grpreg(x, y, group3, penalty = "grMCP")
-fit_SCAD_3 <- grpreg(x, y, group3, penalty = "grSCAD")
+lasso_3 <- grpreg(x, y, group3, penalty = "grLasso")
+MCP_3 <- grpreg(x, y, group3, penalty = "grMCP")
+SCAD_3 <- grpreg(x, y, group3, penalty = "grSCAD")
 
 par(mfrow = c(1,3))
-plot(fit_lasso_3)
-plot(fit_MCP_3)
-plot(fit_SCAD_3)
+plot(lasso_3)
+plot(MCP_3)
+plot(SCAD_3)
 
-fit_lasso_4 <- grpreg(x, y, group4, penalty = "grLasso")
-fit_MCP_4 <- grpreg(x, y, group4, penalty = "grMCP")
-fit_SCAD_4 <- grpreg(x, y, group4, penalty = "grSCAD")
+lasso_4 <- grpreg(x, y, group4, penalty = "grLasso")
+MCP_4 <- grpreg(x, y, group4, penalty = "grMCP")
+SCAD_4 <- grpreg(x, y, group4, penalty = "grSCAD")
 
 par(mfrow = c(1,3))
-plot(fit_lasso_4)
-plot(fit_MCP_4)
-plot(fit_SCAD_4)
+plot(lasso_4)
+plot(MCP_4)
+plot(SCAD_4)
 ```
 
 ## Cross Validation
@@ -129,26 +129,41 @@ fit_lasso_3$beta
 
 ## Estimate Test Error
 
-### Test/Train Sets
+### Training Set
 
 ```{r train}
 #Create training and test sets
 set.seed(1988)
 train <- sample(1:nrow(x), nrow(x)/2)
 test <- (-train)
-```
 
-### Fit Model
-
-```{r fit}
 #Fit model on training set
-cv_lasso_3_train <- cv.grpreg((x[train,]), y[train], group3, penalty = "grLasso", seed = 1988)
+cv_lasso_3_train <- cv.grpreg(x[train,], y[train], group3, 
+                              penalty = "grLasso", seed = 1988)
 
 best_lam_lasso_3_train <- cv_lasso_3_train$lambda.min
 #This is the lambda that results in the smallest cross-validation error in the TRAINING set
 
+
 #Fit model with cross-validated lambda
-fit_lasso_3 <- grpreg(x, y, group3, penalty = "grLasso", 
-                      lambda = best_lam_lasso_3)
-fit_lasso_3$beta
+fit_lasso_3_train <- grpreg(x[train,], y[train], 
+                            group3, penalty = "grLasso", 
+                            lambda = best_lam_lasso_3_train)
+
+#MSE in test set
+lasso_3_p <- predict(fit_lasso_3_train,
+                        X = x[train,])
+
+mean((lasso_3_p - y[train])^2)
 ```
+
+### Test Set
+
+```{r test}
+#MSE in test set
+lasso_3_pred <- predict(fit_lasso_3_train,
+                        X = x[test,])
+
+mean((lasso_3_pred - y[test])^2)
+```
+
