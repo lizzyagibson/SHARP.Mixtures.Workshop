@@ -6,7 +6,6 @@ output:
   html_document:
     toc: TRUE
     toc_float: TRUE
-    code_folding: hide
 ---
 
 ```{r setup, include=FALSE}
@@ -93,7 +92,9 @@ cbind(colnames(x), group4)
 ## Group Lasso
 
 ```{r models}
-lasso_3 <- grpreg(x, y, group3, penalty = "grLasso")
+lasso_3 <- grpreg(x, y, group3, penalty = "grLasso", 
+                  penalty.factor = c(rep(1, 24), rep(0, 12)))
+
 MCP_3 <- grpreg(x, y, group3, penalty = "grMCP")
 SCAD_3 <- grpreg(x, y, group3, penalty = "grSCAD")
 
@@ -116,14 +117,16 @@ plot(SCAD_4)
 
 ```{r cv}
 #Cross-validation to choose the tuning parameter lambda, ten-fold default
-cv_lasso_3 <- cv.grpreg(x, y, group3, penalty = "grLasso", seed = 1988)
+cv_lasso_3 <- cv.grpreg(x, y, group3, penalty = "grLasso", seed = 1988, 
+                  penalty.factor = c(rep(1, 24), rep(0, 12)))
 
 best_lam_lasso_3 <- cv_lasso_3$lambda.min
 #This is the lambda that results in the smallest cross-validation error
 
 #Fit model with cross-validated lambda
 fit_lasso_3 <- grpreg(x, y, group3, penalty = "grLasso", 
-                      lambda = best_lam_lasso_3)
+                      lambda = best_lam_lasso_3, 
+                  penalty.factor = c(rep(1, 24), rep(0, 12)))
 fit_lasso_3$beta
 ```
 
@@ -165,5 +168,37 @@ lasso_3_pred <- predict(fit_lasso_3_train,
                         X = x[test,])
 
 mean((lasso_3_pred - y[test])^2)
+```
+
+## Data Viz
+
+```{r viz}
+lasso_beta <- cbind(rownames(fit_lasso_3$beta), fit_lasso_3$beta) %>% as.tibble() %>% 
+  rename(variable = V1, beta = `0.0058`) %>% 
+  mutate(beta = as.numeric(beta)) %>% filter(variable != "(Intercept)") %>% 
+  mutate(group3 = group3,
+         group4 = group4)
+
+#Filter out covariates
+lasso_beta %>% filter(group3 %in% c("TEQ", "Non-Dioxin-like PCB", "Non-Ortho PCB")) %>% 
+  ggplot(aes(x = variable, 
+                       y = round(beta, 5))) + geom_point() +
+  theme_minimal() + geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+  facet_wrap(.~group3, scales = "free_y") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  coord_flip() + 
+  labs(title = "Lasso Coefficients for 3 Group Model", y = "Beta Coefficient",
+       x = "Variable")
+
+
+lasso_beta %>% filter(group3 %in% c("TEQ", "Non-Dioxin-like PCB", "Non-Ortho PCB")) %>%
+  ggplot(aes(x = variable, 
+                       y = round(beta, 5))) + geom_point() +
+  theme_minimal() + geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+  facet_wrap(.~group4, scales = "free_y") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  coord_flip() + 
+  labs(title = "Lasso Coefficients for 4 Group Model", y = "Beta Coefficient",
+       x = "Variable")
 ```
 
