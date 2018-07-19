@@ -40,7 +40,7 @@ studypop <- read_csv("./Data/studypop.csv") %>% clean_names() %>%
 
 #Group lasso wants data SEPARATE, with y value as one vector, X as a matrix of predictors (numeric values, categorical variables must be changed to 0/1 dummy variables), and grouping variable as a factor vector.
 
-#Create X matrix with SCALED continuous variables (PCBs, Dioxins, and Furans) and dummy variables for categorical.
+#Create X matrix of predictors with continuous variables (PCBs, Dioxins, and Furans) and dummy variables for categorical.
 x <- model.matrix(telomean ~ ., studypop)[,-1]
 #x[,1:24] <- scale(x[,1:24])
 #grpreg standardizes the data, so we don't need to
@@ -93,8 +93,7 @@ cbind(colnames(x), group4)
 
 ```{r models}
 lasso_3 <- grpreg(x, y, group3, penalty = "grLasso", 
-                  penalty.factor = c(rep(1, 24), rep(0, 12)))
-
+                  penalty.factor = c(rep(1, 8), rep(0, 6), rep(1,10), rep(0, 12)))
 MCP_3 <- grpreg(x, y, group3, penalty = "grMCP")
 SCAD_3 <- grpreg(x, y, group3, penalty = "grSCAD")
 
@@ -113,26 +112,43 @@ plot(MCP_4)
 plot(SCAD_4)
 ```
 
-## Cross Validation
+### Cross Validation
 
 ```{r cv}
-#Cross-validation to choose the tuning parameter lambda, ten-fold default
+#3 group model
+#Cross-validation to choose the best tuning parameter lambda, ten-fold default
 cv_lasso_3 <- cv.grpreg(x, y, group3, penalty = "grLasso", seed = 1988, 
-                  penalty.factor = c(rep(1, 24), rep(0, 12)))
+                  penalty.factor = c(rep(1, 8), rep(0, 6), rep(1,10), rep(0, 12)))
 
 best_lam_lasso_3 <- cv_lasso_3$lambda.min
 #This is the lambda that results in the smallest cross-validation error
 
 #Fit model with cross-validated lambda
 fit_lasso_3 <- grpreg(x, y, group3, penalty = "grLasso", 
-                      lambda = best_lam_lasso_3, 
-                  penalty.factor = c(rep(1, 24), rep(0, 12)))
+                      lambda = best_lam_lasso_3,  
+                  penalty.factor = c(rep(1, 8), rep(0, 6), rep(1,10), rep(0, 12)))
+
+#look at coefficients from model with best lambda
 fit_lasso_3$beta
+
+#4 group model
+#Cross-validation to choose the best tuning parameter lambda, ten-fold default
+cv_lasso_4 <- cv.grpreg(x, y, group4, penalty = "grLasso", seed = 1988)
+
+best_lam_lasso_4 <- cv_lasso_4$lambda.min
+#This is the lambda that results in the smallest cross-validation error
+
+#Fit model with cross-validated lambda
+fit_lasso_4 <- grpreg(x, y, group4, penalty = "grLasso", 
+                      lambda = best_lam_lasso_4)
+
+#look at coefficients from model with best lambda
+fit_lasso_4$beta
 ```
 
-## Estimate Test Error
+### Estimate Test Error
 
-### Training Set
+#### Training Set
 
 ```{r train}
 #Create training and test sets
@@ -160,7 +176,7 @@ lasso_3_p <- predict(fit_lasso_3_train,
 mean((lasso_3_p - y[train])^2)
 ```
 
-### Test Set
+#### Test Set
 
 ```{r test}
 #MSE in test set
@@ -173,14 +189,16 @@ mean((lasso_3_pred - y[test])^2)
 ## Data Viz
 
 ```{r viz}
-lasso_beta <- cbind(rownames(fit_lasso_3$beta), fit_lasso_3$beta) %>% as.tibble() %>% 
+#3 group model
+lasso_beta_3 <- cbind(rownames(fit_lasso_3$beta), fit_lasso_3$beta) %>% as.tibble() %>% 
   rename(variable = V1, beta = `0.0058`) %>% 
   mutate(beta = as.numeric(beta)) %>% filter(variable != "(Intercept)") %>% 
   mutate(group3 = group3,
          group4 = group4)
 
 #Filter out covariates
-lasso_beta %>% filter(group3 %in% c("TEQ", "Non-Dioxin-like PCB", "Non-Ortho PCB")) %>% 
+lasso_beta_3 %>% filter(group3 %in% 
+                          c("TEQ", "Non-Dioxin-like PCB", "Non-Ortho PCB")) %>% 
   ggplot(aes(x = variable, 
                        y = round(beta, 5))) + geom_point() +
   theme_minimal() + geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
@@ -190,15 +208,23 @@ lasso_beta %>% filter(group3 %in% c("TEQ", "Non-Dioxin-like PCB", "Non-Ortho PCB
   labs(title = "Lasso Coefficients for 3 Group Model", y = "Beta Coefficient",
        x = "Variable")
 
+#4 group model
+lasso_beta_4 <- cbind(rownames(fit_lasso_4$beta), fit_lasso_4$beta) %>% as.tibble() %>% 
+  rename(variable = V1, beta = `0.0048`) %>% 
+  mutate(beta = as.numeric(beta)) %>% filter(variable != "(Intercept)") %>% 
+  mutate(group3 = group3,
+         group4 = group4)
 
-lasso_beta %>% filter(group3 %in% c("TEQ", "Non-Dioxin-like PCB", "Non-Ortho PCB")) %>%
+#Filter out covariates
+lasso_beta_4 %>% 
+  filter(group4 %in% c("Dioxin", "Furan", "Non-Dioxin-like PCB", "Non-Ortho PCB")) %>% 
   ggplot(aes(x = variable, 
                        y = round(beta, 5))) + geom_point() +
   theme_minimal() + geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
   facet_wrap(.~group4, scales = "free_y") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   coord_flip() + 
-  labs(title = "Lasso Coefficients for 4 Group Model", y = "Beta Coefficient",
+  labs(title = "Lasso Coefficients for 3 Group Model", y = "Beta Coefficient",
        x = "Variable")
 ```
 
