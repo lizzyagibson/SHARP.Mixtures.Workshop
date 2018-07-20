@@ -90,7 +90,7 @@ set.seed(2)
 
 # n-folds is set to a default of 10 for cv.glmnet
 # can include weights using "weights = ..."
-lasso = glmnet(x, lny, penalty.factor = c(1, rep(0, ncol(x[,19:36]))), alpha = 1)
+lasso = glmnet(x, lny, penalty.factor = c(0, rep(1, ncol(x[,19:36]))), alpha = 1)
 plot(lasso)
 
 # use cross-validation to find best lambda value
@@ -100,7 +100,7 @@ best_llambda = cv.lasso$lambda.min
 best_llambda
 
 # lasso model using best lambda value
-lasso.mod = glmnet(x, y, penalty.factor = c(1, rep(0, ncol(x[,19:36]))), alpha = 1, lambda = best_llambda)
+lasso.mod = glmnet(x, y, penalty.factor = c(0, rep(1, ncol(x[,19:36]))), alpha = 1, lambda = best_llambda)
 coefficients_lasso = coef(lasso.mod)
 coefficients_lasso
 
@@ -115,7 +115,7 @@ lasso_mse = cv.lasso$lambda.1se
 set.seed(2)
 
 # n-folds is set to a default of 10 for cv.glmnet
-elastic = glmnet(x, y, penalty.factor = c(1, rep(0, ncol(x[,19:36]))), alpha = 0.5)
+elastic = glmnet(x, y, penalty.factor = c(0, rep(1, ncol(x[,19:36]))), alpha = 0.5)
 plot(elastic)
 
 # use cross-validation to find best lambda value
@@ -125,7 +125,7 @@ best_elambda = cv.elastic$lambda.min
 best_elambda
 
 # elastic model using best lambda value
-elastic.mod = glmnet(x, y, penalty.factor = c(1, rep(0, ncol(x[,19:36]))), alpha = 0.5, lambda = best_elambda)
+elastic.mod = glmnet(x, y, penalty.factor = c(0, rep(1, ncol(x[,19:36]))), alpha = 0.5, lambda = best_elambda)
 coefficients_elastic = coef(elastic.mod)
 coefficients_elastic
 
