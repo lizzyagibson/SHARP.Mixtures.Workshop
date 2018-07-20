@@ -1,0 +1,29 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1532104880004.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "5C8F4A67",
+    "lastKnownWriteTime" : 4739834016,
+    "last_content_update" : 1532104880004,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "71341D37",
+        "caption" : "study_pop",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=study_pop&cache_key=71341D37",
+        "displayedObservations" : "1330",
+        "environment" : "",
+        "object" : "study_pop",
+        "preview" : "0",
+        "totalObservations" : "1330",
+        "variables" : "33"
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}

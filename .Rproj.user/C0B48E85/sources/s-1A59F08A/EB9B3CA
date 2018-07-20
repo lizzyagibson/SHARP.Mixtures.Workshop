@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1531757005667.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "EB9B3CA",
+    "lastKnownWriteTime" : 1532108048,
+    "last_content_update" : 1532108048408,
+    "path" : "~/Documents/Columbia/Research/Mixtures Workshop/Code/Lasso.Rmd",
+    "project_path" : "Lasso.Rmd",
+    "properties" : {
+        "cursorPosition" : "40,25",
+        "scrollLine" : "31",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

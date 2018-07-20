@@ -1,0 +1,403 @@
+---
+title: "P8106_hw1_aka2170"
+author: "Ahlam Abuawad"
+date: "2/12/2018"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+```{r load, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(caret)
+library(ISLR)
+library(glmnet)
+library(tidyverse)
+library(janitor)
+library(pls)
+library(boot)
+library(splines)
+library(gam)
+```
+
+## Datasets
+
+```{r import, warning = FALSE, message = FALSE}
+sol_train = read_csv("./solubility_train.csv") %>% 
+  clean_names()
+sol_test = read_csv("./solubility_test.csv") %>% 
+  clean_names()
+concrete = read_csv("./concrete.csv") %>% 
+  clean_names()
+```
+
+* The solubility training dataset contains `r nrow(sol_train)` observations and `r ncol(sol_train)` variables. 
+
+* The solubility test dataset contains `r nrow(sol_test)` observations and `r ncol(sol_test)` variables.
+
+* The concrete dataset contains `r nrow(concrete)` observations and `r ncol(concrete)` variables. 
+
+## Problem 1
+
+### (A) Linear Model
+
+**Fit a linear model using least squares on the training data.**
+
+```{r lm}
+# Creating a linear model based on solubility training data
+lm_mod = lm(solubility ~ ., data = sol_train)
+
+# Applying linear model to solubility test data
+lm_pred = predict(lm_mod, sol_test) 
+
+# Finding the test set error (MSE)
+lm_mse = mean((lm_pred - sol_test$solubility)^2) #contains true value from test data
+lm_mse
+
+# Finding the training set error (MSE)
+lm_tmse = mean((resid(lm_mod))^2) #sum of squares of residuals (MSE)
+lm_tmse
+
+# Finding the final coefficients
+lm_coef = t(coef(lm_mod))
+```
+
+**Report the test error obtained.**
+
+The test set error obtained is **0.546**, while the training set error obtained is **0.225**.
+
+### (B) Ridge Regression
+
+**Fit a ridge regression model on the training data, with lambda chosen by cross-validation.**
+
+```{r ridge}
+# Creating training set predictor matrix and response vector
+x = model.matrix(solubility ~ ., sol_train)[,-1] # removes column
+y = sol_train$solubility
+
+# Creating test set predictor matrix and response vector
+x1 = model.matrix(solubility ~ ., sol_test)[,-1]
+y1 = sol_test$solubility
+
+# Performing cross-validation for ridge regression
+set.seed(8)
+cv.out = cv.glmnet(x, y, alpha = 0, type.measure = "mse")
+
+# Plotting log(lambda) values vs MSE: two vertical lines for minimal MSE and 1SE rule
+plot(cv.out)
+
+# Finding the best lambda value
+best_lambda = cv.out$lambda.min
+best_lambda
+
+# Running ridge regression model using best lambda value
+ridge_mod = glmnet(x, y, alpha = 0, lambda = best_lambda)
+
+# Finding the test set predicted values
+ridge_pred = predict(ridge_mod, s = best_lambda, newx = x1)
+
+# Finding the test set error
+ridge_mse = mean((ridge_pred - y1)^2)
+ridge_mse
+
+# Finding the final coefficients
+ridge_coef = predict(ridge_mod, s = best_lambda, type = "coefficients")
+```
+
+**Report the test error obtained.**
+
+The test set error is **0.508**. 
+
+### (C) Lasso Model
+
+**Fit a lasso model on the training data, with lambda chosen by cross-validation.**
+
+```{r lasso}
+# Creating training set predictor matrix and response vector
+x = model.matrix(solubility ~ ., sol_train)[,-1] # removes column
+y = sol_train$solubility
+
+# Creating test set predictor matrix and response vector
+x1 = model.matrix(solubility ~ ., sol_test)[,-1]
+y1 = sol_test$solubility
+
+# Performing cross-validation for lasso
+set.seed(8)
+cv.out = cv.glmnet(x, y, alpha = 1)
+plot(cv.out)
+
+# Finding the best lambda value
+best_lasso_lambda = cv.out$lambda.min
+best_lasso_lambda # smaller lambda = less predictors set to 0, larger is vice versa
+
+# Running lasso model using best lambda value
+lasso_mod = glmnet(x, y, alpha = 1, lambda = best_lasso_lambda)
+
+# Finding the test set predicted values
+lasso_pred = predict(lasso_mod, s = best_lasso_lambda, newx = x1)
+
+# Finding the test set error
+lasso_mse = mean((lasso_pred - y1)^2)
+lasso_mse
+
+# Finding the final coefficients
+lasso_coef = predict(lasso_mod, s = best_lasso_lambda, type = "coefficients")
+
+# Finding the number of non-zero estimates
+length(lasso_coef[lasso_coef != 0])
+```
+
+**Report the test error obtained, along with the number of non-zero coeficient estimates.**
+
+The test set error is **0.495**. There are **114** non-zero estimates.
+
+### (D) PLS
+
+**Fit a PLS model on the training data, with M chosen by cross-validation.**
+
+```{r pls, warning = FALSE}
+# Performing cross-validation for PLS
+set.seed(8)
+pls_fit = plsr(solubility ~ ., 
+               data = sol_train, 
+               scale = TRUE,  
+               validation = "CV")
+
+# Checking output to find best M based on lowest CV
+summary(pls_fit) # --> showed component 18 was best M
+validationplot(pls_fit, val.type = "MSEP")
+
+#which.min(pls_fit$Xvar) # --> showed component 227 had the lowest CV
+
+# Finding the test set predicted values
+pls_pred = predict(pls_fit, x, ncomp = 18) #ncomp = M with lowest CV
+
+# Finding the test set error
+pls_mse = mean((pls_pred - y)^2)
+pls_mse
+```
+
+**Report the test error obtained, along with the value of M selected by cross-validation.**
+
+The test error observed is **0.283** for the selected M of **18**.
+
+### (E) Brief Report of Findings
+
+#### (i) Exploratory Analysis of the Training Data 
+
+```{r eda1, results = "hide"}
+# (i) Exploratory Analysis of Solubility Data
+sol_train %>%
+  str()
+```
+
+The dataset contains `r ncol(sol_train)` variables that are mostly (208 out of 229 predictors) coded integers (marking the presence or absence of a chemical substructure), but also include character and numerical (either count descriptor or continuous) values.  
+
+```{r eda2, warning = FALSE}
+## Creating plots of count and continuous predictors
+featurePlot(x = sol_train[, 210:229],
+            sol_train$solubility,
+            between = list(x = 1, y = 1),
+            type = c("g", "p", "smooth"))
+```
+
+In exploring the count and continuous predictors, such as hydrophilic factor that do not seem correlated to the outcome of solubility. Before running the models from parts A-D, an individual may consider selecting predictors based on knowledge regarding solubility and exploring the data with only those predictors. For example, chlorine atoms play a large role in solubility of a molecule, and the number of chlorine atoms would be a potentially appropriate predictor of solubility. 
+
+#### (ii) Discussion of Results Obtained in Parts (A) ~ (D).
+
+```{r coefs}
+## Comparing Coefficients from lm, ridge, and lasso
+coefs = cbind(as.vector(lm_coef), as.vector(ridge_coef), as.vector(lasso_coef))
+rownames(coefs) = colnames(lm_coef); colnames(coefs) = c("lm","ridge","lasso")
+tail(coefs)
+```
+
+In comparison to the linear model, ridge regression and lasso both resulted in decreased magnitudes of several predictor coefficients. The Lasso model had many coefficients that were close to if not equal to zero, with only 114 that were non-zero estimates. 
+
+```{r lambdas}
+lambdas = cbind(as.vector(best_lambda), as.vector(best_lasso_lambda))
+rownames(lambdas) = colnames(best_lambda); colnames(lambdas) = c("ridge", "lasso")
+knitr::kable(lambdas, align = "c")
+```
+
+In comparing the lambdas between ridge regression and lasso models, the lasso used a much smaller lambda value determined through cross-validation than the ridge regression model. 
+
+```{r mse}
+## Comparing MSE's across all four models
+mse = cbind(lm_mse,ridge_mse, lasso_mse, pls_mse)
+rownames(mse) = colnames(lm_mse); colnames(mse) = c("lm MSE","ridge MSE","lasso MSE", "pls MSE")
+knitr::kable(mse, align = "c")
+```
+
+The models the produced the largest test set error to the smallest are as follows: the linear, ridge regression, lasso, and PLS models. Although these findings may direct an individual to consider using the PLS model to represent this data, the bias-variance tradeoff as well as interpretability are important aspects to consider. In terms of the bias-variance tradeoff, an increase in model flexibility results in decreased bias and MSE but increased variance. Thus, although in this situation, PLS produces the lowest MSE, the model also has increased variance and is less interpretable as compared to the other three models. 
+
+
+## Problem 2
+
+### (A) 
+
+**Create plots of predictors using the function featurePlot() in the caret package.**
+
+```{r feature}
+# Creating test set predictor matrix and response vector
+x2 = model.matrix(compressivestrength ~ ., concrete)[,-1]
+y2 = concrete$compressivestrength
+
+# Creating plots of predictors
+featurePlot(x2,
+            y2,
+            between = list(x2 = 1, y2 = 1), # Add some space between the panels
+            type = c("g", "p", "smooth"))
+```
+
+These plots of the predictors from the concrete dataset reveal that not all of the predictors are well-correlated with compressive strength. Water, cement and age may be three predictors to consider for a model later on.  
+
+### (B) 
+
+**Perform polynomial regression to predict concrete compressive strength using water as the predictor. Use cross-validation to select the optimal degree d for the polynomial. Make a plot of the resulting polynomial to fit the data.**
+
+```{r poly}
+# Performing K-fold cross-validation for polynomial regression
+
+## Creating folds
+set.seed(8)
+
+## Looping over degrees of polynomial 
+folds = sample(1:10, size = nrow(concrete), replace = T)
+table(folds) # check distribution of fold assignment integers to make sure they are ~ even
+cvErrors = matrix(nrow = 10, ncol = 5) # matrix with 1 row for every CV iteration (1 column for poly dfs 1-5)
+
+for (d in 1:5) {
+## Loop over folds of cv
+  for (k in 1:10) {
+      fit = lm(compressivestrength ~ poly(water, d), data = concrete, subset = (folds != k))
+      preds = predict(fit, newdata = concrete[(folds == k), ])
+      cvErrors[k,d] = mean((preds - concrete[folds == k, c("compressivestrength")])^2)
+  }
+}
+
+## Finding which degree has lowest average MSE over all k folds:
+plot(apply(cvErrors, 2, mean))
+bestPoly = which.min(apply(cvErrors, 2, mean))
+points(bestPoly, apply(cvErrors, 2, mean)[bestPoly], pch = 4, col = "red", lwd = 3) # chose 3 df as best
+
+# Creating a model using 4 df chosen from CV
+poly_fit = lm(compressivestrength ~ poly(water, bestPoly), data = concrete)
+summary(poly_fit)
+
+# Plotting the fit
+plot(concrete$water, concrete$compressivestrength, xlim = range(concrete$water), 
+     ylim = range(concrete$compressivestrength), col = "darkgrey", cex = .25)
+     wtr_grid = seq(range(concrete$water)[1], range(concrete$water)[2])
+     pred_yfit = predict(poly_fit, newdata = data.frame(water = wtr_grid), se = T)
+     se_lines = cbind(pred_yfit$fit + 2 * pred_yfit$se.fit,pred_yfit$fit - 2 * pred_yfit$se.fit)
+     lines(wtr_grid, pred_yfit$fit, col = "red")
+     matlines(wtr_grid, se_lines, col = "blue", lty = 3)
+
+# ANOVA
+
+## Fitting 5 models that are nested (models build off of one another)
+fit.1 = lm(compressivestrength ~ water, data = concrete)
+fit.2 = lm(compressivestrength ~ poly(water,2), data = concrete) 
+fit.3 = lm(compressivestrength ~ poly(water,3), data = concrete)
+fit.4 = lm(compressivestrength ~ poly(water,4), data = concrete) 
+fit.5 = lm(compressivestrength ~ poly(water,5), data = concrete)
+
+## Testing the null hypothesis that a model M1 is sufficient to explain the data against the alternative hypothesis that a more complex model M2 is required
+anova(fit.1,fit.2,fit.3,fit.4,fit.5)
+
+## Comparing models to one prior (model 3 to 2, 2 to 1, etc.) --> model 5 compared to model 4 had high p-value so can skip 5th power of age in model
+```
+
+**What degree was chosen, and how does this compare to the results of hypothesis testing using ANOVA?**
+
+The degrees of freedom chosen through cross validation were the exact same as the hypothesis testing using ANOVA, which were **four degrees of freedom**. 
+
+### (C) 
+
+**Fit a regression spline using water as the predictor for a range of degrees of freedom, and plot the resulting fits.**
+
+```{r smooth}
+wtrlims = range(concrete$water)
+
+# Performing cross-validation for smooth splines
+smooth_fit = smooth.spline(concrete$water, concrete$compressivestrength, cv = TRUE)
+smooth_fit$df
+plot(smooth_fit)
+
+# Creating smooth splines with range of dfs
+smooth_fit2 = smooth.spline(concrete$water, concrete$compressivestrength, df = 2)
+smooth_fit4 = smooth.spline(concrete$water, concrete$compressivestrength, df = 4)
+smooth_fit6 = smooth.spline(concrete$water, concrete$compressivestrength, df = 6)
+smooth_fit10 = smooth.spline(concrete$water, concrete$compressivestrength, df = 10)
+smooth_fit12 = smooth.spline(concrete$water, concrete$compressivestrength, df = 12)
+smooth_fit14 = smooth.spline(concrete$water, concrete$compressivestrength, df = 14)
+smooth_fit16 = smooth.spline(concrete$water, concrete$compressivestrength, df = 16)
+
+# Plotting all smooth splines with varying dfs
+plot(concrete$water, concrete$compressivestrength, xlim = wtrlims, cex = .5, col = "darkgrey")
+title("Smoothing Spline")
+lines(smooth_fit2, col = "blue", lwd = 1)
+lines(smooth_fit4, col = "green", lwd = 1)
+lines(smooth_fit6, col = "purple", lwd = 1)
+lines(smooth_fit10, col = "yellow", lwd = 1)
+lines(smooth_fit12, col = "orange", lwd = 1)
+lines(smooth_fit14, col = "brown", lwd = 1)
+lines(smooth_fit16, col = "red", lwd = 1)
+lines(smooth_fit, col = "black", lwd = 2)
+
+# Finding RSS (sum of MSEs)
+rss = sum((resid(smooth_fit))^2)
+rss
+
+even = seq(2, 16, by = 2)
+
+for (i in 1:8) {
+  spline_fit = smooth.spline(concrete$water, concrete$compressivestrength, df = even[i])
+  rss[i] = sum((resid(spline_fit))^2)
+}
+
+rss
+
+rss_all = cbind(df = even, rss)
+rownames(rss_all) = colnames(df); colnames(rss_all) = c("df", "rss")
+knitr::kable(rss_all, align = "c")
+```
+
+**Report the resulting RSS and describe the results obtained.**
+
+The cross-validation for the smooth spline model of compressive strength with the predictor water revealed the **optimal degrees of freedom as eight.** The resulting RSS from this spline was **226846.5.** Although other splines with higher degrees of freedom resulted in lower RSS values, this one had the smoothest fit, without over-fitting the results to this dataset (could potentially be applicable to other datasets).
+
+### (D) 
+
+**Fit a GAM on the training data (concrete) and plot the results.**
+
+```{r gam}
+# In assessing the predictors from the featurePlot, aside from water, there are only two other variables that seem appropriate in predicting the outcome of compressive strength: cement and age. As cement is continuous and linearly related to compressive strength, it was added as a linear function and later as a spline for comparison. As age is a categorical variable, it was simply added to the GAM. 
+
+smooth_fit_cem = smooth.spline(concrete$cement, concrete$compressivestrength, cv = TRUE)
+smooth_fit_cem$df
+
+# Creating GAM's using water, cement, and age
+
+gam_m1 = gam(compressivestrength ~ s(water, 4), data = concrete)
+gam_m2 = gam(compressivestrength ~ s(water, 4) + cement, data = concrete)
+gam_m3 = gam(compressivestrength ~ s(water, 4) + cement + age, data = concrete)
+gam_m4 = gam(compressivestrength ~ s(water, 4) + s(cement, 29), data = concrete)
+gam_m5 = gam(compressivestrength ~ s(water, 4) + s(cement, 29) + age, data = concrete)
+
+# Using ANOVA to compare the models using F test
+anova(gam_m1, gam_m2, gam_m4, test = "F") # GAM 4 with the spline of cement was significant
+anova(gam_m1, gam_m3, gam_m5, test = "F") # GAM 5 with the spline of cement was significant
+anova(gam_m1, gam_m4, gam_m5, test = "F") # All of the GAM's selected
+
+# Plotting the significant GAM's
+plot(gam_m1)
+plot(gam_m4)
+plot(gam_m5)
+```
+
+**Explain your findings.**
+
+In comparing the GAM's from the models with cement added linearly or as a spline, the ANOVA revealed the spline was the better option. Twenty-nine degrees of freedom are really high, which brings this back to the bias-variance tradeoff. Although the models with the complex spline of cement seem to fit the data better (be better predictors of the outcome), the models with cement as linear are more interpretable in terms of the outcome of compressive strength. 
