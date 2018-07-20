@@ -64,6 +64,7 @@ lny = log(data_lasso$telomean)
 # creating a df of confounders
 covs = data_lasso[names(data_lasso)[-which(names(data_lasso) %in% c(my.x, "telomean", "seqn"))]]
 names(covs)
+conf = x[,19:36]
 
 # visualizing log-transformed x variables
 featurePlot(x = log.x,
@@ -72,7 +73,7 @@ featurePlot(x = log.x,
            type = c("g", "p", "smooth"))
 
 # visualizing confounders
-featurePlot(x = covs,
+featurePlot(x = conf,
             y = lny,
            between = list(x = 1, y = 1), 
            type = c("g", "p", "smooth"))
@@ -86,7 +87,6 @@ set.seed(2)
 
 # n-folds is set to a default of 10 for cv.glmnet
 # can include weights using "weights = ..."
-conf = x[,19:36]
 
 lasso = glmnet(log.x, lny, penalty.factor = c(0, rep(1, ncol(conf))), alpha = 1)
 plot(lasso)
