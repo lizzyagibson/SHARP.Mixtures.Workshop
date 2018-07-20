@@ -2,7 +2,10 @@
 title: "Lasso"
 author: "Ahlam Abuawad"
 date: "7/12/2018"
-output: html_document
+output: 
+  html_document:
+    toc: TRUE
+    toc_float: TRUE
 ---
 
 ```{r setup, include=FALSE}
@@ -35,7 +38,7 @@ describe(study_pop)
 
 # Removing Missings
 data_lasso = study_pop %>% 
-  select(telomean, lbx074la:lbx187la, lbxd03la:lbx194la, everything(), -seqn) %>% 
+  dplyr::select(telomean, lbx074la:lbx187la, lbxd03la:lbx194la, everything(), -seqn) %>% 
   na.omit(telomean)
 
 names(data_lasso)
@@ -46,28 +49,28 @@ dim(data_lasso)
 # creating a matrix of predictors as x
 x = model.matrix(telomean ~ ., data_lasso)[,-1]
 
+# ln transform within x matrix
+x[,1:18] <- log(x[,1:18])
+
+# grouping pollutants
 my.x = names(data_lasso)[grep("la", names(data_lasso))]
 length(my.x)
-
-log.x = data.frame(apply(data_lasso[,my.x], 2, FUN = function(x) log(x)))
-knitr::kable(names(log.x) <- paste(my.x, "l2", sep = "."))
-
-dim(log.x)
-
-summary(data_lasso[my.x])
-summary(log.x)
 
 # transforming outcome
 y = data_lasso$telomean
 lny = log(data_lasso$telomean)
 
-# creating a df of confounders
+# grouping confounders
 covs = data_lasso[names(data_lasso)[-which(names(data_lasso) %in% c(my.x, "telomean", "seqn"))]]
 names(covs)
 conf = x[,19:36]
+```
 
+## Data Visualization
+
+```{r dataviz, warning = FALSE}
 # visualizing log-transformed x variables
-featurePlot(x = log.x,
+featurePlot(x = x[,1:18],
             y = lny,
            between = list(x = 1, y = 1), 
            type = c("g", "p", "smooth"))
@@ -87,8 +90,7 @@ set.seed(2)
 
 # n-folds is set to a default of 10 for cv.glmnet
 # can include weights using "weights = ..."
-
-lasso = glmnet(log.x, lny, penalty.factor = c(0, rep(1, ncol(conf))), alpha = 1)
+lasso = glmnet(x, lny, penalty.factor = c(1, rep(0, ncol(x[,19:36]))), alpha = 1)
 plot(lasso)
 
 # use cross-validation to find best lambda value
@@ -98,7 +100,7 @@ best_llambda = cv.lasso$lambda.min
 best_llambda
 
 # lasso model using best lambda value
-lasso.mod = glmnet(x, y, penalty.factor = c(0, rep(1, ncol(conf))), alpha = 1, lambda = best_llambda)
+lasso.mod = glmnet(x, y, penalty.factor = c(1, rep(0, ncol(x[,19:36]))), alpha = 1, lambda = best_llambda)
 coefficients_lasso = coef(lasso.mod)
 coefficients_lasso
 
@@ -108,13 +110,13 @@ lasso_mse = cv.lasso$lambda.1se
 
 # Elastic Net
 
-```{r}
+```{r elastic}
 # for reproducibility, set a seed
 set.seed(2)
 
 # n-folds is set to a default of 10 for cv.glmnet
-elastic = glmnet(x, y, penalty.factor = c(0, rep(1, ncol(conf))), alpha = 0.5)
-plot(elastic, xvar = "lambda")
+elastic = glmnet(x, y, penalty.factor = c(1, rep(0, ncol(x[,19:36]))), alpha = 0.5)
+plot(elastic)
 
 # use cross-validation to find best lambda value
 cv.elastic = cv.glmnet(x, y, type.measure = "mse", alpha = 0.5)
@@ -123,7 +125,7 @@ best_elambda = cv.elastic$lambda.min
 best_elambda
 
 # elastic model using best lambda value
-elastic.mod = glmnet(x, y, penalty.factor = c(0, rep(1, ncol(conf))), alpha = 0.5, lambda = best_elambda)
+elastic.mod = glmnet(x, y, penalty.factor = c(1, rep(0, ncol(x[,19:36]))), alpha = 0.5, lambda = best_elambda)
 coefficients_elastic = coef(elastic.mod)
 coefficients_elastic
 
@@ -133,9 +135,9 @@ elastic_mse = cv.elastic$lambda.1se
 
 # Comparing Lasso and Elastic Net
 
-```{r}
+```{r compare}
 # Table of MSE's
 compare = cbind(as.vector(best_llambda), as.vector(lasso_mse), as.vector(best_elambda), as.vector(elastic_mse))
-rownames(compare) = colnames(lasso_mse); colnames(compare) = c("Lasso Lambda", "Lasso Test MSE", "Elastic Lambda", "Elastic Net Test MSE")
+rownames(compare) = colnames(lasso_mse); colnames(compare) = c("Lasso Lambda", "Lasso MSE", "Elastic Lambda", "Elastic Net MSE")
 knitr::kable(compare, align = "c")
 ```
