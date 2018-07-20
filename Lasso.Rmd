@@ -19,7 +19,7 @@ library(Hmisc)
 library(glmnet)
 ```
 
-# Importing Dataset
+# Importing and Cleaning Dataset
 
 ```{r}
 # Importing Dataset
@@ -27,50 +27,57 @@ study_pop = read_csv("./Data/studypop.csv") %>%
   clean_names(case = c("old_janitor"))
 
 # Checking Variables for Amount Missing, etc.
-summary(study_pop)
-```
+describe(study_pop)
 
-# Lasso
-
-```{r}
+# Removing Missings
 data_lasso = study_pop %>% 
-  select(everything(), -seqn) %>% 
-  mutate(bmi_cat3 = as.factor(bmi_cat3),
-  edu_cat = as.factor(edu_cat),
-  race_cat = as.factor(race_cat),
-  male = as.factor(male))
+  select(-seqn) %>% 
+  na.omit(telomean)
+
+names(data_lasso)
 
 # checking dimensions of dataset
 dim(data_lasso)
 
-# creating a matrix of predictors as x and outcome as y
-x = model.matrix(telomean~., data_lasso)[,-1]
+# creating a matrix of predictors as x
+x = model.matrix(telomean ~ ., data_lasso)[,-1]
+
 my.x = names(data_lasso)[grep("la", names(data_lasso))]
 length(my.x)
+
 log.x = data.frame(apply(data_lasso[,my.x], 2, FUN = function(x) log(x)))
 knitr::kable(names(log.x) <- paste(my.x, "l2", sep = "."))
 
 dim(log.x)
-dim(na.omit(log.x))
 
 summary(data_lasso[my.x])
 summary(log.x)
 
-y = na.omit(data_lasso)$telomean
-lny = log(na.omit(data_lasso)$telomean)
-covs = data_lasso[names(data_lasso)[-which(names(data_lasso) %in% c(my.x, "telomean", "seqn"))]]
+# transforming outcome
+y = data_lasso$telomean
+lny = log(data_lasso$telomean)
 
-# visualizing variables
-featurePlot(x = x,
-            y = y,
+# creating a df of confounders
+covs = data_lasso[names(data_lasso)[-which(names(data_lasso) %in% c(my.x, "telomean", "seqn"))]]
+names(covs)
+
+# visualizing log-transformed x variables
+featurePlot(x = log.x,
+            y = lny,
+           between = list(x = 1, y = 1), 
+           type = c("g", "p", "smooth"))
+
+# visualizing confounders
+featurePlot(x = covs,
+            y = lny,
            between = list(x = 1, y = 1), 
            type = c("g", "p", "smooth"))
 ```
 
-## Cross-Validation to Find Lambda Value
+# Lasso
 
 ```{r lasso}
-# For reproducibility, set a seed
+# for reproducibility, set a seed
 set.seed(2)
 
 # n-folds is set to a default of 10 for cv.glmnet
@@ -96,7 +103,10 @@ lasso_mse = cv.lasso$lambda.1se
 # Elastic Net
 
 ```{r}
+# for reproducibility, set a seed
 set.seed(2)
+
+# n-folds is set to a default of 10 for cv.glmnet
 elastic = glmnet(x, y, penalty.factor = c(0, rep(ncol(covs)), alpha = 0.5))
 plot(elastic, xvar = "lambda")
 
@@ -115,7 +125,7 @@ coefficients_elastic
 elastic_mse = cv.elastic$lambda.1se
 ```
 
-## Comparing Lasso and Elastic Net
+# Comparing Lasso and Elastic Net
 
 ```{r}
 # Table of MSE's
