@@ -84,13 +84,6 @@ featurePlot(x = conf,
 
 # Lasso
 
-**I think the penalty.factor should be: c(rep(1, ncol(x[,1:18])), rep(0, ncol(x[,19:36]))), which looks like this: `r c(rep(1, ncol(x[,1:18])), rep(0, ncol(x[,19:36])))`. It doesn't make sense to me that your penalty.factor is only `r length(c(0, rep(1, ncol(x[,19:36]))))` penalties long. It should be the same length as the number of predictors, right?**
-
-**The Help file says: "Separate penalty factors can be applied to each coefficient. This is a number that multiplies lambda to allow differential shrinkage. Can be 0 for some variables, which implies no shrinkage, and that variable is always included in the model. Default is 1 for all variables"**
-
-**I didn't change the code for any of them, so we can talk about it. I might be wrong.**
-
-
 ```{r lasso}
 # for reproducibility, set a seed
 set.seed(2)
@@ -98,17 +91,26 @@ set.seed(2)
 # n-folds is set to a default of 10 for cv.glmnet
 ## can include weights using "weights = ..."
 ## alpha is set to 1 due lasso's penalty
-lasso = glmnet(x, lny, penalty.factor = c(0, rep(1, ncol(x[,19:36]))), alpha = 1)
+lasso = glmnet(x, lny, 
+               #penalty.factor = c(0, rep(1, ncol(x[,19:36]))), 
+               penalty.factor = c(rep(1, ncol(x[,1:18])), rep(0, ncol(x[,19:36]))),
+               alpha = 1)
 plot(lasso)
 
 # use cross-validation to find best lambda value
-cv.lasso = cv.glmnet(x, lny, type.measure = "mse", alpha = 1)
+cv.lasso = cv.glmnet(x, lny, 
+                     penalty.factor = c(rep(1, ncol(x[,1:18])), rep(0, ncol(x[,19:36]))),
+                     type.measure = "mse", alpha = 1)
 plot(cv.lasso)
 best_llambda = cv.lasso$lambda.min
 best_llambda
 
 # lasso model using best lambda value
-lasso.mod = glmnet(x, lny, penalty.factor = c(0, rep(1, ncol(x[,19:36]))), alpha = 1, lambda = best_llambda)
+lasso.mod = glmnet(x, lny, 
+                   #penalty.factor = c(0, rep(1, ncol(x[,19:36]))), 
+                   penalty.factor = c(rep(1, ncol(x[,1:18])), rep(0, ncol(x[,19:36]))),
+                   alpha = 1, lambda = best_llambda)
+
 coefficients_lasso = coef(lasso.mod)
 coefficients_lasso
 
@@ -159,17 +161,26 @@ plot(elnetFit)
 set.seed(2)
 
 # n-folds is set to a default of 10 for cv.glmnet
-elnet = glmnet(x, lny, penalty.factor = c(0, rep(1, ncol(x[,19:36]))), alpha = 0.8)
+elnet = glmnet(x, lny, 
+               #penalty.factor = c(0, rep(1, ncol(x[,19:36]))), 
+               penalty.factor = c(rep(1, ncol(x[,1:18])), rep(0, ncol(x[,19:36]))),
+               alpha = 0.8)
 plot(elnet)
 
 # use cross-validation to find best lambda value
-cv.elnet = cv.glmnet(x, lny, type.measure = "mse", alpha = 0.8)
+cv.elnet = cv.glmnet(x, lny, 
+                     penalty.factor = c(rep(1, ncol(x[,1:18])), rep(0, ncol(x[,19:36]))),,
+                     type.measure = "mse", alpha = 0.8)
 plot(cv.elnet)
 best_elambda = cv.elnet$lambda.min
 best_elambda
 
 # elastic model using best lambda value
-elnet.mod = glmnet(x, lny, penalty.factor = c(0, rep(1, ncol(x[,19:36]))), alpha = 0.8, lambda = best_elambda)
+elnet.mod = glmnet(x, lny, 
+                   #penalty.factor = c(0, rep(1, ncol(x[,19:36]))), 
+                   penalty.factor = c(rep(1, ncol(x[,1:18])), rep(0, ncol(x[,19:36]))),
+                   alpha = 0.8, lambda = best_elambda)
+
 coefficients_elnet = coef(elnet.mod)
 coefficients_elnet
 
@@ -197,6 +208,5 @@ knitr::kable(compare, align = "c")
 
 ```{r create_4_plot}
 ind <- rbind(enet_beta, lasso_beta)
-
 write_csv(ind, "ind_betas.csv")
 ```
