@@ -161,7 +161,8 @@ lasso_beta_3 <- cbind(rownames(fit_lasso_3$beta), fit_lasso_3$beta) %>% as.tibbl
   rename(variable = V1, beta = `0.0058`) %>% 
   mutate(beta = as.numeric(beta)) %>% filter(variable != "(Intercept)") %>% 
   mutate(group3 = group3,
-         group4 = group4)
+         group4 = group4,
+         method = "Grouped Lasso")
 
 #Filter out covariates
 lasso_beta_3 %>% filter(group3 %in% 
@@ -240,7 +241,8 @@ mcp_beta_3 <- cbind(rownames(fit_mcp_3$beta), fit_mcp_3$beta) %>% as.tibble() %>
   rename(variable = V1, beta = `0.0123`) %>% 
   mutate(beta = as.numeric(beta)) %>% filter(variable != "(Intercept)") %>% 
   mutate(group3 = group3,
-         group4 = group4)
+         group4 = group4,
+         method = "MCP")
 
 #Filter out covariates
 mcp_beta_3 %>% filter(group3 %in% 
@@ -319,7 +321,8 @@ scad_beta_3 <- cbind(rownames(fit_scad_3$beta), fit_scad_3$beta) %>% as.tibble()
   rename(variable = V1, beta = `0.0077`) %>% 
   mutate(beta = as.numeric(beta)) %>% filter(variable != "(Intercept)") %>% 
   mutate(group3 = group3,
-         group4 = group4)
+         group4 = group4,
+         method = "SCAD")
 
 #Filter out covariates
 scad_beta_3 %>% filter(group3 %in% 
@@ -352,3 +355,11 @@ scad_beta_4 %>%
   labs(title = "SCAD Coefficients for 3 Group Model", y = "Beta Coefficient",
        x = "Variable")
 ```
+
+```{r create_4_plot}
+grouped <- rbind(lasso_beta_3, mcp_beta_3, scad_beta_3) %>% 
+  dplyr::select(-group3, -group4)
+
+write_csv(grouped, "grouped_betas.csv")
+```
+

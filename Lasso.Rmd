@@ -84,6 +84,13 @@ featurePlot(x = conf,
 
 # Lasso
 
+**I think the penalty.factor should be: c(rep(1, ncol(x[,1:18])), rep(0, ncol(x[,19:36]))), which looks like this: `r c(rep(1, ncol(x[,1:18])), rep(0, ncol(x[,19:36])))`. It doesn't make sense to me that your penalty.factor is only `r length(c(0, rep(1, ncol(x[,19:36]))))` penalties long. It should be the same length as the number of predictors, right?**
+
+**The Help file says: "Separate penalty factors can be applied to each coefficient. This is a number that multiplies lambda to allow differential shrinkage. Can be 0 for some variables, which implies no shrinkage, and that variable is always included in the model. Default is 1 for all variables"**
+
+**I didn't change the code for any of them, so we can talk about it. I might be wrong.**
+
+
 ```{r lasso}
 # for reproducibility, set a seed
 set.seed(2)
@@ -107,6 +114,13 @@ coefficients_lasso
 
 # MSE
 lasso_mse = cv.lasso$lambda.1se
+```
+
+```{r combo_plot_lasso}
+lasso_beta <- cbind(rownames(coefficients_lasso), as.vector(coefficients_lasso)) %>% as.tibble() %>% 
+  rename(variable = 1, beta = 2) %>% 
+  mutate(beta = as.numeric(beta)) %>% filter(variable != "(Intercept)") %>% 
+  mutate(method = "Lasso")
 ```
 
 # Elastic Net
@@ -163,6 +177,13 @@ coefficients_elnet
 elnet_mse = cv.elnet$lambda.1se
 ```
 
+```{r combo_plot_enet}
+enet_beta <- cbind(rownames(coefficients_elnet), as.vector(coefficients_elnet)) %>% as.tibble() %>% 
+  rename(variable = 1, beta = 2) %>% 
+  mutate(beta = as.numeric(beta)) %>% filter(variable != "(Intercept)") %>% 
+  mutate(method = "Elastic Net")
+```
+
 # Comparing Lasso and Elastic Net
 
 ```{r compare}
@@ -172,4 +193,10 @@ compare = cbind(as.vector(best_llambda), as.vector(lasso_mse), as.vector(best_el
 rownames(compare) = colnames(lasso_mse); colnames(compare) = c("Lasso Lambda", "Lasso MSE", "Elastic Lambda", "Elastic Net MSE")
 
 knitr::kable(compare, align = "c")
+```
+
+```{r create_4_plot}
+ind <- rbind(enet_beta, lasso_beta)
+
+write_csv(ind, "ind_betas.csv")
 ```
