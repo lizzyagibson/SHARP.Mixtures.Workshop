@@ -21,7 +21,7 @@ ind <- read_csv("./ind_betas.csv")
 plot_all <- rbind(grouped, ind) %>% filter(grepl("la$", variable)) 
 ```
 
-## Compare Variable Selection
+## Compare Variable Selection Methods
 
 ```{r}
 plot_all %>%
@@ -31,7 +31,7 @@ plot_all %>%
   theme(axis.text.x = element_text(angle = 90, hjust = 1), 
         legend.position = "bottom") +
   coord_flip() + 
-  labs(title = "Variable Selection Coefficients", y = "Beta Coefficient",
+  labs(title = "Variable Selection Coefficients", y = "Beta Coefficients",
        x = "Variable", color = "Method")
 ```
 
@@ -41,9 +41,9 @@ plot_all %>%
                        y = round(beta, 5))) + geom_point(aes(color = method)) +
   theme_minimal() + geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1), 
-        legend.position = "bottom") +
+        legend.position = "none") +
   facet_wrap(.~variable) +
   coord_flip() + 
-  labs(title = "Variable Selection Coefficients", y = "Beta Coefficient",
+  labs(title = "Variable Selection Coefficients", y = "Beta Coefficients",
        x = "Variable", color = "Method")
 ```
