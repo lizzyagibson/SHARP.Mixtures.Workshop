@@ -31,12 +31,12 @@ options(scipen = 999)
 
 ```{r clean}
 data(Birthwt)
-studypop <- read_csv("./Data/studypop.csv") %>% clean_names() %>% 
+studypop <- read_csv("./Data/studypop.csv") %>% clean_names() %>% na.omit() %>% #remove missing
   mutate(bmi_cat3 = as.factor(bmi_cat3),
   edu_cat = as.factor(edu_cat),
   race_cat = as.factor(race_cat),
-  male = as.factor(male)) %>% 
-  dplyr::select(-seqn)
+  male = as.factor(male)) %>% #create factor variables
+  dplyr::select(-seqn) #remove ID variable
 
 #Group lasso wants data SEPARATE, with y value as one vector, X as a matrix of predictors (numeric values, categorical variables must be changed to 0/1 dummy variables), and grouping variable as a factor vector.
 
@@ -50,7 +50,7 @@ x[,15:24] <- log(x[,15:24])
 
 #y is the outcome variable
 #ln transform
-y <- log(na.omit(studypop)$telomean)
+y <- log(studypop$telomean)
 
 
 #Create grouping variable two ways. If there are coefficients to be included in the model without being penalized, assign them to group 0 (or "0"). This includes all covaruiates we want to keep in the model. Group must be a FACTOR. 
@@ -116,7 +116,7 @@ plot(MCP_4)
 plot(SCAD_4)
 ```
 
-### Lasso w/ CV
+## Lasso w/ CV
 
 ```{r cvlasso}
 #3 group model
@@ -195,7 +195,7 @@ lasso_beta_4 %>%
        x = "Variable")
 ```
 
-### MCP w/ CV
+## MCP w/ CV
 
 ```{r cvmcp}
 #3 group model
@@ -274,7 +274,7 @@ mcp_beta_4 %>%
        x = "Variable")
 ```
 
-### SCAD w/ CV
+## SCAD w/ CV
 
 ```{r cvscad}
 #3 group model
