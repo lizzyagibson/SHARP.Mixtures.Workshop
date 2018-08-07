@@ -107,7 +107,6 @@ best_llambda
 
 # lasso model using best lambda value
 lasso.mod = glmnet(x, lny, 
-                   #penalty.factor = c(0, rep(1, ncol(x[,19:36]))), 
                    penalty.factor = c(rep(1, ncol(x[,1:18])), rep(0, ncol(x[,19:36]))),
                    alpha = 1, lambda = best_llambda)
 
