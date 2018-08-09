@@ -229,8 +229,7 @@ div.tocify {
 
 <div id="data" class="section level2">
 <h2>Data</h2>
-<pre class="r"><code>data(Birthwt)
-studypop &lt;- read_csv(&quot;./Data/studypop.csv&quot;) %&gt;% clean_names() %&gt;% na.omit() %&gt;% #remove missing
+<pre class="r"><code>studypop &lt;- read_csv(&quot;./Data/studypop.csv&quot;) %&gt;% clean_names() %&gt;% na.omit() %&gt;% #remove missing
   mutate(bmi_cat3 = as.factor(bmi_cat3),
   edu_cat = as.factor(edu_cat),
   race_cat = as.factor(race_cat),

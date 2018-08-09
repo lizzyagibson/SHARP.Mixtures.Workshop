@@ -30,7 +30,6 @@ options(scipen = 999)
 ## Data
 
 ```{r clean}
-data(Birthwt)
 studypop <- read_csv("./Data/studypop.csv") %>% clean_names() %>% na.omit() %>% #remove missing
   mutate(bmi_cat3 = as.factor(bmi_cat3),
   edu_cat = as.factor(edu_cat),
