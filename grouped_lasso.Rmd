@@ -167,33 +167,31 @@ lasso_beta_3 <- cbind(rownames(fit_lasso_3$beta), fit_lasso_3$beta) %>% as.tibbl
 #Filter out covariates
 lasso_beta_3 %>% filter(group3 %in% 
                           c("TEQ", "Non-Dioxin-like PCB", "Non-Ortho PCB")) %>% 
-  ggplot(aes(x = variable, 
-                       y = round(beta, 5))) + geom_point() +
-  theme_minimal() + geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
-  facet_wrap(.~group3, scales = "free_y") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-  coord_flip() + 
-  labs(title = "Lasso Coefficients for 3 Group Model", y = "Beta Coefficient",
-       x = "Variable")
+  ggplot(aes(x = variable, y = round(beta, 5))) + geom_point() +
+         theme_minimal() + geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+         facet_wrap( ~ group3, scales = "free_y") +
+         theme(axis.text.x = element_text(angle = 90, hjust = 1)) + coord_flip() + 
+               labs(title = "Lasso Coefficients for 3 Group Model", y = "Beta Coefficient",
+               x = "Variable")
 
 #4 group model
-lasso_beta_4 <- cbind(rownames(fit_lasso_4$beta), fit_lasso_4$beta) %>% as.tibble() %>% 
+lasso_beta_4 <- cbind(rownames(fit_lasso_4$beta), fit_lasso_4$beta) %>% 
+  as.tibble() %>% 
   rename(variable = V1, beta = `0.0059`) %>% 
-  mutate(beta = as.numeric(beta)) %>% filter(variable != "(Intercept)") %>% 
+  mutate(beta = as.numeric(beta)) %>% 
+  filter(variable != "(Intercept)") %>% 
   mutate(group3 = group3,
          group4 = group4)
 
 #Filter out covariates
 lasso_beta_4 %>% 
   filter(group4 %in% c("Dioxin", "Furan", "Non-Dioxin-like PCB", "Non-Ortho PCB")) %>% 
-  ggplot(aes(x = variable, 
-                       y = round(beta, 5))) + geom_point() +
-  theme_minimal() + geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
-  facet_wrap(.~group4, scales = "free_y") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-  coord_flip() + 
-  labs(title = "Lasso Coefficients for 3 Group Model", y = "Beta Coefficient",
-       x = "Variable")
+  ggplot(aes(x = variable, y = round(beta, 5))) + geom_point() +
+         theme_minimal() + geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+         facet_wrap(~ group4, scales = "free_y") +
+         theme(axis.text.x = element_text(angle = 90, hjust = 1)) + coord_flip() + 
+         labs(title = "Lasso Coefficients for 3 Group Model", y = "Beta Coefficient",
+              x = "Variable")
 ```
 
 ## MCP w/ CV
@@ -247,33 +245,31 @@ mcp_beta_3 <- cbind(rownames(fit_mcp_3$beta), fit_mcp_3$beta) %>% as.tibble() %>
 #Filter out covariates
 mcp_beta_3 %>% filter(group3 %in% 
                           c("TEQ", "Non-Dioxin-like PCB", "Non-Ortho PCB")) %>% 
-  ggplot(aes(x = variable, 
-                       y = round(beta, 5))) + geom_point() +
-  theme_minimal() + geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
-  facet_wrap(.~group3, scales = "free_y") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-  coord_flip() + 
-  labs(title = "MCP Coefficients for 3 Group Model", y = "Beta Coefficient",
-       x = "Variable")
+  ggplot(aes(x = variable, y = round(beta, 5))) + geom_point() +
+         theme_minimal() + geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+         facet_wrap(~ group3, scales = "free_y") +
+         theme(axis.text.x = element_text(angle = 90, hjust = 1)) + coord_flip() + 
+         labs(title = "MCP Coefficients for 3 Group Model", y = "Beta Coefficient",
+              x = "Variable")
 
 #4 group model
-mcp_beta_4 <- cbind(rownames(fit_mcp_4$beta), fit_mcp_4$beta) %>% as.tibble() %>% 
+mcp_beta_4 <- cbind(rownames(fit_mcp_4$beta), fit_mcp_4$beta) %>% 
+  as.tibble() %>% 
   rename(variable = V1, beta = `0.0085`) %>% 
-  mutate(beta = as.numeric(beta)) %>% filter(variable != "(Intercept)") %>% 
+  mutate(beta = as.numeric(beta)) %>% 
+  filter(variable != "(Intercept)") %>% 
   mutate(group3 = group3,
          group4 = group4)
 
 #Filter out covariates
 mcp_beta_4 %>% 
   filter(group4 %in% c("Dioxin", "Furan", "Non-Dioxin-like PCB", "Non-Ortho PCB")) %>% 
-  ggplot(aes(x = variable, 
-                       y = round(beta, 5))) + geom_point() +
-  theme_minimal() + geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
-  facet_wrap(.~group4, scales = "free_y") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-  coord_flip() + 
-  labs(title = "MCP Coefficients for 3 Group Model", y = "Beta Coefficient",
-       x = "Variable")
+  ggplot(aes(x = variable, y = round(beta, 5))) + geom_point() +
+         theme_minimal() + geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+         facet_wrap(~ group4, scales = "free_y") +
+         theme(axis.text.x = element_text(angle = 90, hjust = 1)) + coord_flip() + 
+         labs(title = "MCP Coefficients for 3 Group Model", y = "Beta Coefficient",
+              x = "Variable")
 ```
 
 ## SCAD w/ CV
@@ -317,9 +313,11 @@ fit_scad_4$beta
 
 ```{r vizscad}
 #3 group model
-scad_beta_3 <- cbind(rownames(fit_scad_3$beta), fit_scad_3$beta) %>% as.tibble() %>% 
+scad_beta_3 <- cbind(rownames(fit_scad_3$beta), fit_scad_3$beta) %>% 
+  as.tibble() %>% 
   rename(variable = V1, beta = `0.0077`) %>% 
-  mutate(beta = as.numeric(beta)) %>% filter(variable != "(Intercept)") %>% 
+  mutate(beta = as.numeric(beta)) %>% 
+  filter(variable != "(Intercept)") %>% 
   mutate(group3 = group3,
          group4 = group4,
          method = "SCAD")
@@ -327,33 +325,31 @@ scad_beta_3 <- cbind(rownames(fit_scad_3$beta), fit_scad_3$beta) %>% as.tibble()
 #Filter out covariates
 scad_beta_3 %>% filter(group3 %in% 
                           c("TEQ", "Non-Dioxin-like PCB", "Non-Ortho PCB")) %>% 
-  ggplot(aes(x = variable, 
-                       y = round(beta, 5))) + geom_point() +
-  theme_minimal() + geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
-  facet_wrap(.~group3, scales = "free_y") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-  coord_flip() + 
-  labs(title = "SCAD Coefficients for 3 Group Model", y = "Beta Coefficient",
-       x = "Variable")
+  ggplot(aes(x = variable, y = round(beta, 5))) + geom_point() +
+        theme_minimal() + geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+        facet_wrap(~ group3, scales = "free_y") +
+        theme(axis.text.x = element_text(angle = 90, hjust = 1)) + coord_flip() + 
+        labs(title = "SCAD Coefficients for 3 Group Model", y = "Beta Coefficient",
+             x = "Variable")
 
 #4 group model
-scad_beta_4 <- cbind(rownames(fit_scad_4$beta), fit_scad_4$beta) %>% as.tibble() %>% 
+scad_beta_4 <- cbind(rownames(fit_scad_4$beta), fit_scad_4$beta) %>% 
+  as.tibble() %>% 
   rename(variable = V1, beta = `0.0071`) %>% 
-  mutate(beta = as.numeric(beta)) %>% filter(variable != "(Intercept)") %>% 
+  mutate(beta = as.numeric(beta)) %>% 
+  filter(variable != "(Intercept)") %>% 
   mutate(group3 = group3,
          group4 = group4)
 
 #Filter out covariates
 scad_beta_4 %>% 
   filter(group4 %in% c("Dioxin", "Furan", "Non-Dioxin-like PCB", "Non-Ortho PCB")) %>% 
-  ggplot(aes(x = variable, 
-                       y = round(beta, 5))) + geom_point() +
-  theme_minimal() + geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
-  facet_wrap(.~group4, scales = "free_y") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-  coord_flip() + 
-  labs(title = "SCAD Coefficients for 3 Group Model", y = "Beta Coefficient",
-       x = "Variable")
+  ggplot(aes(x = variable, y = round(beta, 5))) + geom_point() +
+         theme_minimal() + geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+         facet_wrap(~ group4, scales = "free_y") +
+         theme(axis.text.x = element_text(angle = 90, hjust = 1)) + coord_flip() + 
+         labs(title = "SCAD Coefficients for 3 Group Model", y = "Beta Coefficient",
+              x = "Variable")
 ```
 
 ```{r create_4_plot}
