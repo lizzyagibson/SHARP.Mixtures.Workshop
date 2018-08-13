@@ -9,11 +9,34 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(ggplot2)
 library(ggcorrplot)
-library(ggfortify) # lets {ggplot2} know how to interpret PCA objects. 
+library(ggfortify)  
 library(gridExtra)
+library(tidyverse)
+library(janitor)
 ```
 
+# Importing and Cleaning Dataset
 ```{r}
+studypop <- read_csv("./Data/studypop.csv") %>% 
+  clean_names() %>% 
+  mutate(bmi_cat3 = as.factor(bmi_cat3),
+  edu_cat = as.factor(edu_cat),
+  race_cat = as.factor(race_cat),
+  male = as.factor(male))
 
+#Data dimensions
+dim(studypop)
+summary(studypop)
+
+#Extract Non-dioxin-like PCB variables from the studypop data frame
+my.x <- names(studypop)[grep("la", names(studypop))] 
+
+#creates a new data frame with my.x, converts values for the predictor variables to its natural log, adds suffix 12 to the predictors' name, and removes observations missing data.
+log.x <- data.frame(apply(studypop[,my.x], 2, FUN=function(x) log(x))) %>%
+  setNames(paste(my.x, "l2", sep = ".")) %>% na.omit()
+
+#Data dimensions
+dim(log.x)
+summary(log.x)
 ```
 

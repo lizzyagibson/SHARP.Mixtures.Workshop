@@ -123,7 +123,151 @@ $(document).ready(function () {
 </div>
 
 
+<div id="importing-and-cleaning-dataset" class="section level1">
+<h1>Importing and Cleaning Dataset</h1>
+<pre class="r"><code>studypop &lt;- read_csv(&quot;./Data/studypop.csv&quot;) %&gt;% 
+  clean_names() %&gt;% 
+  mutate(bmi_cat3 = as.factor(bmi_cat3),
+  edu_cat = as.factor(edu_cat),
+  race_cat = as.factor(race_cat),
+  male = as.factor(male))</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   .default = col_double(),
+##   SEQN = col_integer(),
+##   LBX074LA = col_integer(),
+##   LBX099LA = col_integer(),
+##   LBX118LA = col_integer(),
+##   LBX138LA = col_integer(),
+##   LBX153LA = col_integer(),
+##   LBX170LA = col_integer(),
+##   LBX180LA = col_integer(),
+##   LBX187LA = col_integer(),
+##   LBX194LA = col_integer(),
+##   bmi_cat3 = col_integer(),
+##   edu_cat = col_integer(),
+##   race_cat = col_integer(),
+##   male = col_integer(),
+##   age_cent = col_integer(),
+##   age_sq = col_integer()
+## )</code></pre>
+<pre><code>## See spec(...) for full column specifications.</code></pre>
+<pre><code>## Warning: package 'bindrcpp' was built under R version 3.4.4</code></pre>
+<pre class="r"><code>#Data dimensions
+dim(studypop)</code></pre>
+<pre><code>## [1] 1330   33</code></pre>
+<pre class="r"><code>summary(studypop)</code></pre>
+<pre><code>##       seqn          telomean         lbx074la         lbx099la     
+##  Min.   : 9966   Min.   :0.5113   Min.   :  1100   Min.   :  2000  
+##  1st Qu.:12786   1st Qu.:0.8799   1st Qu.:  4200   1st Qu.:  3900  
+##  Median :15376   Median :1.0342   Median :  7700   Median :  6400  
+##  Mean   :15513   Mean   :1.0662   Mean   : 12780   Mean   : 10171  
+##  3rd Qu.:18248   3rd Qu.:1.2158   3rd Qu.: 16150   3rd Qu.: 12000  
+##  Max.   :20995   Max.   :2.4291   Max.   :144000   Max.   :123000  
+##                                   NA's   :7        NA's   :29      
+##     lbx118la         lbx138la         lbx153la         lbx170la     
+##  Min.   :  2000   Min.   :  2100   Min.   :  2100   Min.   :  2000  
+##  1st Qu.:  4500   1st Qu.: 12250   1st Qu.: 17000   1st Qu.:  5200  
+##  Median :  9400   Median : 25800   Median : 36600   Median : 11500  
+##  Mean   : 16445   Mean   : 38468   Mean   : 52777   Mean   : 15677  
+##  3rd Qu.: 19700   3rd Qu.: 51000   3rd Qu.: 69900   3rd Qu.: 21800  
+##  Max.   :319000   Max.   :487000   Max.   :708000   Max.   :167000  
+##  NA's   :7        NA's   :11       NA's   :7        NA's   :11      
+##     lbx180la         lbx187la         lbxwbcsi         lbxlypct    
+##  Min.   :  2000   Min.   :  1100   Min.   : 2.300   Min.   : 4.60  
+##  1st Qu.: 11100   1st Qu.:  4000   1st Qu.: 5.700   1st Qu.:23.80  
+##  Median : 27500   Median :  8100   Median : 6.900   Median :28.80  
+##  Mean   : 38487   Mean   : 12331   Mean   : 7.244   Mean   :29.86  
+##  3rd Qu.: 54200   3rd Qu.: 16200   3rd Qu.: 8.400   3rd Qu.:35.40  
+##  Max.   :572000   Max.   :145000   Max.   :36.600   Max.   :78.90  
+##  NA's   :8        NA's   :7                         NA's   :6      
+##     lbxmopct         lbxnepct        lbxeopct         lbxbapct     
+##  Min.   : 1.600   Min.   :15.90   Min.   : 0.000   Min.   :0.0000  
+##  1st Qu.: 6.700   1st Qu.:52.20   1st Qu.: 1.500   1st Qu.:0.4000  
+##  Median : 7.800   Median :59.40   Median : 2.300   Median :0.6000  
+##  Mean   : 8.032   Mean   :58.66   Mean   : 2.839   Mean   :0.6461  
+##  3rd Qu.: 9.200   3rd Qu.:65.12   3rd Qu.: 3.600   3rd Qu.:0.8000  
+##  Max.   :23.800   Max.   :88.10   Max.   :28.200   Max.   :5.5000  
+##  NA's   :6        NA's   :6       NA's   :6        NA's   :6       
+##     lbxd03la         lbxd05la         lbxd07la         lbxf03la     
+##  Min.   :  1.40   Min.   :  1.90   Min.   :  36.8   Min.   : 0.700  
+##  1st Qu.: 21.98   1st Qu.: 24.57   1st Qu.: 202.0   1st Qu.: 2.300  
+##  Median : 38.85   Median : 42.60   Median : 352.0   Median : 5.200  
+##  Mean   : 49.82   Mean   : 59.52   Mean   : 506.8   Mean   : 6.872  
+##  3rd Qu.: 64.80   3rd Qu.: 75.53   3rd Qu.: 619.0   3rd Qu.: 9.500  
+##  Max.   :314.00   Max.   :799.00   Max.   :8190.0   Max.   :46.000  
+##  NA's   :190      NA's   :202      NA's   :247      NA's   :193     
+##     lbxf04la         lbxf05la         lbxf08la        lbxpcbla     
+##  Min.   : 1.000   Min.   : 0.800   Min.   :  0.9   Min.   :  1.30  
+##  1st Qu.: 3.300   1st Qu.: 2.700   1st Qu.:  6.5   1st Qu.: 14.70  
+##  Median : 5.300   Median : 4.300   Median : 10.1   Median : 25.10  
+##  Mean   : 6.591   Mean   : 5.577   Mean   : 11.8   Mean   : 38.61  
+##  3rd Qu.: 8.025   3rd Qu.: 7.000   3rd Qu.: 14.4   3rd Qu.: 44.30  
+##  Max.   :44.400   Max.   :33.500   Max.   :234.0   Max.   :845.00  
+##  NA's   :198      NA's   :187      NA's   :204     NA's   :193     
+##     lbxhxcla         lbx194la      bmi_cat3 edu_cat race_cat male   
+##  Min.   :  1.70   Min.   :  1100   1:430    1:402   1: 98    0:695  
+##  1st Qu.:  9.60   1st Qu.:  3800   2:491    2:297   2:278    1:635  
+##  Median : 18.90   Median :  7000   3:409    3:368   3:240           
+##  Mean   : 25.32   Mean   : 10559            4:263   4:714           
+##  3rd Qu.: 35.35   3rd Qu.: 14300                                    
+##  Max.   :172.00   Max.   :187000                                    
+##  NA's   :195      NA's   :21                                        
+##    ln_lbxcot          age_cent           age_sq      
+##  Min.   :-4.5099   Min.   :-23.000   Min.   :   0.0  
+##  1st Qu.:-3.9633   1st Qu.:-10.000   1st Qu.:  49.0  
+##  Median :-2.6173   Median :  2.000   Median : 196.0  
+##  Mean   :-0.8732   Mean   :  4.887   Mean   : 359.6  
+##  3rd Qu.: 2.9829   3rd Qu.: 19.000   3rd Qu.: 484.0  
+##  Max.   : 6.8189   Max.   : 42.000   Max.   :1764.0  
+## </code></pre>
+<pre class="r"><code>#Extract Non-dioxin-like PCB variables from the studypop data frame
+my.x &lt;- names(studypop)[grep(&quot;la&quot;, names(studypop))] 
 
+#creates a new data frame with my.x, converts values for the predictor variables to its natural log, adds suffix 12 to the predictors' name, and removes observations missing data.
+log.x &lt;- data.frame(apply(studypop[,my.x], 2, FUN=function(x) log(x))) %&gt;%
+  setNames(paste(my.x, &quot;l2&quot;, sep = &quot;.&quot;)) %&gt;% na.omit()
+
+#Data dimensions
+dim(log.x)</code></pre>
+<pre><code>## [1] 1007   18</code></pre>
+<pre class="r"><code>summary(log.x)</code></pre>
+<pre><code>##   lbx074la.l2      lbx099la.l2      lbx118la.l2      lbx138la.l2    
+##  Min.   : 7.003   Min.   : 7.601   Min.   : 7.601   Min.   : 7.650  
+##  1st Qu.: 8.319   1st Qu.: 8.216   1st Qu.: 8.412   1st Qu.: 9.363  
+##  Median : 8.909   Median : 8.748   Median : 9.148   Median :10.154  
+##  Mean   : 9.047   Mean   : 8.871   Mean   : 9.227   Mean   :10.089  
+##  3rd Qu.: 9.655   3rd Qu.: 9.367   3rd Qu.: 9.878   3rd Qu.:10.820  
+##  Max.   :11.878   Max.   :11.720   Max.   :12.673   Max.   :13.096  
+##   lbx153la.l2     lbx170la.l2      lbx180la.l2      lbx187la.l2    
+##  Min.   : 7.65   Min.   : 7.601   Min.   : 7.601   Min.   : 7.003  
+##  1st Qu.: 9.68   1st Qu.: 8.497   1st Qu.: 9.220   1st Qu.: 8.294  
+##  Median :10.50   Median : 9.333   Median :10.218   Median : 8.987  
+##  Mean   :10.41   Mean   : 9.283   Mean   :10.050   Mean   : 9.033  
+##  3rd Qu.:11.13   3rd Qu.: 9.985   3rd Qu.:10.887   3rd Qu.: 9.687  
+##  Max.   :13.47   Max.   :12.014   Max.   :13.257   Max.   :11.878  
+##   lbxd03la.l2      lbxd05la.l2      lbxd07la.l2     lbxf03la.l2     
+##  Min.   :0.3365   Min.   :0.6419   Min.   :3.605   Min.   :-0.3567  
+##  1st Qu.:3.0610   1st Qu.:3.1760   1st Qu.:5.283   1st Qu.: 0.8329  
+##  Median :3.6376   Median :3.7305   Median :5.846   Median : 1.6487  
+##  Mean   :3.5154   Mean   :3.7135   Mean   :5.882   Mean   : 1.5554  
+##  3rd Qu.:4.1423   3rd Qu.:4.2815   3rd Qu.:6.397   3rd Qu.: 2.2246  
+##  Max.   :5.7494   Max.   :6.6333   Max.   :9.011   Max.   : 3.6454  
+##   lbxf04la.l2     lbxf05la.l2       lbxf08la.l2       lbxpcbla.l2    
+##  Min.   :0.000   Min.   :-0.2231   Min.   :-0.1054   Min.   :0.2624  
+##  1st Qu.:1.163   1st Qu.: 0.9555   1st Qu.: 1.8563   1st Qu.:2.6980  
+##  Median :1.668   Median : 1.4586   Median : 2.2824   Median :3.2068  
+##  Mean   :1.642   Mean   : 1.4576   Mean   : 2.2113   Mean   :3.1861  
+##  3rd Qu.:2.067   3rd Qu.: 1.9315   3rd Qu.: 2.6462   3rd Qu.:3.7728  
+##  Max.   :3.793   Max.   : 3.5115   Max.   : 5.4553   Max.   :6.7393  
+##   lbxhxcla.l2      lbx194la.l2    
+##  Min.   :0.5306   Min.   : 7.003  
+##  1st Qu.:2.2192   1st Qu.: 8.216  
+##  Median :2.9124   Median : 8.839  
+##  Mean   :2.8449   Mean   : 8.921  
+##  3rd Qu.:3.5453   3rd Qu.: 9.568  
+##  Max.   :5.1475   Max.   :12.139</code></pre>
+</div>
 
 
 
