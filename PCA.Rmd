@@ -15,8 +15,8 @@ library(tidyverse)
 library(janitor)
 ```
 
-# Importing and Cleaning Dataset
-```{r}
+# Importing, Cleaning, and Preparing Dataset
+```{r data preping}
 studypop <- read_csv("./Data/studypop.csv") %>% 
   clean_names() %>% 
   mutate(bmi_cat3 = as.factor(bmi_cat3),
@@ -39,4 +39,47 @@ log.x <- data.frame(apply(studypop[,my.x], 2, FUN=function(x) log(x))) %>%
 dim(log.x)
 summary(log.x)
 ```
+
+# PCA in log data
+```{r PCA in log data}
+#Principal component analysis
+pca.ln  <- princomp(log.x, cor = TRUE)
+summary(pca.ln)
+pca.ln$loadings
+
+#Proportion of variance explained by each component
+pve.ln <- pca.ln$sdev^2/sum(pca.ln$sdev^2)
+
+```
+
+#PCA in raw data
+```{r PCA in raw data}
+#Principal component analysis
+pca.raw <- princomp(na.omit(studypop[my.x]), cor = TRUE) 
+summary(pca.raw)
+pca.raw$loadings
+
+#Proportion of variance explained by each component
+pve.raw <-pca.raw$sdev^2/sum(pca.raw$sdev^2) 
+
+```
+
+#Plots of the proportion of variance explained by each component
+```{r PVE plots}
+par(mfrow = c(1,2))
+#PVE plot for the log transformed data
+plot(pve.ln, xlab="Principal Component", 
+     main = "Log - Transformed data",
+     ylab = "Proportion of Variance Explained", 
+     ylim = c(0,1),type='b')
+
+#PVE plot for the raw data
+plot(pve.raw, xlab="Principal Component", 
+     main = "PVE - raw data",
+     ylab = "Proportion of Variance Explained", 
+     ylim = c(0,1),type='b')
+```
+
+
+
 
