@@ -64,22 +64,62 @@ pve.raw <-pca.raw$sdev^2/sum(pca.raw$sdev^2)
 
 ```
 
-#Plots of the proportion of variance explained by each component
+#Plots of the proportion of variance
 ```{r PVE plots}
 par(mfrow = c(1,2))
-#PVE plot for the log transformed data
+#Plots the proportion of variance explained by each component (
+
+#log transformed data
 plot(pve.ln, xlab="Principal Component", 
      main = "Log - Transformed data",
      ylab = "Proportion of Variance Explained", 
      ylim = c(0,1),type='b')
 
-#PVE plot for the raw data
+#PVE raw data
 plot(pve.raw, xlab="Principal Component", 
-     main = "PVE - raw data",
+     main = "Raw data",
      ylab = "Proportion of Variance Explained", 
      ylim = c(0,1),type='b')
 ```
 
+#Principal component biplot using the log-transformed PCA results
+```{r PCA biplot}
+#Creates a biplot showing the loadings for principal component 1 and 2. 
+autoplot(pca.ln, data = log.x, size = 0.8, colour = 'blue', alpha = 0.5,
+         loadings = TRUE, loadings.colour = 'orange',
+         loadings.label = TRUE, loadings.label.repel = T, 
+         loadings.label.size = 2.5, loadings.label.colour = 'black',
+         main = "Principal Component Analysis Biplot")
+```
+
+#Visualization of loadings using the log-transformed PCA results
+```{r PCA loadings}
+#Creates a data frame of the loadings
+pca.ln.ld <- as.data.frame.matrix(loadings(pca.ln))
+pca.ln.ld$chem <- row.names(pca.ln.ld)
+
+c1plot <- ggplot(pca.ln.ld, aes(x=chem, y = Comp.1)) + geom_bar(stat="identity") +
+  theme_bw() +  xlab("Chemicals") + ylab("Component 1")  + 
+  theme(axis.title.x=element_blank(), axis.text.x=element_blank()) + 
+  ylim(min(pca.ln.ld[,1:4]), max(pca.ln.ld[,1:4]))
+
+c2plot <- ggplot(pca.ln.ld, aes(x=chem, y = Comp.2)) + geom_bar(stat="identity") +
+  theme_bw() +  xlab("Chemicals") + ylab("Component 2")  + 
+  theme(axis.title.x=element_blank(), axis.text.x=element_blank()) + 
+  ylim(min(pca.ln.ld[,1:4]), max(pca.ln.ld[,1:4]))
+
+c3plot <- ggplot(pca.ln.ld, aes(x=chem, y = Comp.3)) + geom_bar(stat="identity") +
+  theme_bw() +  xlab("Chemicals") + ylab("Component 3")  + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  ylim(min(pca.ln.ld[,1:4]), max(pca.ln.ld[,1:4]))
+
+c4plot <- ggplot(pca.ln.ld, aes(x=chem, y = Comp.4)) + geom_bar(stat="identity") +
+  theme_bw() +  xlab("Chemicals") + ylab("Component 4")  + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  ylim(min(pca.ln.ld[,1:4]), max(pca.ln.ld[,1:4]))
+
+grid.arrange(c1plot, c2plot, c3plot, c4plot, ncol=2)
+```
 
 
 
