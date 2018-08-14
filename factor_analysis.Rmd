@@ -31,7 +31,9 @@ studypop <- log(studypop) #log transform variables
 ```{r}
 fa_2 <- factanal(studypop, 
                  factors = 2,
-                 rotation = "varimax")
+                 rotation = "varimax", #varimax is an orthogonal rotation
+                 scores = "regression")
 
+print(fa_2, digits = 2, cut.off = .2, sort = TRUE)
 ```
 

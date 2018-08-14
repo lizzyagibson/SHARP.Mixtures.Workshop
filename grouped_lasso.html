@@ -530,7 +530,7 @@ lasso_beta_3 %&gt;% filter(group3 %in%
   ggplot(aes(x = variable, 
                        y = round(beta, 5))) + geom_point() +
   theme_minimal() + geom_hline(yintercept = 0, color = &quot;red&quot;, linetype = &quot;dashed&quot;) +
-  facet_wrap(.~group3, scales = &quot;free_y&quot;) +
+  facet_wrap(~group3, scales = &quot;free_y&quot;) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   coord_flip() + 
   labs(title = &quot;Lasso Coefficients for 3 Group Model&quot;, y = &quot;Beta Coefficient&quot;,
@@ -549,7 +549,7 @@ lasso_beta_4 %&gt;%
   ggplot(aes(x = variable, 
                        y = round(beta, 5))) + geom_point() +
   theme_minimal() + geom_hline(yintercept = 0, color = &quot;red&quot;, linetype = &quot;dashed&quot;) +
-  facet_wrap(.~group4, scales = &quot;free_y&quot;) +
+  facet_wrap(~group4, scales = &quot;free_y&quot;) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   coord_flip() + 
   labs(title = &quot;Lasso Coefficients for 3 Group Model&quot;, y = &quot;Beta Coefficient&quot;,
@@ -682,7 +682,7 @@ mcp_beta_3 %&gt;% filter(group3 %in%
   ggplot(aes(x = variable, 
                        y = round(beta, 5))) + geom_point() +
   theme_minimal() + geom_hline(yintercept = 0, color = &quot;red&quot;, linetype = &quot;dashed&quot;) +
-  facet_wrap(.~group3, scales = &quot;free_y&quot;) +
+  facet_wrap(~group3, scales = &quot;free_y&quot;) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   coord_flip() + 
   labs(title = &quot;MCP Coefficients for 3 Group Model&quot;, y = &quot;Beta Coefficient&quot;,
@@ -701,7 +701,7 @@ mcp_beta_4 %&gt;%
   ggplot(aes(x = variable, 
                        y = round(beta, 5))) + geom_point() +
   theme_minimal() + geom_hline(yintercept = 0, color = &quot;red&quot;, linetype = &quot;dashed&quot;) +
-  facet_wrap(.~group4, scales = &quot;free_y&quot;) +
+  facet_wrap(~group4, scales = &quot;free_y&quot;) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   coord_flip() + 
   labs(title = &quot;MCP Coefficients for 3 Group Model&quot;, y = &quot;Beta Coefficient&quot;,
@@ -834,7 +834,7 @@ scad_beta_3 %&gt;% filter(group3 %in%
   ggplot(aes(x = variable, 
                        y = round(beta, 5))) + geom_point() +
   theme_minimal() + geom_hline(yintercept = 0, color = &quot;red&quot;, linetype = &quot;dashed&quot;) +
-  facet_wrap(.~group3, scales = &quot;free_y&quot;) +
+  facet_wrap(~group3, scales = &quot;free_y&quot;) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   coord_flip() + 
   labs(title = &quot;SCAD Coefficients for 3 Group Model&quot;, y = &quot;Beta Coefficient&quot;,
@@ -853,7 +853,7 @@ scad_beta_4 %&gt;%
   ggplot(aes(x = variable, 
                        y = round(beta, 5))) + geom_point() +
   theme_minimal() + geom_hline(yintercept = 0, color = &quot;red&quot;, linetype = &quot;dashed&quot;) +
-  facet_wrap(.~group4, scales = &quot;free_y&quot;) +
+  facet_wrap(~group4, scales = &quot;free_y&quot;) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   coord_flip() + 
   labs(title = &quot;SCAD Coefficients for 3 Group Model&quot;, y = &quot;Beta Coefficient&quot;,
