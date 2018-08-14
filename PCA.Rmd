@@ -1,0 +1,125 @@
+---
+title: "Mixtures Workshop: PCA"
+author: "Yanelli Nunez"
+date: "8/13/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(ggcorrplot)
+library(ggfortify)  
+library(gridExtra)
+library(tidyverse)
+library(janitor)
+```
+
+# Importing, Cleaning, and Preparing Dataset
+```{r data preping}
+studypop <- read_csv("./Data/studypop.csv") %>% 
+  clean_names() %>% 
+  mutate(bmi_cat3 = as.factor(bmi_cat3),
+  edu_cat = as.factor(edu_cat),
+  race_cat = as.factor(race_cat),
+  male = as.factor(male))
+
+#Data dimensions
+dim(studypop)
+summary(studypop)
+
+#Extract Non-dioxin-like PCB variables from the studypop data frame
+my.x <- names(studypop)[grep("la", names(studypop))] 
+
+#creates a new data frame with my.x, converts values for the predictor variables to its natural log, adds suffix 12 to the predictors' name, and removes observations missing data.
+log.x <- data.frame(apply(studypop[,my.x], 2, FUN=function(x) log(x))) %>%
+  setNames(paste(my.x, "l2", sep = ".")) %>% na.omit()
+
+#Data dimensions
+dim(log.x)
+summary(log.x)
+```
+
+# PCA in log data
+```{r PCA in log data}
+#Principal component analysis
+pca.ln  <- princomp(log.x, cor = TRUE)
+summary(pca.ln)
+pca.ln$loadings
+
+#Proportion of variance explained by each component
+pve.ln <- pca.ln$sdev^2/sum(pca.ln$sdev^2)
+
+```
+
+#PCA in raw data
+```{r PCA in raw data}
+#Principal component analysis
+pca.raw <- princomp(na.omit(studypop[my.x]), cor = TRUE) 
+summary(pca.raw)
+pca.raw$loadings
+
+#Proportion of variance explained by each component
+pve.raw <-pca.raw$sdev^2/sum(pca.raw$sdev^2) 
+
+```
+
+#Plots of the proportion of variance
+```{r PVE plots}
+par(mfrow = c(1,2))
+#Plots the proportion of variance explained by each component (
+
+#log transformed data
+plot(pve.ln, xlab="Principal Component", 
+     main = "Log - Transformed data",
+     ylab = "Proportion of Variance Explained", 
+     ylim = c(0,1),type='b')
+
+#PVE raw data
+plot(pve.raw, xlab="Principal Component", 
+     main = "Raw data",
+     ylab = "Proportion of Variance Explained", 
+     ylim = c(0,1),type='b')
+```
+
+#Principal component biplot using the log-transformed PCA results
+```{r PCA biplot}
+#Creates a biplot showing the loadings for principal component 1 and 2. 
+autoplot(pca.ln, data = log.x, size = 0.8, colour = 'blue', alpha = 0.5,
+         loadings = TRUE, loadings.colour = 'orange',
+         loadings.label = TRUE, loadings.label.repel = T, 
+         loadings.label.size = 2.5, loadings.label.colour = 'black',
+         main = "Principal Component Analysis Biplot")
+```
+
+#Visualization of loadings using the log-transformed PCA results
+```{r PCA loadings}
+#Creates a data frame of the loadings
+pca.ln.ld <- as.data.frame.matrix(loadings(pca.ln))
+pca.ln.ld$chem <- row.names(pca.ln.ld)
+
+c1plot <- ggplot(pca.ln.ld, aes(x=chem, y = Comp.1)) + geom_bar(stat="identity") +
+  theme_bw() +  xlab("Chemicals") + ylab("Component 1")  + 
+  theme(axis.title.x=element_blank(), axis.text.x=element_blank()) + 
+  ylim(min(pca.ln.ld[,1:4]), max(pca.ln.ld[,1:4]))
+
+c2plot <- ggplot(pca.ln.ld, aes(x=chem, y = Comp.2)) + geom_bar(stat="identity") +
+  theme_bw() +  xlab("Chemicals") + ylab("Component 2")  + 
+  theme(axis.title.x=element_blank(), axis.text.x=element_blank()) + 
+  ylim(min(pca.ln.ld[,1:4]), max(pca.ln.ld[,1:4]))
+
+c3plot <- ggplot(pca.ln.ld, aes(x=chem, y = Comp.3)) + geom_bar(stat="identity") +
+  theme_bw() +  xlab("Chemicals") + ylab("Component 3")  + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  ylim(min(pca.ln.ld[,1:4]), max(pca.ln.ld[,1:4]))
+
+c4plot <- ggplot(pca.ln.ld, aes(x=chem, y = Comp.4)) + geom_bar(stat="identity") +
+  theme_bw() +  xlab("Chemicals") + ylab("Component 4")  + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  ylim(min(pca.ln.ld[,1:4]), max(pca.ln.ld[,1:4]))
+
+grid.arrange(c1plot, c2plot, c3plot, c4plot, ncol=2)
+```
+
+
+
