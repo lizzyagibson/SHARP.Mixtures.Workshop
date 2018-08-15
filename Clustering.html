@@ -295,9 +295,9 @@ km2$size</code></pre>
 <pre><code>## [1] 7201.937</code></pre>
 <pre class="r"><code>km2$betweenss ## between cluster sum of squares</code></pre>
 <pre><code>## [1] 6310.116</code></pre>
-<pre class="r"><code>paste(round(100*(km2$betweenss/km2$totss),1), &quot;%&quot;, sep=&quot;&quot;)</code></pre>
-<pre><code>## [1] &quot;46.7%&quot;</code></pre>
-<pre class="r"><code>#K-means with K=3
+<pre class="r"><code>Percent_bt_k2 = paste(round(100*(km2$betweenss/km2$totss),1), &quot;%&quot;, sep=&quot;&quot;)
+
+#K-means with K=3
 km3 &lt;- kmeans(log.x, 3, nstart = 20)
 
 km3$size</code></pre>
@@ -323,9 +323,9 @@ km3$size</code></pre>
 <pre><code>## [1] 5801.511</code></pre>
 <pre class="r"><code>km3$betweenss </code></pre>
 <pre><code>## [1] 7710.542</code></pre>
-<pre class="r"><code>paste(round(100*(km3$betweenss/km3$totss),1), &quot;%&quot;, sep=&quot;&quot;)</code></pre>
-<pre><code>## [1] &quot;57.1%&quot;</code></pre>
-<pre class="r"><code>#K-means with K=10
+<pre class="r"><code>Percent_bt_k3 = paste(round(100*(km3$betweenss/km3$totss),1), &quot;%&quot;, sep=&quot;&quot;)
+
+#K-means with K=10
 km10 &lt;- kmeans(log.x, 10, nstart = 20)
 
 km10$size</code></pre>
@@ -373,9 +373,9 @@ km10$size</code></pre>
 <pre><code>## [1] 3980.164</code></pre>
 <pre class="r"><code>km10$betweenss </code></pre>
 <pre><code>## [1] 9531.889</code></pre>
-<pre class="r"><code>paste(round(100*(km10$betweenss/km10$totss),1), &quot;%&quot;, sep=&quot;&quot;)</code></pre>
-<pre><code>## [1] &quot;70.5%&quot;</code></pre>
-<pre class="r"><code>#K-means with K=100
+<pre class="r"><code>Percent_bt_k10 = paste(round(100*(km10$betweenss/km10$totss),1), &quot;%&quot;, sep=&quot;&quot;)
+
+#K-means with K=100
 km100 &lt;- kmeans(log.x, 100, nstart = 20)
 
 km100$size</code></pre>
@@ -428,9 +428,9 @@ km100$size</code></pre>
 <pre><code>## [1] 1892.836</code></pre>
 <pre class="r"><code>km100$betweenss </code></pre>
 <pre><code>## [1] 11619.22</code></pre>
-<pre class="r"><code>paste(round(100*(km100$betweenss/km100$totss),1), &quot;%&quot;, sep=&quot;&quot;)</code></pre>
-<pre><code>## [1] &quot;86%&quot;</code></pre>
-<pre class="r"><code>#K-menas with K=1000
+<pre class="r"><code>Percent_bt_k100 = paste(round(100*(km100$betweenss/km100$totss),1), &quot;%&quot;, sep=&quot;&quot;)
+
+#K-menas with K=1000
 km1000 &lt;- kmeans(log.x, 1000, nstart = 50)
 
 summary(km1000$size)</code></pre>
@@ -464,8 +464,60 @@ summary(km1000$size)</code></pre>
 <pre><code>## [1] 2.789499</code></pre>
 <pre class="r"><code>km1000$betweenss </code></pre>
 <pre><code>## [1] 13509.26</code></pre>
-<pre class="r"><code>paste(round(100*(km1000$betweenss/km1000$totss),1), &quot;%&quot;, sep=&quot;&quot;)</code></pre>
-<pre><code>## [1] &quot;100%&quot;</code></pre>
+<pre class="r"><code>Percent_bt_k1000 =paste(round(100*(km1000$betweenss/km1000$totss),1), &quot;%&quot;, sep=&quot;&quot;)</code></pre>
+</div>
+<div id="summary-table" class="section level1">
+<h1>Summary table</h1>
+<pre class="r"><code>summary.km &lt;- matrix(c(km2$totss, km3$totss, km10$totss, km100$totss, km1000$totss, 
+ km2$tot.withinss, km3$tot.withinss, km10$tot.withinss, km100$tot.withinss, km1000$tot.withinss, km2$betweenss, km3$betweenss, km10$betweenss, km100$betweenss, km1000$betweenss), 
+                    ncol = 3)
+colnames(summary.km) &lt;- c(&quot;Total SS&quot;, &quot;Total within cluster SS&quot;, &quot;Between cluster SS&quot;)
+rownames(summary.km) &lt;- c(&quot;km-2&quot;, &quot;km-3&quot;, &quot;km-10&quot;, &quot;km-100&quot;, &quot;km-1000&quot;)
+summary.km &lt;- round(as.table(summary.km), 2) 
+summary.km &lt;- kable(summary.km)
+summary.km</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">Total SS</th>
+<th align="right">Total within cluster SS</th>
+<th align="right">Between cluster SS</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>km-2</td>
+<td align="right">13512.05</td>
+<td align="right">7201.94</td>
+<td align="right">6310.12</td>
+</tr>
+<tr class="even">
+<td>km-3</td>
+<td align="right">13512.05</td>
+<td align="right">5801.51</td>
+<td align="right">7710.54</td>
+</tr>
+<tr class="odd">
+<td>km-10</td>
+<td align="right">13512.05</td>
+<td align="right">3980.16</td>
+<td align="right">9531.89</td>
+</tr>
+<tr class="even">
+<td>km-100</td>
+<td align="right">13512.05</td>
+<td align="right">1892.84</td>
+<td align="right">11619.22</td>
+</tr>
+<tr class="odd">
+<td>km-1000</td>
+<td align="right">13512.05</td>
+<td align="right">2.79</td>
+<td align="right">13509.26</td>
+</tr>
+</tbody>
+</table>
 </div>
 
 
