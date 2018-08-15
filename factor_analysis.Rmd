@@ -6,6 +6,7 @@ output:
   html_document:
     toc: TRUE
     toc_float: TRUE
+    toc_depth: 4
 ---
 
 ```{r setup, include=FALSE}
@@ -14,6 +15,14 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 #install.packages("janitor")
 library(janitor)
+#install.packages("psych")
+library(psych)
+#install.packages("GPArotation")
+library(GPArotation)
+#install.packages("ggrepel")
+library(ggrepel)
+#install.packages("reshape2")
+library(reshape2)
 
 #This turns off scientific notation
 options(scipen = 999)
@@ -22,18 +31,223 @@ options(scipen = 999)
 ## Data
 ```{r clean}
 studypop <- read_csv("./Data/studypop.csv") %>% clean_names() %>% na.omit() %>% 
-  select(3:8, 17:24) #only include pollutants for FA, remove outcome and covariates
+  dplyr::select(3:10, 17:26) #only include pollutants for FA, remove outcome and covariates
 
-studypop <- log(studypop) #log transform variables
+logstudypop <- log(studypop) #log transform variables
 ```
 
-## Factor Analysis
+## Heat Map
+
 ```{r}
-fa_2 <- factanal(studypop, 
-                 factors = 2,
-                 rotation = "varimax", #varimax is an orthogonal rotation
+cormat <- round(cor(logstudypop, use = "pairwise.complete.obs", method = c("pearson")),2)
+melted_cormat <- melt(cormat) %>% rename(Correlation = value)
+```
+
+```{r}
+ggplot(melted_cormat, aes(Var1, Var2, fill = Correlation)) +
+ geom_tile(color = "white") +
+ scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
+   midpoint = 0, limit = c(-1,1), space = "Lab", 
+    name = "Pearson\nCorrelation") +
+  theme_minimal() + # minimal theme
+ theme(axis.text.x = element_text(angle = 90, vjust = 1, 
+    size = 12, hjust = 1),
+    axis.text.y = element_text(vjust = 1, 
+    size = 12, hjust = 1),
+    axis.title.x = element_text(size = 15),
+    axis.title.y = element_text(size = 15)) +
+ coord_fixed() + labs(x = "", y = "", title = "Correlation Heat Map of Pollutants")
+```
+
+## Exploratory Factor Analysis
+
+Perform an eigenvalue analysis to get an estimate (or range) for the number of underlying dimensions. Recommend fitting as least one more and one less factor than suggested by the eigenvalue analysis.
+
+One way to determine the number of factors or components in a data matrix or a correlation matrix is to examine the “scree" plot of the successive eigenvalues. Sharp breaks in the plot suggest the appropriate number of components or factors to extract. “Parallel" analyis is an alternative technique that compares the scree of factors of the observed data with that of a random data matrix of the same size as the original.
+
+```{r}
+fa.parallel(logstudypop)
+```
+
+### Orthogonal Models
+
+Orthogonal rotation is used if it is desirable to identify factors that are as independent from one another as possible.
+
+```{r}
+fa_3 <- fa(logstudypop, 
+                 nfactors = 3, n.obs = 1003,
+                 rotate = "varimax", #varimax is an orthogonal rotation
                  scores = "regression")
 
-print(fa_2, digits = 2, cut.off = .2, sort = TRUE)
+print(fa_3, digits = 2, sort = TRUE)
+
+fa_4 <- fa(logstudypop, 
+                 nfactors = 4, n.obs = 1003,
+                 rotate = "varimax", #varimax is an orthogonal rotation
+                 scores = "regression")
+
+print(fa_4, digits = 2, sort = TRUE)
+
+fa_5 <- fa(logstudypop, 
+                 nfactors = 5, n.obs = 1003,
+                 rotate = "varimax", #varimax is an orthogonal rotation
+                 scores = "regression")
+
+print(fa_5, digits = 2, sort = TRUE)
+
+fa_6 <- fa(logstudypop, 
+                 nfactors = 6, n.obs = 1003,
+                 rotate = "varimax", #varimax is an orthogonal rotation
+                 scores = "regression")
+
+print(fa_6, digits = 2, sort = TRUE)
+
 ```
+
+### Oblique Models
+
+Oblique rotation (i.e. correlated factors) are commonly used since we often hypothesize our latent variables of interest to be correlated with one another.
+
+```{r}
+fa_3_p <- fa(logstudypop, 
+                 nfactors = 3, n.obs = 1003,
+                 rotate = "promax",
+                 scores = "regression")
+
+print(fa_3_p, digits = 2, sort = TRUE)
+
+fa_4_p <- fa(logstudypop, 
+                 nfactors = 4, n.obs = 1003,
+                 rotate = "promax",
+                 scores = "regression")
+
+print(fa_4_p, digits = 2, sort = TRUE)
+
+fa_5_p <- fa(logstudypop, 
+                 nfactors = 5, n.obs = 1003,
+                 rotate = "promax",
+                 scores = "regression")
+
+print(fa_5_p, digits = 2, sort = TRUE)
+
+fa_6_p <- fa(logstudypop, 
+                 nfactors = 6, n.obs = 1003,
+                 rotate = "promax",
+                 scores = "regression")
+
+print(fa_6_p, digits = 2, sort = TRUE)
+
+```
+
+### Fit Indices
+
+BIC -- lower (better fit)
+TLI -- >0.90/0.95 (good fit)
+RMSEA -- < 0.06 (good fit) / < 0.08 (adequate fit)
+
+```{r}
+fit <- as.data.frame(rbind(cbind("3 Factor", "Varimax", round(fa_3$BIC), round(fa_3$TLI, 4),
+                                 round(unname(fa_3$RMSEA[1]), 4)),
+      cbind("4 Factor", "Varimax", round(fa_4$BIC), round(fa_4$TLI, 4), round(unname(fa_4$RMSEA[1]), 4)),
+      cbind("5 Factor", "Varimax", round(fa_5$BIC), round(fa_5$TLI, 4), round(unname(fa_5$RMSEA[1]), 4)),
+      cbind("6 Factor", "Varimax", round(fa_6$BIC), round(fa_6$TLI, 4), round(unname(fa_6$RMSEA[1]), 4)),
+      cbind("3 Factor", "Promax", round(fa_3_p$BIC), round(fa_3_p$TLI, 4), round(unname(fa_3_p$RMSEA[1]), 4)),
+      cbind("4 Factor", "Promax", round(fa_4_p$BIC), round(fa_4_p$TLI, 4), round(unname(fa_4_p$RMSEA[1]), 4)),
+      cbind("5 Factor", "Promax", round(fa_5_p$BIC), round(fa_5_p$TLI, 4), round(unname(fa_5_p$RMSEA[1]), 4)),
+      cbind("6 Factor", "Promax", round(fa_6_p$BIC), round(fa_6_p$TLI, 4), round(unname(fa_6_p$RMSEA[1]), 4))))
+
+names(fit) <- c("Model", "Rotation", "BIC", "TLI", "RMSEA")
+fit %>% knitr::kable()
+```
+
+## Parameters
+
+Choose Varimax 6 factor model based on fit statistics.
+
+```{r}
+loadings <- as.tibble(cbind(rownames(fa_6$loadings[]), fa_6$loadings[])) %>% rename(Variable = V1) %>% 
+  mutate(MR1 = as.numeric(MR1),
+         MR2 = as.numeric(MR2),
+         MR3 = as.numeric(MR3),
+         MR4 = as.numeric(MR4),
+         MR5 = as.numeric(MR5),
+         MR6 = as.numeric(MR6))
+
+loadings$Max <- colnames(loadings[,2:7])[max.col(loadings[,2:7], ties.method="first")]
+
+loadings
+
+loadings %>% filter(Max == "MR1") %>% count()
+loadings %>% filter(Max == "MR2") %>% count()
+loadings %>% filter(Max == "MR3") %>% count()
+loadings %>% filter(Max == "MR4") %>% count()
+loadings %>% filter(Max == "MR5") %>% count()
+loadings %>% filter(Max == "MR6") %>% count()
+
+8 + 4 + 3 + 2 + 1 
+
+scores <- as.tibble(cbind(rownames(fa_6$scores[]), fa_6$scores[]))
+
+scores$Max <- colnames(scores)[max.col(scores, ties.method="first")]
+
+scores
+
+scores %>% filter(Max == "MR1") %>% count()
+scores %>% filter(Max == "MR2") %>% count()
+scores %>% filter(Max == "MR3") %>% count()
+scores %>% filter(Max == "MR4") %>% count()
+scores %>% filter(Max == "MR5") %>% count()
+scores %>% filter(Max == "MR6") %>% count()
+
+189 + 159 + 169 + 164 + 125 + 197
+```
+
+## Data Viz
+
+```{r}
+loadings <- loadings %>% mutate(Group = ifelse(Variable == "lbx118la", "TEQ", 
+                                   ifelse(grepl("lbx1", Variable), "Non-Dioxin-like PCB",
+                                   ifelse(grepl("lbx0", Variable), "Non-Dioxin-like PCB",
+                                   ifelse(grepl("lbxp", Variable), "Non-Ortho PCB",
+                                          ifelse(grepl("lbxh", Variable), "Non-Ortho PCB", 
+                                          "TEQ"))))))
+
+loadings %>% ggplot(aes(x = MR1, y = MR2, color = Group)) + geom_point() + geom_label_repel(aes(label = Variable),
+                  box.padding   = 0.35, 
+                  point.padding = 0.5,
+                  segment.color = 'grey50') + theme_bw() + theme(legend.position = "none") +
+  labs(title = "Variable Loadings on First and Second Factors")
+
+loadings %>% ggplot(aes(x = MR1, y = MR3, color = Group)) + geom_point() + geom_label_repel(aes(label = Variable),
+                  box.padding   = 0.35, 
+                  point.padding = 0.5,
+                  segment.color = 'grey50') + theme_bw() + theme(legend.position = "none") +
+  labs(title = "Variable Loadings on First and Third Factors")
+```
+
+```{r}
+plot_loadings <- loadings %>% dplyr::select(-Max) %>% gather(key = "Factor", value = "Loading", -Variable, -Group)
+
+plot_loadings %>% ggplot(aes(x = Variable, y = Loading, fill = Group)) + geom_col() +
+  facet_wrap(~Factor) + theme_bw() + theme(legend.position = "bottom",
+                                                axis.text.x = element_text(angle = 90, hjust = 1)) +
+  coord_flip() + geom_hline(yintercept = 0, size = 0.2) +
+  labs(title = "Variable Loadings on All Factors")
+
+plot_loadings %>% ggplot(aes(x = Factor, y = Loading, fill = Factor)) + geom_col(position = "dodge") +
+  facet_wrap(~Variable) + 
+  theme_bw() + theme(legend.position = "none",
+                                                axis.text.x = element_text(angle = 90, hjust = 1)) +
+  geom_hline(yintercept = 0, size = 0.2) +
+  coord_flip() +
+  labs(title = "Variable Loadings on All Factors")
+```
+
+```{r}
+scores %>% ggplot(aes(x = Max, fill = Max)) + geom_bar() +
+  labs(x = "Factors", y = "Number of Individuals", title = "Number with Highest Scores per Factor") +
+  theme_bw() + theme(legend.position = "none")
+```
+
+
 
