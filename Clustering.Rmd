@@ -1,0 +1,104 @@
+---
+title: "Clustering"
+author: "Yanelli Nunez"
+date: "8/13/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(ggcorrplot)
+library(ggfortify) 
+library(gridExtra) 
+library(dplyr)
+library(knitr)
+library(ggdendro)
+library(tidyverse)
+library(janitor)
+```
+
+# Importing, Cleaning, and Preparing Dataset
+```{r data preping}
+studypop <- read_csv("./Data/studypop.csv") %>% 
+  clean_names() %>% 
+  mutate(bmi_cat3 = as.factor(bmi_cat3),
+  edu_cat = as.factor(edu_cat),
+  race_cat = as.factor(race_cat),
+  male = as.factor(male))
+
+#Data dimensions
+dim(studypop)
+summary(studypop)
+
+#Extract Non-dioxin-like PCB variables from the studypop data frame
+my.x <- names(studypop)[grep("la", names(studypop))] 
+
+#creates a new data frame with my.x, converts values for the predictor variables to its natural log, adds suffix 12 to the predictors' name, and removes observations missing data.
+log.x <- data.frame(apply(studypop[,my.x], 2, FUN=function(x) log(x))) %>%
+  setNames(paste(my.x, "l2", sep = ".")) %>% na.omit()
+
+#Data dimensions
+dim(log.x)
+summary(log.x)
+```
+
+# K-means
+```{r k-means}
+set.seed(28)
+
+#K-means with K=2
+km2 <- kmeans(log.x, 2, nstart = 20)
+
+km2$size
+km2$centers
+km2$totss ## total sum of squares
+km2$withinss ## within cluster sum of squares by cluster
+km2$tot.withinss ## total within cluster sum of squares -- this is what we want to minimize!
+km2$betweenss ## between cluster sum of squares
+paste(round(100*(km2$betweenss/km2$totss),1), "%", sep="")
+
+#K-means with K=3
+km3 <- kmeans(log.x, 3, nstart = 20)
+
+km3$size
+km3$centers
+km3$totss 
+km3$withinss 
+km3$tot.withinss  
+km3$betweenss 
+paste(round(100*(km3$betweenss/km3$totss),1), "%", sep="")
+
+#K-means with K=10
+km10 <- kmeans(log.x, 10, nstart = 20)
+
+km10$size
+km10$centers
+km10$totss 
+km10$withinss 
+km10$tot.withinss  
+km10$betweenss 
+paste(round(100*(km10$betweenss/km10$totss),1), "%", sep="")
+
+#K-means with K=100
+km100 <- kmeans(log.x, 100, nstart = 20)
+
+km100$size
+head(km100$centers)
+km100$totss 
+km100$withinss 
+km100$tot.withinss  
+km100$betweenss 
+paste(round(100*(km100$betweenss/km100$totss),1), "%", sep="")
+
+#K-menas with K=1000
+km1000 <- kmeans(log.x, 1000, nstart = 50)
+
+summary(km1000$size)
+head(km1000$centers)
+km1000$totss 
+km1000$tot.withinss  
+km1000$betweenss 
+paste(round(100*(km1000$betweenss/km1000$totss),1), "%", sep="")
+```
+
