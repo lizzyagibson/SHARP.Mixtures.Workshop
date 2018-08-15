@@ -92,7 +92,6 @@ set.seed(2)
 ## can include weights using "weights = ..."
 ## alpha is set to 1 due lasso's penalty
 lasso = glmnet(x, lny, 
-               #penalty.factor = c(0, rep(1, ncol(x[,19:36]))), 
                penalty.factor = c(rep(1, ncol(x[,1:18])), rep(0, ncol(x[,19:36]))),
                alpha = 1)
 plot(lasso)
@@ -161,7 +160,6 @@ set.seed(2)
 
 # n-folds is set to a default of 10 for cv.glmnet
 elnet = glmnet(x, lny, 
-               #penalty.factor = c(0, rep(1, ncol(x[,19:36]))), 
                penalty.factor = c(rep(1, ncol(x[,1:18])), rep(0, ncol(x[,19:36]))),
                alpha = 0.8)
 plot(elnet)
@@ -176,7 +174,6 @@ best_elambda
 
 # elastic model using best lambda value
 elnet.mod = glmnet(x, lny, 
-                   #penalty.factor = c(0, rep(1, ncol(x[,19:36]))), 
                    penalty.factor = c(rep(1, ncol(x[,1:18])), rep(0, ncol(x[,19:36]))),
                    alpha = 0.8, lambda = best_elambda)
 

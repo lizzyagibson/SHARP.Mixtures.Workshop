@@ -191,7 +191,7 @@ lasso_beta_4 %>%
   facet_wrap(~group4, scales = "free_y") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   coord_flip() + 
-  labs(title = "Lasso Coefficients for 3 Group Model", y = "Beta Coefficient",
+  labs(title = "Lasso Coefficients for 4 Group Model", y = "Beta Coefficient",
        x = "Variable")
 ```
 
@@ -271,7 +271,7 @@ mcp_beta_4 %>%
   facet_wrap(~group4, scales = "free_y") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   coord_flip() + 
-  labs(title = "MCP Coefficients for 3 Group Model", y = "Beta Coefficient",
+  labs(title = "MCP Coefficients for 4 Group Model", y = "Beta Coefficient",
        x = "Variable")
 ```
 
@@ -351,7 +351,7 @@ scad_beta_4 %>%
   facet_wrap(~group4, scales = "free_y") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   coord_flip() + 
-  labs(title = "SCAD Coefficients for 3 Group Model", y = "Beta Coefficient",
+  labs(title = "SCAD Coefficients for 4 Group Model", y = "Beta Coefficient",
        x = "Variable")
 ```
 
