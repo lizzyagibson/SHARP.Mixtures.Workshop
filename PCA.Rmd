@@ -60,14 +60,14 @@ summary(pca.raw)
 pca.raw$loadings
 
 #Proportion of variance explained by each component
-pve.raw <-pca.raw$sdev^2/sum(pca.raw$sdev^2) 
-
+pve.ln <- pca.ln$sdev^2/sum(pca.ln$sdev^2) #log data
+pve.raw <-pca.raw$sdev^2/sum(pca.raw$sdev^2) #raw data
 ```
 
 #Plots of the proportion of variance
 ```{r PVE plots}
 par(mfrow = c(1,2))
-#Plots the proportion of variance explained by each component (
+#Plots the proportion of variance explained by each component 
 
 #log transformed data
 plot(pve.ln, xlab="Principal Component", 
