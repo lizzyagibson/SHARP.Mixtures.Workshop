@@ -17,6 +17,8 @@ library(ggdendro)
 library(tidyverse)
 library(janitor)
 library(dendextend)
+library(ggplotify)
+library(pryr)
 
 ```
 
@@ -172,5 +174,27 @@ plot.single <- ggplot(segment(dend.single)) +
         panel.grid = element_blank())
 
 grid.arrange(plot.complete, plot.average, plot.single, ncol=3)
+```
+
+# Cutting trees at different heights
+```{r cutting trees}
+
+dendro.complete <- as.dendrogram(hc.complete)
+
+par(mfrow = c(1,2))
+#Cutting tree at a high of 12 leading to 2 clusters
+dendro.complete %>% color_branches (k = 2) %>%
+  plot(main = "Complete Linkage", ylab = "Height", leaflab = "none")
+abline(h = 12, lty = 3)
+
+#Cutting tree at a high of 11.25 leading to 3 clusters
+dendro.complete %>% color_branches (k = 3) %>% 
+    plot(ylab = "Height", leaflab = "none")
+  abline(h = 11.25, lty = 3)
+  
+#Cutting tree at a high of 10 leading to 4 clusters
+dendro.complete %>% color_branches (k = 4) %>%
+  plot(ylab = "Height", leaflab = "none")
+abline(h = 10, lty = 3)
 ```
 
