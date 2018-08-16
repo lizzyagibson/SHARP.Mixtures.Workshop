@@ -25,7 +25,7 @@ library(glmnet)
 # Data Import and Cleaning 
 
 ```{r}
-# Importing Dataset
+# Import dataset
 study_pop = read_csv("./Data/studypop.csv") %>% 
   clean_names(case = c("old_janitor")) %>% 
   mutate(bmi_cat3 = as.factor(bmi_cat3),
@@ -33,34 +33,34 @@ study_pop = read_csv("./Data/studypop.csv") %>%
          race_cat = as.factor(race_cat),
          male = as.factor(male)) 
 
-# Checking Variables for Amount Missing, etc.
+# Check variables for missing, etc.
 describe(study_pop)
 
-# Removing Missings
+# Remove missing
 data_lasso = study_pop %>% 
   dplyr::select(telomean, lbx074la:lbx187la, lbxd03la:lbx194la, everything(), -seqn) %>% 
   na.omit(telomean)
 
 names(data_lasso)
 
-# Checking dimensions of dataset
+# Check dimensions of dataset
 dim(data_lasso)
 
-# Creating a matrix of predictors as x
+# Create a matrix of predictors as x
 x = model.matrix(telomean ~ ., data_lasso)[,-1]
 
 # ln transform within x matrix
 x[,1:18] <- log(x[,1:18])
 
-# Grouping pollutants
+# Group pollutants
 my.x = names(data_lasso)[grep("la", names(data_lasso))]
 length(my.x)
 
-# Transforming outcome
+# Transform outcome
 y = data_lasso$telomean
 lny = log(data_lasso$telomean)
 
-# Grouping confounders
+# Group confounders
 covs = data_lasso[names(data_lasso)[-which(names(data_lasso) %in% c(my.x, "telomean", "seqn"))]]
 names(covs)
 conf = x[,19:36]
@@ -69,13 +69,13 @@ conf = x[,19:36]
 ## Data Visualization
 
 ```{r dataviz, warning = FALSE}
-# Visualizing log-transformed x variables
+# Visualize log-transformed x variables
 featurePlot(x = x[,1:18],
             y = lny,
             between = list(x = 1, y = 1), 
             type = c("g", "p", "smooth"))
 
-# Visualizing confounders
+# Visualize confounders
 featurePlot(x = conf,
             y = lny,
             between = list(x = 1, y = 1),
@@ -114,7 +114,7 @@ lasso.mod = glmnet(x, lny,
 coefficients_lasso = coef(lasso.mod)
 coefficients_lasso
 
-# Finding the MSE
+# Find the MSE
 lasso_mse = cv.lasso$lambda.1se
 lasso_mse
 ```
@@ -187,7 +187,7 @@ elnet.mod = glmnet(x, lny,
 coefficients_elnet = coef(elnet.mod)
 coefficients_elnet
 
-# Finding the MSE
+# Find the MSE
 elnet_mse = cv.elnet$lambda.1se
 elnet_mse
 ```
