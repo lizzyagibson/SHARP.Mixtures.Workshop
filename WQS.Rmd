@@ -9,13 +9,14 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
 #install.packages("gWQS", dependencies = TRUE)
 #devtools::package_deps("gWQS") can use this to see which package dependencies you already have
 library(gWQS)
+library(tidyverse)
 ```
 
-# Data Import and Cleaning
+## Data Import and Cleaning
 
 ```{r import}
 # import the dataset
@@ -27,9 +28,10 @@ mixture = c("LBX074LA", "LBX099LA", "LBX118LA", "LBX138LA", "LBX153LA", "LBX170L
             "LBXHXCLA", "LBXPCBLA")
 ```
 
-# Weighted Quantile Sum Regression (WQS)
+## Weighted Quantile Sums
 
-```{r}
+### Unadjusted Model
+```{r model_1}
 # fit a first unadjusted model to look at the association between the mixture and the outcome
 # TELOMEAN = Mean Telomere Length
 results1 = gwqs(TELOMEAN ~ NULL, mix_name = mixture, data = dataset, q = 10, validation = 0.6, 
@@ -38,7 +40,10 @@ results1 = gwqs(TELOMEAN ~ NULL, mix_name = mixture, data = dataset, q = 10, val
 
 summary(results1$fit)
 results1$final_weights
+```
 
+### Adjusted Model
+```{r model_2}
 # adjust for covariates:
 # blood data: LBXWBCSI LBXLYPCT LBXMOPCT LBXEOPCT LBXBAPCT LBXNEPCT
 # demographics: age_cent age_sq race_cat bmi_cat3 ln_lbxcot edu_cat
