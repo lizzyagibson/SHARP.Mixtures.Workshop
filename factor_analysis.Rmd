@@ -33,8 +33,8 @@ options(scipen = 999)
 ```{r clean}
 studypop <- read_csv("./Data/studypop.csv") %>% 
   clean_names() %>% 
-  na.omit() %>% #remove missing
-  dplyr::select(3:10, 17:26) #only include pollutants for FA, remove outcome and covariates
+  dplyr::select(3:10, 17:26) %>% #only include pollutants for FA, remove outcome and covariates
+  na.omit() #remove missing
 
 logstudypop <- log(studypop) #log transform variables
 ```
@@ -314,5 +314,33 @@ categorical %>% broom::tidy() %>% mutate(
   p.value = round(p.value, 4))
 
 categorical %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
+```
+
+## Plot Models
+
+### Continuous
+
+```{r}
+health_model %>% broom::tidy() %>% as.tibble() %>% filter(grepl("MR", term)) %>% 
+  ggplot(aes(x = term, y = estimate, color = term,
+             ymin = estimate - 1.96*std.error,
+             ymax = estimate + 1.96*std.error)) +
+  geom_pointrange() + theme_bw() +
+  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+  theme(legend.position = "none") + coord_flip() +
+  labs(y = "Estimate", x = "Factor", title = "Association between Largest Factors and LTL")
+```
+
+### Categorical
+
+```{r}
+categorical %>% broom::tidy() %>% as.tibble() %>% filter(grepl("MR", term)) %>% 
+  ggplot(aes(x = term, y = estimate, color = term,
+             ymin = estimate - 1.96*std.error,
+             ymax = estimate + 1.96*std.error)) +
+  geom_pointrange() + theme_bw() +
+  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+  theme(legend.position = "none") + coord_flip() +
+  labs(y = "Estimate", x = "Factor", title = "Association between Largest Factors and LTL")
 ```
 
