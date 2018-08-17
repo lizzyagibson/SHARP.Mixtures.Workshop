@@ -14,6 +14,7 @@ knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
 ## load required libraries 
 library(bkmr)
 #install.packages("bkmr")
+#install.packages("zoo")
 library(corrplot)
 #install.packages("corrplot")
 library(ggplot2)
@@ -145,6 +146,7 @@ load("bkmr_NHANES_gvs_knots100_PCB.RData")
 ### Correlation Matrix
 
 ```{r corr}
+
 ### correlation matrix
 cor.Z = cor(lnmixture_z, use = "complete.obs")
 
