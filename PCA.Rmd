@@ -22,6 +22,9 @@ library(ggcorrplot)
 library(ggfortify)  
 #install.packages("gridExtra")
 library(gridExtra)
+#install.packages("factoextra")
+library(factoextra)
+
 ```
 
 # Data Import and Cleaning
@@ -61,9 +64,10 @@ summary(log.x)
 
 ```{r PCA in log data}
 #PCA
-pca.ln  <- princomp(log.x, cor = TRUE)
+pca.ln  <- prcomp(log.x, scale = TRUE) #scale: a logical value indicating whether the variables should be scaled to have unit variance before the analysis takes place
 summary(pca.ln)
-pca.ln$loadings
+
+pca.ln$rotation #the matrix of variable loadings (columns are eigenvectors)
 
 #Proportion of variance explained by each component
 pve.ln <- pca.ln$sdev^2/sum(pca.ln$sdev^2)
@@ -73,13 +77,14 @@ pve.ln <- pca.ln$sdev^2/sum(pca.ln$sdev^2)
 
 ```{r PCA in raw data}
 #PCA
-pca.raw <- princomp(na.omit(studypop[my.x]), cor = TRUE) 
+pca.raw <- prcomp(na.omit(studypop[my.x]), scale = TRUE) 
 summary(pca.raw)
-pca.raw$loadings
+
+pca.raw$rotation #the matrix of variable loadings (columns are eigenvectors)
+
 
 #Proportion of variance explained by each component
-pve.ln <- pca.ln$sdev^2/sum(pca.ln$sdev^2) #log data
-pve.raw <- pca.raw$sdev^2/sum(pca.raw$sdev^2) #raw data
+pve.raw <- pca.raw$sdev^2/sum(pca.raw$sdev^2)
 ```
 
 ## Proportion of Variance Plots
@@ -89,16 +94,15 @@ par(mfrow = c(1,2))
 #Plots the proportion of variance explained by each component 
 
 #log-transformed data
-plot(pve.ln, xlab = "Principal Component", 
-     main = "Log - Transformed data",
-     ylab = "Proportion of Variance Explained", 
-     ylim = c(0,1),type = 'b')
+fviz_eig(pca.ln, main = "Log - Transformed data",
+         xlab = "Principal component",
+         ylim = c(0,70)) 
 
-#PVE raw data
-plot(pve.raw, xlab = "Principal Component", 
-     main = "Raw data",
-     ylab = "Proportion of Variance Explained", 
-     ylim = c(0,1),type = 'b')
+#Raw data
+fviz_eig(pca.raw, main = "Raw data",
+         xlab = "Principal component",
+         ylim = c(0,70))
+
 ```
 
 ## Principal Component Biplot w/ Log-Transformed PCA Results
@@ -116,25 +120,26 @@ autoplot(pca.ln, data = log.x, size = 0.8, colour = 'blue', alpha = 0.5,
 
 ```{r PCA loadings}
 #create a data frame of the loadings
-pca.ln.ld <- as.data.frame.matrix(loadings(pca.ln))
+pca.ln.ld <- as.data.frame.matrix(pca.ln$rotation)
 pca.ln.ld$chem <- row.names(pca.ln.ld)
 
-c1plot <- ggplot(pca.ln.ld, aes(x = chem, y = Comp.1)) + geom_bar(stat = "identity") +
+#Bars represent eigenvectors
+c1plot <- ggplot(pca.ln.ld, aes(x = chem, y = PC1)) + geom_bar(stat = "identity") +
   theme_bw() +  xlab("Chemicals") + ylab("Component 1")  + 
   theme(axis.title.x = element_blank(), axis.text.x = element_blank()) + 
   ylim(min(pca.ln.ld[,1:4]), max(pca.ln.ld[,1:4]))
 
-c2plot <- ggplot(pca.ln.ld, aes(x = chem, y = Comp.2)) + geom_bar(stat = "identity") +
+c2plot <- ggplot(pca.ln.ld, aes(x = chem, y = PC2)) + geom_bar(stat = "identity") +
   theme_bw() + xlab("Chemicals") + ylab("Component 2")  + 
   theme(axis.title.x = element_blank(), axis.text.x = element_blank()) + 
   ylim(min(pca.ln.ld[,1:4]), max(pca.ln.ld[,1:4]))
 
-c3plot <- ggplot(pca.ln.ld, aes(x = chem, y = Comp.3)) + geom_bar(stat = "identity") +
+c3plot <- ggplot(pca.ln.ld, aes(x = chem, y = PC3)) + geom_bar(stat = "identity") +
   theme_bw() + xlab("Chemicals") + ylab("Component 3")  + 
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
   ylim(min(pca.ln.ld[,1:4]), max(pca.ln.ld[,1:4]))
 
-c4plot <- ggplot(pca.ln.ld, aes(x = chem, y = Comp.4)) + geom_bar(stat = "identity") +
+c4plot <- ggplot(pca.ln.ld, aes(x = chem, y = PC4)) + geom_bar(stat = "identity") +
   theme_bw() + xlab("Chemicals") + ylab("Component 4")  + 
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
   ylim(min(pca.ln.ld[,1:4]), max(pca.ln.ld[,1:4]))
