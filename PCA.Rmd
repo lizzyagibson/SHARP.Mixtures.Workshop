@@ -67,7 +67,7 @@ summary(log.x)
 pca.ln  <- prcomp(log.x, scale = TRUE) #scale: a logical value indicating whether the variables should be scaled to have unit variance before the analysis takes place
 summary(pca.ln)
 
-pca.ln$rotation #the matrix of variable loadings (columns are eigenvectors)
+eigen_log = pca.ln$sdev^2 #eigenvalues
 
 #Proportion of variance explained by each component
 pve.ln <- pca.ln$sdev^2/sum(pca.ln$sdev^2)
@@ -80,8 +80,7 @@ pve.ln <- pca.ln$sdev^2/sum(pca.ln$sdev^2)
 pca.raw <- prcomp(na.omit(studypop[my.x]), scale = TRUE) 
 summary(pca.raw)
 
-pca.raw$rotation #the matrix of variable loadings (columns are eigenvectors)
-
+eigen_raw = pca.raw$sdev^2 #eigenvalues
 
 #Proportion of variance explained by each component
 pve.raw <- pca.raw$sdev^2/sum(pca.raw$sdev^2)
@@ -105,18 +104,8 @@ fviz_eig(pca.raw, main = "Raw data",
 
 ```
 
-## Principal Component Biplot w/ Log-Transformed PCA Results
 
-```{r PCA biplot}
-#Creates a biplot showing the loadings for principal component 1 and 2. 
-autoplot(pca.ln, data = log.x, size = 0.8, colour = 'blue', alpha = 0.5,
-         loadings = TRUE, loadings.colour = 'orange',
-         loadings.label = TRUE, loadings.label.repel = T, 
-         loadings.label.size = 2.5, loadings.label.colour = 'black',
-         main = "Principal Component Analysis Biplot")
-```
-
-## Data Visualization of Loadings w/ Log-Transformed PCA Results
+## Data Visualization of eigenvectors w/ Log-Transformed PCA Results
 
 ```{r PCA loadings}
 #create a data frame of the loadings
@@ -145,6 +134,17 @@ c4plot <- ggplot(pca.ln.ld, aes(x = chem, y = PC4)) + geom_bar(stat = "identity"
   ylim(min(pca.ln.ld[,1:4]), max(pca.ln.ld[,1:4]))
 
 grid.arrange(c1plot, c2plot, c3plot, c4plot, ncol = 2)
+```
+
+## Principal Component Biplot w/ Log-Transformed PCA Results
+
+```{r PCA biplot}
+#Creates a biplot showing the loadings for principal component 1 and 2. 
+autoplot(pca.ln, data = log.x, size = 0.8, colour = 'blue', alpha = 0.5,
+         loadings = TRUE, loadings.colour = 'orange',
+         loadings.label = TRUE, loadings.label.repel = T, 
+         loadings.label.size = 2.5, loadings.label.colour = 'black',
+         main = "Principal Component Analysis Biplot")
 ```
 
 
