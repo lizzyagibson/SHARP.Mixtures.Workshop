@@ -84,6 +84,8 @@ featurePlot(x = conf,
 
 # Lasso w/ CV
 
+Lasso is a dimension-reduction (variable selection) technique that has low flexibility but is instead highly interpretable. This regression technique tends to yield sparse models because of the addition of a penalty term that forces variables with minor contributions to the model to have coefficients of zero.
+
 ```{r lasso}
 # For reproducibility, set a seed
 set.seed(2)
@@ -91,7 +93,7 @@ set.seed(2)
 # n-folds is set to a default of 10 for cv.glmnet
 ## can include weights using "weights = ..."
 ## alpha is set to 1 due lasso's penalty
-## use penalty.factor to retain certain variables in the model
+## use penalty.factor to retain certain variables in the model (0 for those that you do not want to shrink)
 lasso = glmnet(x, lny, 
                penalty.factor = c(rep(1, ncol(x[,1:18])), rep(0, ncol(x[,19:36]))),
                alpha = 1)
@@ -111,11 +113,14 @@ lasso.mod = glmnet(x, lny,
                    penalty.factor = c(rep(1, ncol(x[,1:18])), rep(0, ncol(x[,19:36]))),
                    alpha = 1, lambda = best_llambda)
 
-coefficients_lasso = coef(lasso.mod)
-coefficients_lasso
+coef_lasso = coef(lasso.mod)
+coef_lasso
 
 # Find the number of non-zero estimates
-length(coefficients_lasso[coefficients_lasso != 0]) # 23 non-zero estimates
+length(coef_lasso[coef_lasso != 0]) # 23 non-zero estimates including the intercept
+
+# Find variables that are non-zero
+dimnames(coef_lasso)[[1]][which(coef_lasso != 0)]
 
 # Find the MSE
 lasso_mse = cv.lasso$lambda.1se
@@ -123,7 +128,7 @@ lasso_mse
 ```
 
 ```{r combo_plot_lasso}
-lasso_beta <- cbind(rownames(coefficients_lasso), as.vector(coefficients_lasso)) %>% 
+lasso_beta <- cbind(rownames(coef_lasso), as.vector(coef_lasso)) %>% 
   as.tibble() %>% 
   rename(variable = 1, beta = 2) %>% 
   mutate(beta = as.numeric(beta)) %>% 
@@ -132,6 +137,8 @@ lasso_beta <- cbind(rownames(coefficients_lasso), as.vector(coefficients_lasso))
 ```
 
 # Elastic Net w/ CV
+
+Elastic net is another dimension-reduction technique and is highly similar to lasso. In fact, when alpha = 1, elastic net and lasso result in the same model. The main difference between elastic net and lasso is that elastic net has an additional penalty term that allows for shrinkage of some variables that are not necessarily reduced to zero. 
 
 ## Tune Alpha
 
@@ -187,11 +194,14 @@ elnet.mod = glmnet(x, lny,
                    penalty.factor = c(rep(1, ncol(x[,1:18])), rep(0, ncol(x[,19:36]))),
                    alpha = 0.8, lambda = best_elambda)
 
-coefficients_elnet = coef(elnet.mod)
-coefficients_elnet
+coef_elnet = coef(elnet.mod)
+coef_elnet
 
 # Find the number of non-zero estimates
-length(coefficients_elnet[coefficients_elnet != 0]) # 24 non-zero estimates
+length(coef_elnet[coef_elnet != 0]) # 24 non-zero estimates including the intercept
+
+# Find variables that are non-zero
+dimnames(coef_elnet)[[1]][which(coef_elnet != 0)]
 
 # Find the MSE
 elnet_mse = cv.elnet$lambda.1se
@@ -201,7 +211,7 @@ elnet_mse
 ```
 
 ```{r combo_plot_enet}
-enet_beta <- cbind(rownames(coefficients_elnet), as.vector(coefficients_elnet)) %>% 
+enet_beta <- cbind(rownames(coef_elnet), as.vector(coef_elnet)) %>% 
   as.tibble() %>% 
   rename(variable = 1, beta = 2) %>% 
   mutate(beta = as.numeric(beta)) %>% 
@@ -218,7 +228,11 @@ compare = cbind(as.vector(best_llambda), as.vector(lasso_mse), as.vector(best_el
 rownames(compare) = colnames(lasso_mse); colnames(compare) = c("Lasso Lambda", "Lasso MSE", "Elastic Lambda", "Elastic Net MSE")
 
 knitr::kable(compare, align = "c")
+
+coef = cbind(as.vector(coef_lasso), as.vector(coef_elnet))
 ```
+
+The lasso and elastic net techniques resulted in similar lambda values, mean squared errors, variable coefficients, and thus almost identical models. There was one variable that was retained in elastic net and not lasso and it was lbxf08la with a coefficient of 1.19 x 10^-4^. Based strictly on MSE values, lasso would be considered a slightly better model, but not by much. 
 
 ```{r create_4_plot}
 ind <- rbind(enet_beta, lasso_beta)
