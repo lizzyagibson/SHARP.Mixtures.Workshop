@@ -9,7 +9,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
+knitr::opts_chunk$set(echo = TRUE)
 #install.packages("gWQS", dependencies = TRUE)
 #devtools::package_deps("gWQS") can use this to see which package dependencies you already have
 library(gWQS)
