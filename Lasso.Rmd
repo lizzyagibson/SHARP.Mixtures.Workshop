@@ -114,6 +114,9 @@ lasso.mod = glmnet(x, lny,
 coefficients_lasso = coef(lasso.mod)
 coefficients_lasso
 
+# Find the number of non-zero estimates
+length(coefficients_lasso[coefficients_lasso != 0]) # 23 non-zero estimates
+
 # Find the MSE
 lasso_mse = cv.lasso$lambda.1se
 lasso_mse
@@ -187,9 +190,14 @@ elnet.mod = glmnet(x, lny,
 coefficients_elnet = coef(elnet.mod)
 coefficients_elnet
 
+# Find the number of non-zero estimates
+length(coefficients_elnet[coefficients_elnet != 0]) # 24 non-zero estimates
+
 # Find the MSE
 elnet_mse = cv.elnet$lambda.1se
 elnet_mse
+
+
 ```
 
 ```{r combo_plot_enet}
