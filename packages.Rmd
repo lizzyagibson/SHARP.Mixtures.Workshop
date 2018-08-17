@@ -1,0 +1,33 @@
+---
+title: "All Packages Required"
+author: "Mixtures Workshop"
+date: "8/16/2018"
+output: html_document
+---
+
+Please install all of the following packages:
+
+```{r setup}
+# All packages used
+install.packages("bkmr")
+install.packages("caret")
+install.packages("corrplot")
+install.packages("dendextend")
+install.packages("dplyr")
+install.packages("ggcorrplot")
+install.packages("ggdendro")
+install.packages("ggfortify")
+install.packages("ggplotify")
+install.packages("glmnet")
+install.packages("gridExtra")
+install.packages("grpreg")
+install.packages("gWQS", dependencies = TRUE)
+install.packages("Hmisc")
+install.packages("janitor")
+install.packages("knitr")
+install.packages("pryr")
+install.packages("refund")
+install.packages("refund.shiny")
+install.packages("splines")
+install.packages("tidyverse")
+```

@@ -1,5 +1,5 @@
 ---
-title: "Variable Selection Viz"
+title: "Variable Selection Visualization"
 author: "Lizzy Gibson"
 date: "7/26/2018"
 output: 
@@ -10,6 +10,7 @@ output:
 
 ```{r setup, include=FALSE}
 library(tidyverse)
+#install.packages("tidyverse")
 ```
 
 ## Combine Effect Estimates
@@ -25,25 +26,25 @@ plot_all <- rbind(grouped, ind) %>% filter(grepl("la$", variable))
 
 ```{r}
 plot_all %>%
-  ggplot(aes(x = variable, 
-                       y = round(beta, 5))) + geom_point(aes(color = method)) +
+  ggplot(aes(x = variable, y = round(beta, 5))) + 
+  geom_point(aes(color = method)) +
   theme_minimal() + geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1), 
-        legend.position = "bottom") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "bottom") + 
   coord_flip() + 
-  labs(title = "Variable Selection Coefficients", y = "Beta Coefficients",
-       x = "Variable", color = "Method")
+  labs(title = "Variable Selection Coefficients", 
+       y = "Beta Coefficients", 
+       x = "Variable", 
+       color = "Method")
 ```
 
 ```{r}
 plot_all %>%
-  ggplot(aes(x = method, 
-                       y = round(beta, 5))) + geom_point(aes(color = method)) +
+  ggplot(aes(x = method, y = round(beta, 5))) + geom_point(aes(color = method)) +
   theme_minimal() + geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1), 
-        legend.position = "none") +
-  facet_wrap(.~variable) +
-  coord_flip() + 
-  labs(title = "Variable Selection Coefficients", y = "Beta Coefficients",
-       x = "Variable", color = "Method")
+  theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "none") +
+  facet_wrap( ~ variable) + coord_flip() + 
+  labs(title = "Variable Selection Coefficients", 
+       y = "Beta Coefficients",
+       x = "Variable", 
+       color = "Method")
 ```

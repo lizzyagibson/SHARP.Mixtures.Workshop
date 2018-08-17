@@ -1,0 +1,67 @@
+---
+title: "Weighted Quantile Sum Regression"
+author: "Chris Gennings and Stefano Renzetti"
+date: "8/16/2018"
+output: 
+  html_document:
+    toc: TRUE
+    toc_float: TRUE
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+#install.packages("gWQS", dependencies = TRUE)
+#devtools::package_deps("gWQS") can use this to see which package dependencies you already have
+library(gWQS)
+library(tidyverse)
+```
+
+## Data Import and Cleaning
+
+```{r import}
+# import the dataset
+dataset = read_csv("./Data/studypop.csv") 
+
+# define the chemicals to include in the mixture
+mixture = c("LBX074LA", "LBX099LA", "LBX118LA", "LBX138LA", "LBX153LA", "LBX170LA", "LBX180LA", "LBX187LA",
+            "LBX194LA", "LBXD03LA", "LBXD05LA", "LBXD07LA", "LBXF03LA", "LBXF04LA", "LBXF05LA", "LBXF08LA",
+            "LBXHXCLA", "LBXPCBLA")
+```
+
+## Weighted Quantile Sums
+
+### Unadjusted Model
+```{r model_1}
+# fit a first unadjusted model to look at the association between the mixture and the outcome
+# TELOMEAN = Mean Telomere Length
+results1 = gwqs(TELOMEAN ~ NULL, mix_name = mixture, data = dataset, q = 10, validation = 0.6, 
+                valid_var = NULL,b = 100, b1_pos = FALSE, b1_constr = TRUE, family = "gaussian", 
+                seed = 100597, wqs2 = FALSE, plots = TRUE, tables = TRUE)
+
+summary(results1$fit)
+results1$final_weights
+```
+
+### Adjusted Model
+```{r model_2}
+# adjust for covariates:
+# blood data: LBXWBCSI LBXLYPCT LBXMOPCT LBXEOPCT LBXBAPCT LBXNEPCT
+# demographics: age_cent age_sq race_cat bmi_cat3 ln_lbxcot edu_cat
+
+# redefine variables race_cat and edu_cat as factors
+dataset$race_cat = factor(dataset$race_cat, levels = c(1, 2, 3, 4), labels = c(1, 2, 3, 4))
+dataset$edu_cat = factor(dataset$edu_cat, levels = c(1, 2, 3, 4), labels = c(1, 2, 3, 4))
+dataset$bmi_cat3 = factor(dataset$bmi_cat3, levels = c(1, 2, 3), labels = c(1, 2, 3))
+
+result2 = gwqs(TELOMEAN ~ LBXWBCSI + LBXLYPCT + LBXMOPCT + LBXEOPCT + LBXBAPCT + LBXNEPCT + age_cent +
+                 age_sq + race_cat + bmi_cat3 + ln_lbxcot + edu_cat + male, mix_name = mixture, 
+                 data = dataset, q = 10, 
+                 validation = 0.6, valid_var = NULL, b = 100, b1_pos = TRUE, b1_constr = TRUE, 
+                 family = "gaussian", seed = 100597, wqs2 = FALSE, plots = TRUE, tables = TRUE)
+
+summary(result2$fit)
+
+result2$final_weights
+```
+
+
