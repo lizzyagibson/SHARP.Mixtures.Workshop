@@ -1837,14 +1837,13 @@ featurePlot(x = conf,
 </div>
 <div id="lasso-w-cv" class="section level1">
 <h1>Lasso w/ CV</h1>
-<p>Lasso is a dimension-reduction (variable selection) technique that has low flexibility but is instead highly interpretable. This regression technique tends to yield sparse models because of the addition of a penalty term that forces variables with minor contributions to the model to have coefficients of zero.</p>
 <pre class="r"><code># For reproducibility, set a seed
 set.seed(2)
 
 # n-folds is set to a default of 10 for cv.glmnet
 ## can include weights using &quot;weights = ...&quot;
 ## alpha is set to 1 due lasso's penalty
-## use penalty.factor to retain certain variables in the model (0 for those that you do not want to shrink)
+## use penalty.factor to retain certain variables in the model
 lasso = glmnet(x, lny, 
                penalty.factor = c(rep(1, ncol(x[,1:18])), rep(0, ncol(x[,19:36]))),
                alpha = 1)
@@ -1864,8 +1863,8 @@ lasso.mod = glmnet(x, lny,
                    penalty.factor = c(rep(1, ncol(x[,1:18])), rep(0, ncol(x[,19:36]))),
                    alpha = 1, lambda = best_llambda)
 
-coef_lasso = coef(lasso.mod)
-coef_lasso</code></pre>
+coefficients_lasso = coef(lasso.mod)
+coefficients_lasso</code></pre>
 <pre><code>## 37 x 1 sparse Matrix of class &quot;dgCMatrix&quot;
 ##                        s0
 ## (Intercept)  1.172720e-01
@@ -1905,22 +1904,11 @@ coef_lasso</code></pre>
 ## ln_lbxcot    3.316291e-03
 ## age_cent    -6.391915e-03
 ## age_sq      -1.078179e-05</code></pre>
-<pre class="r"><code># Find the number of non-zero estimates
-length(coef_lasso[coef_lasso != 0]) # 23 non-zero estimates including the intercept</code></pre>
-<pre><code>## &lt;sparse&gt;[ &lt;logic&gt; ] : .M.sub.i.logical() maybe inefficient</code></pre>
-<pre><code>## [1] 23</code></pre>
-<pre class="r"><code># Find variables that are non-zero
-dimnames(coef_lasso)[[1]][which(coef_lasso != 0)]</code></pre>
-<pre><code>##  [1] &quot;(Intercept)&quot; &quot;lbx099la&quot;    &quot;lbx118la&quot;    &quot;lbxf03la&quot;    &quot;lbxpcbla&quot;   
-##  [6] &quot;lbxwbcsi&quot;    &quot;lbxlypct&quot;    &quot;lbxmopct&quot;    &quot;lbxnepct&quot;    &quot;lbxeopct&quot;   
-## [11] &quot;lbxbapct&quot;    &quot;bmi_cat32&quot;   &quot;bmi_cat33&quot;   &quot;edu_cat2&quot;    &quot;edu_cat3&quot;   
-## [16] &quot;edu_cat4&quot;    &quot;race_cat2&quot;   &quot;race_cat3&quot;   &quot;race_cat4&quot;   &quot;male1&quot;      
-## [21] &quot;ln_lbxcot&quot;   &quot;age_cent&quot;    &quot;age_sq&quot;</code></pre>
 <pre class="r"><code># Find the MSE
 lasso_mse = cv.lasso$lambda.1se
 lasso_mse</code></pre>
 <pre><code>## [1] 0.01142263</code></pre>
-<pre class="r"><code>lasso_beta &lt;- cbind(rownames(coef_lasso), as.vector(coef_lasso)) %&gt;% 
+<pre class="r"><code>lasso_beta &lt;- cbind(rownames(coefficients_lasso), as.vector(coefficients_lasso)) %&gt;% 
   as.tibble() %&gt;% 
   rename(variable = 1, beta = 2) %&gt;% 
   mutate(beta = as.numeric(beta)) %&gt;% 
@@ -1929,7 +1917,6 @@ lasso_mse</code></pre>
 </div>
 <div id="elastic-net-w-cv" class="section level1">
 <h1>Elastic Net w/ CV</h1>
-<p>Elastic net is another dimension-reduction technique and is highly similar to lasso. In fact, when alpha = 1, elastic net and lasso result in the same model. The main difference between elastic net and lasso is that elastic net has an additional penalty term that allows for shrinkage of some variables that are not necessarily reduced to zero.</p>
 <div id="tune-alpha" class="section level2">
 <h2>Tune Alpha</h2>
 <pre class="r"><code># For reproducibility, set a seed
@@ -1983,8 +1970,8 @@ elnet.mod = glmnet(x, lny,
                    penalty.factor = c(rep(1, ncol(x[,1:18])), rep(0, ncol(x[,19:36]))),
                    alpha = 0.8, lambda = best_elambda)
 
-coef_elnet = coef(elnet.mod)
-coef_elnet</code></pre>
+coefficients_elnet = coef(elnet.mod)
+coefficients_elnet</code></pre>
 <pre><code>## 37 x 1 sparse Matrix of class &quot;dgCMatrix&quot;
 ##                        s0
 ## (Intercept)  1.076222e-01
@@ -2024,22 +2011,11 @@ coef_elnet</code></pre>
 ## ln_lbxcot    3.336050e-03
 ## age_cent    -6.430194e-03
 ## age_sq      -1.097171e-05</code></pre>
-<pre class="r"><code># Find the number of non-zero estimates
-length(coef_elnet[coef_elnet != 0]) # 24 non-zero estimates including the intercept</code></pre>
-<pre><code>## &lt;sparse&gt;[ &lt;logic&gt; ] : .M.sub.i.logical() maybe inefficient</code></pre>
-<pre><code>## [1] 24</code></pre>
-<pre class="r"><code># Find variables that are non-zero
-dimnames(coef_elnet)[[1]][which(coef_elnet != 0)]</code></pre>
-<pre><code>##  [1] &quot;(Intercept)&quot; &quot;lbx099la&quot;    &quot;lbx118la&quot;    &quot;lbxf03la&quot;    &quot;lbxf08la&quot;   
-##  [6] &quot;lbxpcbla&quot;    &quot;lbxwbcsi&quot;    &quot;lbxlypct&quot;    &quot;lbxmopct&quot;    &quot;lbxnepct&quot;   
-## [11] &quot;lbxeopct&quot;    &quot;lbxbapct&quot;    &quot;bmi_cat32&quot;   &quot;bmi_cat33&quot;   &quot;edu_cat2&quot;   
-## [16] &quot;edu_cat3&quot;    &quot;edu_cat4&quot;    &quot;race_cat2&quot;   &quot;race_cat3&quot;   &quot;race_cat4&quot;  
-## [21] &quot;male1&quot;       &quot;ln_lbxcot&quot;   &quot;age_cent&quot;    &quot;age_sq&quot;</code></pre>
 <pre class="r"><code># Find the MSE
 elnet_mse = cv.elnet$lambda.1se
 elnet_mse</code></pre>
 <pre><code>## [1] 0.01427828</code></pre>
-<pre class="r"><code>enet_beta &lt;- cbind(rownames(coef_elnet), as.vector(coef_elnet)) %&gt;% 
+<pre class="r"><code>enet_beta &lt;- cbind(rownames(coefficients_elnet), as.vector(coefficients_elnet)) %&gt;% 
   as.tibble() %&gt;% 
   rename(variable = 1, beta = 2) %&gt;% 
   mutate(beta = as.numeric(beta)) %&gt;% 
@@ -2073,8 +2049,6 @@ knitr::kable(compare, align = &quot;c&quot;)</code></pre>
 </tr>
 </tbody>
 </table>
-<pre class="r"><code>coef = cbind(as.vector(coef_lasso), as.vector(coef_elnet))</code></pre>
-<p>The lasso and elastic net techniques resulted in similar lambda values, mean squared errors, variable coefficients, and thus almost identical models. There was one variable that was retained in elastic net and not lasso and it was lbxf08la with a coefficient of 1.19 x 10<sup>-4</sup>. Based strictly on MSE values, lasso would be considered a slightly better model, but not by much.</p>
 <pre class="r"><code>ind &lt;- rbind(enet_beta, lasso_beta)
 write_csv(ind, &quot;ind_betas.csv&quot;)</code></pre>
 </div>

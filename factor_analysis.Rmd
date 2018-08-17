@@ -68,6 +68,7 @@ One way to determine the number of factors or components in a data or correlatio
 simple.pca <- princomp(logstudypop, cor = TRUE)
 simple.pca$sdev^2
 # 3 PC are > 1
+
 summary(simple.pca)
 # First 3 PC explain 80% of variance
 
@@ -265,5 +266,53 @@ scores %>% ggplot(aes(x = Max, fill = Max)) + geom_bar() +
   theme_bw() + theme(legend.position = "none")
 ```
 
+## Health Models
 
+Combine Factor scores with original data outcome and covariates.
+
+```{r}
+pop <- read_csv("./Data/studypop.csv") %>% 
+  clean_names() %>% 
+  na.omit() %>% #remove missing
+  dplyr::select(-(3:10), -(17:26)) %>% 
+  mutate(logtelomean = log(telomean))
+
+pop <- as.tibble(cbind(pop, scores))
+```
+
+### Continuous
+
+Put 5 factors (continuous) into a linear regression w/ covariates to estimate association with LTL.
+
+```{r}
+health_model <- lm(logtelomean ~ MR1  + MR2 +  MR3  +  MR4  + MR5 + 
+     lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct +
+     as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = pop)
+
+health_model %>% broom::tidy() %>% mutate(
+  estimate = round(estimate, 4),
+  std.error = round(std.error, 4),
+  statistic = round(statistic, 4),
+  p.value = round(p.value, 4))
+
+health_model %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
+```
+
+### Categorical
+
+Model with 5 factors as a categorical variable (assigned to factor with highest score).
+
+```{r}
+categorical <- lm(logtelomean ~ as.factor(Max) +
+     lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct +
+     as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = pop)
+
+categorical %>% broom::tidy() %>% mutate(
+  estimate = round(estimate, 4),
+  std.error = round(std.error, 4),
+  statistic = round(statistic, 4),
+  p.value = round(p.value, 4))
+
+categorical %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
+```
 
