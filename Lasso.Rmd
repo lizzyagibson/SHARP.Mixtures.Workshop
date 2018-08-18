@@ -111,8 +111,14 @@ lasso.mod = glmnet(x, lny,
                    penalty.factor = c(rep(1, ncol(x[,1:18])), rep(0, ncol(x[,19:36]))),
                    alpha = 1, lambda = best_llambda)
 
-coefficients_lasso = coef(lasso.mod)
-coefficients_lasso
+coef_lasso = coef(lasso.mod)
+coef_lasso
+
+# Find the number of non-zero estimates
+length(coef_lasso[coef_lasso != 0]) # 23 non-zero estimates including the intercept
+
+# Find variables that are non-zero
+dimnames(coef_lasso)[[1]][which(coef_lasso != 0)]
 
 # Find the MSE
 lasso_mse = cv.lasso$lambda.1se
@@ -120,7 +126,7 @@ lasso_mse
 ```
 
 ```{r combo_plot_lasso}
-lasso_beta <- cbind(rownames(coefficients_lasso), as.vector(coefficients_lasso)) %>% 
+lasso_beta <- cbind(rownames(coef_lasso), as.vector(coef_lasso)) %>% 
   as.tibble() %>% 
   rename(variable = 1, beta = 2) %>% 
   mutate(beta = as.numeric(beta)) %>% 
@@ -184,8 +190,14 @@ elnet.mod = glmnet(x, lny,
                    penalty.factor = c(rep(1, ncol(x[,1:18])), rep(0, ncol(x[,19:36]))),
                    alpha = 0.8, lambda = best_elambda)
 
-coefficients_elnet = coef(elnet.mod)
-coefficients_elnet
+coef_elnet = coef(elnet.mod)
+coef_elnet
+
+# Find the number of non-zero estimates
+length(coef_elnet[coef_elnet != 0]) # 24 non-zero estimates including the intercept
+
+# Find variables that are non-zero
+dimnames(coef_elnet)[[1]][which(coef_elnet != 0)]
 
 # Find the MSE
 elnet_mse = cv.elnet$lambda.1se
@@ -193,7 +205,7 @@ elnet_mse
 ```
 
 ```{r combo_plot_enet}
-enet_beta <- cbind(rownames(coefficients_elnet), as.vector(coefficients_elnet)) %>% 
+enet_beta <- cbind(rownames(coef_elnet), as.vector(coef_elnet)) %>% 
   as.tibble() %>% 
   rename(variable = 1, beta = 2) %>% 
   mutate(beta = as.numeric(beta)) %>% 
@@ -213,6 +225,8 @@ knitr::kable(compare, align = "c")
 ```
 
 ```{r create_4_plot}
+coef_summ = merge(enet_beta, lasso_beta, by = "variable")
+
 ind <- rbind(enet_beta, lasso_beta)
 write_csv(ind, "ind_betas.csv")
 ```
