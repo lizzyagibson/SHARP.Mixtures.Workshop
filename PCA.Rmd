@@ -32,6 +32,7 @@ library(factoextra)
 ```{r data preping}
 studypop <- read_csv("./Data/studypop.csv") %>% 
   clean_names() %>% 
+  na.omit() %>%
   mutate(bmi_cat3 = as.factor(bmi_cat3),
   edu_cat = as.factor(edu_cat),
   race_cat = as.factor(race_cat),
@@ -48,8 +49,8 @@ my.x <- names(studypop)[grep("la", names(studypop))]
 
 #create a new data frame with my.x and convert values for the predictor variables to its natural log.
 log.x <- data.frame(apply(studypop[,my.x], 2, FUN = function(x) log(x))) %>%
-  setNames(paste(my.x, "l2", sep = ".")) %>% #add suffix 12 to the predictors' name
-  na.omit() #remove missing
+  setNames(paste(my.x, "l2", sep = ".")) #add suffix 12 to the predictors' name
+ 
 
 #check dimensions of dataset
 dim(log.x)
@@ -68,6 +69,7 @@ pca.ln  <- prcomp(log.x, scale = TRUE) #scale: a logical value indicating whethe
 summary(pca.ln)
 
 eigen_log = pca.ln$sdev^2 #eigenvalues
+eigen_log
 
 #Proportion of variance explained by each component
 pve.ln <- pca.ln$sdev^2/sum(pca.ln$sdev^2)
@@ -81,15 +83,16 @@ pca.raw <- prcomp(na.omit(studypop[my.x]), scale = TRUE)
 summary(pca.raw)
 
 eigen_raw = pca.raw$sdev^2 #eigenvalues
+eigen_raw
 
 #Proportion of variance explained by each component
 pve.raw <- pca.raw$sdev^2/sum(pca.raw$sdev^2)
 ```
 
 ## Proportion of Variance Plots
-
+The first two components explained 73% of the variance int the log-transformed data and 71% of variance in the raw data. 
 ```{r PVE plots}
-par(mfrow = c(1,2))
+
 #Plots the proportion of variance explained by each component 
 
 #log-transformed data
@@ -108,7 +111,7 @@ fviz_eig(pca.raw, main = "Raw data",
 ## Data Visualization of eigenvectors w/ Log-Transformed PCA Results
 
 ```{r PCA loadings}
-#create a data frame of the loadings
+#creates a data frame of the eigenvectors
 pca.ln.ld <- as.data.frame.matrix(pca.ln$rotation)
 pca.ln.ld$chem <- row.names(pca.ln.ld)
 
@@ -147,5 +150,37 @@ autoplot(pca.ln, data = log.x, size = 0.8, colour = 'blue', alpha = 0.5,
          main = "Principal Component Analysis Biplot")
 ```
 
+##Health Model 
+
+```{r}
+scores <- pca.ln$x
+
+pop_pca <- read_csv("./Data/studypop.csv") %>% 
+  clean_names() %>% 
+  na.omit() %>%
+  dplyr::select(-(3:10), -(17:26)) %>% 
+  mutate(logtelomean = log(telomean))
+
+
+pop_pca <- as.tibble((cbind(pop_pca, scores)))
+```
+
+### Continuous
+
+Put 3 components (continuous) into a linear regression w/ covariates to estimate association with LTL.
+
+```{r}
+health_model <- lm(logtelomean ~ PC1  + PC2 +  PC3  +  
+     lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct +
+     as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = pop_pca)
+
+health_model %>% broom::tidy() %>% mutate(
+  estimate = round(estimate, 4),
+  std.error = round(std.error, 4),
+  statistic = round(statistic, 4),
+  p.value = round(p.value, 4))
+
+health_model %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
+```
 
 
