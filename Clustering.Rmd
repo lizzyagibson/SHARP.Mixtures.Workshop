@@ -326,7 +326,7 @@ grid.arrange(plot.complete, plot.average, plot.single, ncol = 3)
 
 dendro.complete <- as.dendrogram(hc.complete)
 
-par(mfrow = c(1,2))
+par(mfrow = c(1,1))
 
 #cut tree at a height of 12 resulting in 2 clusters
 dendro.complete %>% 
@@ -336,13 +336,13 @@ abline(h = 12, lty = 3)
 
 #cut tree at a height of 11.25 resulting in 3 clusters
 dendro.complete %>% color_branches(k = 3) %>% 
-    plot(ylab = "Height", leaflab = "none")
+    plot(main = "Complete Linkage", ylab = "Height", leaflab = "none")
   abline(h = 11.25, lty = 3)
   
 #cut tree at a height of 10 resulting in 4 clusters
 dendro.complete %>% 
   color_branches(k = 4) %>%
-  plot(ylab = "Height", leaflab = "none") 
+  plot(main = "Complete Linkage", ylab = "Height", leaflab = "none") 
 abline(h = 10, lty = 3)
 ```
 

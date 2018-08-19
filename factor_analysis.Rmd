@@ -187,7 +187,7 @@ loadings <- as.tibble(cbind(rownames(fa_5$loadings[]), fa_5$loadings[])) %>%
 
 loadings$Max <- colnames(loadings[,2:6])[max.col(loadings[,2:6], ties.method = "first")]
 
-loadings
+loadings %>% knitr::kable()
 
 loadings %>% filter(Max == "MR1") %>% count()
 loadings %>% filter(Max == "MR2") %>% count()
