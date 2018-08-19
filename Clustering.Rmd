@@ -191,7 +191,7 @@ health_model_kmeans %>% broom::tidy() %>% as.tibble() %>% filter(grepl("clu.grou
   geom_pointrange() + theme_bw() +
   geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
   theme(legend.position = "none") + coord_flip() +
-  labs(y = "Estimate", x = "Factor", title = "Association between Largest Factors and LTL")
+  labs(y = "Estimate", x = "Factor", title = "Association between cluster and LTL")
 ```
 
 # Hierarchical Clustering
