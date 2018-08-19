@@ -73,15 +73,29 @@ summary(log.x)
 # for reproducibility, set seed
 set.seed(28)
 
+
+#K-menas with K = 1
+km1 <- kmeans(log.x, 1, nstart = 20)
+
+summary(km1$size)
+head(km1$centers)
+km1$totss ## total sum of squares
+km1$withinss ## within cluster sum of squares by cluster
+km1$tot.withinss ## total within cluster sum of squares -- this is what we want to minimize!
+km1$betweenss ## between cluster sum of squares
+Percent_bt_k1 = paste(round(100*(km1000$betweenss/km1000$totss),1), "%", sep = "")
+
+
 #K-means with K = 2
-km2 <- kmeans(log.x, 2, nstart = 20)
+km2 <- kmeans(log.x, 2, nstart = 20) 
+km2
 
 km2$size
 km2$centers
-km2$totss ## total sum of squares
-km2$withinss ## within cluster sum of squares by cluster
-km2$tot.withinss ## total within cluster sum of squares -- this is what we want to minimize!
-km2$betweenss ## between cluster sum of squares
+km2$totss 
+km2$withinss
+km2$tot.withinss 
+km2$betweenss 
 Percent_bt_k2 = paste(round(100*(km2$betweenss/km2$totss),1), "%", sep = "")
 
 #K-means with K = 3
@@ -117,61 +131,28 @@ km100$tot.withinss
 km100$betweenss 
 Percent_bt_k100 = paste(round(100*(km100$betweenss/km100$totss),1), "%", sep = "")
 
-#K-menas with K = 1000
-km1000 <- kmeans(log.x, 1000, nstart = 50)
 
-summary(km1000$size)
-head(km1000$centers)
-km1000$totss 
-km1000$tot.withinss  
-km1000$betweenss 
-Percent_bt_k1000 = paste(round(100*(km1000$betweenss/km1000$totss),1), "%", sep = "")
 ```
 
 ## Summary Table 
 
 ```{r summary}
-summary.km <- matrix(c(km2$totss, km3$totss, km10$totss, km100$totss, km1000$totss, 
-                       km2$tot.withinss, km3$tot.withinss, km10$tot.withinss, km100$tot.withinss,
-                       km1000$tot.withinss, km2$betweenss, km3$betweenss, km10$betweenss, km100$betweenss,
-                       km1000$betweenss), ncol = 3)
+summary.km <- matrix(c(km1$totss, km2$totss, km3$totss, km10$totss, km100$totss, 
+                       km1$tot.withinss, km2$tot.withinss, km3$tot.withinss, km10$tot.withinss, km100$tot.withinss, 
+                       km1$betweenss, km2$betweenss, km3$betweenss, km10$betweenss, km100$betweenss), 
+                     ncol = 3)
 colnames(summary.km) <- c("Total SS", "Total within cluster SS", "Between cluster SS")
-rownames(summary.km) <- c("km-2", "km-3", "km-10", "km-100", "km-1000")
+rownames(summary.km) <- c("km-1", "km-2", "km-3", "km-10", "km-100")
 summary.km <- round(as.table(summary.km), 2) 
 summary.km <- kable(summary.km)
 summary.km
 ```
 
-## Data Visualization ***Need to add description for this
-
+## Health model 
 ```{r}
-plot_km3 <- autoplot(kmeans(na.omit(log.x), 3), 
-                     data = na.omit(log.x), 
-                     main = "K-means, K = 3", 
-                     alpha = 0.8) + 
-  theme(legend.position = "none", axis.title.x = element_blank(), axis.text.x = element_blank()) 
 
-plot_km10 <- autoplot(kmeans(na.omit(log.x), 10), 
-                      data = na.omit(log.x), 
-                      main = "K-means, K = 10", 
-                      alpha = 0.8) +
-  theme(legend.position = "none", axis.title.x = element_blank(), axis.text.x = element_blank(), 
-        axis.title.y = element_blank(), axis.text.y = element_blank())
-
-plot_km100 <- autoplot(kmeans(na.omit(log.x), 100), 
-                       data = na.omit(log.x), 
-                       main = "K-means, K = 100", 
-                       alpha = 0.8) + 
-  theme(legend.position = "none")
-
-plot_km1000 <- autoplot(kmeans(na.omit(log.x), 1000), 
-                        data = na.omit(log.x), 
-                        main = "K-means, K = 1000", 
-                        alpha = 0.8) + 
-  theme(legend.position = "none", axis.title.y = element_blank(), axis.text.y = element_blank())
-                  
-grid.arrange(plot_km3, plot_km10, plot_km100, plot_km1000, ncol = 2)
 ```
+
 
 # Hierarchical Clustering
 
