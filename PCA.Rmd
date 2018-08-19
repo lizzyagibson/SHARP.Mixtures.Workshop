@@ -169,7 +169,7 @@ pop_pca <- as.tibble((cbind(pop, x)))
 Put 2 components (continuous) into a linear regression w/ covariates to estimate association with LTL.
 
 ```{r}
-health_model_pca <- lm(logtelomean ~ PC1  + PC2 +   
+health_model_pca <- lm(logtelomean ~PC1  + PC2 +   
      lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct +
      as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = pop_pca)
 
