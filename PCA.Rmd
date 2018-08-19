@@ -150,37 +150,52 @@ autoplot(pca.ln, data = log.x, size = 0.8, colour = 'blue', alpha = 0.5,
          main = "Principal Component Analysis Biplot")
 ```
 
-##Health Model 
+##Health Model
+
+Combine PC scores with original data outcome and covariants
 
 ```{r}
-scores <- pca.ln$x
+x <- pca.ln$x #principal components for each chemical
 
-pop_pca <- read_csv("./Data/studypop.csv") %>% 
+pop <- read_csv("./Data/studypop.csv") %>% 
   clean_names() %>% 
   na.omit() %>%
   dplyr::select(-(3:10), -(17:26)) %>% 
   mutate(logtelomean = log(telomean))
 
 
-pop_pca <- as.tibble((cbind(pop_pca, scores)))
+pop_pca <- as.tibble((cbind(pop, x)))
 ```
 
 ### Continuous
 
-Put 3 components (continuous) into a linear regression w/ covariates to estimate association with LTL.
+Put 2 components (continuous) into a linear regression w/ covariates to estimate association with LTL.
 
 ```{r}
-health_model <- lm(logtelomean ~ PC1  + PC2 +  PC3  +  
+health_model_pca <- lm(logtelomean ~ PC1  + PC2 +   
      lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct +
      as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = pop_pca)
 
-health_model %>% broom::tidy() %>% mutate(
+health_model_pca %>% broom::tidy() %>% mutate(
   estimate = round(estimate, 4),
   std.error = round(std.error, 4),
   statistic = round(statistic, 4),
   p.value = round(p.value, 4))
 
-health_model %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
+health_model_pca %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
 ```
+## Plot Models
 
+### Continuous   ***** I am not sure if I'm doing this right!!!:(
 
+```{r}
+health_model_pca %>% broom::tidy() %>% as.tibble() %>% filter(grepl("PC", term)) %>% 
+  ggplot(aes(x = term, y = estimate, color = term,
+             ymin = estimate - 1.96*std.error,
+             ymax = estimate + 1.96*std.error)) +
+  geom_pointrange() + theme_bw() +
+  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+  theme(legend.position = "none") + coord_flip() +
+  labs(y = "Estimate", x = "Principal Component", title = "Association between Principal Component and LTL")
+
+```
