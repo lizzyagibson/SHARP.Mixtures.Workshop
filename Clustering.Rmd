@@ -6,6 +6,7 @@ output:
   html_document:
     toc: TRUE
     toc_float: TRUE
+    toc_depth: 5
 ---
 
 ```{r setup, include=FALSE}
@@ -14,8 +15,6 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 #install.packages("janitor")
 library(janitor)
-#install.packages("ggplot2")
-library(ggplot2)
 #install.packages("ggcorrplot")
 library(ggcorrplot)
 #install.packages("ggfortify")
@@ -26,8 +25,6 @@ library(ggdendro)
 library(ggplotify)
 #install.packages("gridExtra")
 library(gridExtra) 
-#install.packages("dplyr")
-library(dplyr)
 #install.packages("knitr")
 library(knitr)
 #install.packages("dendextend")
@@ -36,7 +33,7 @@ library(dendextend)
 library(pryr)
 ```
 
-# Data Import and Cleaning
+## Data Import and Cleaning
 
 ```{r data preping}
 studypop <- read_csv("./Data/studypop.csv") %>% 
@@ -68,7 +65,7 @@ dim(log.x)
 summary(log.x)
 ```
 
-# K-Means Clustering
+## K-Means Clustering
 
 ```{r k-means}
 # for reproducibility, set seed
@@ -135,7 +132,7 @@ Percent_bt_k100 = paste(round(100*(km100$betweenss/km100$totss),1), "%", sep = "
 
 ```
 
-## Summary Table 
+### Summary Table 
 
 ```{r summary}
 summary.km <- matrix(c(km1$totss, km2$totss, km3$totss, km10$totss, km100$totss, 
@@ -149,12 +146,13 @@ summary.km <- kable(summary.km)
 summary.km
 ```
 
-## Health model 
+### Health model 
+
+#### 2 Cluster Model
 
 Combine clusters grouping with original data outcome and covariants for K-means = 2
 
 ```{r}
-
 clu.group <- km2$cluster #cluster group
 
 pop <- read_csv("./Data/studypop.csv") %>% 
@@ -163,15 +161,14 @@ pop <- read_csv("./Data/studypop.csv") %>%
   dplyr::select(-(3:10), -(17:26)) %>% 
   mutate(logtelomean = log(telomean))
 
-
 pop_clus <- as.tibble((cbind(pop, clu.group)))
+table(pop_clus$clu.group)
 ```
-Model with 2 clusters as a categorical variable.
 
 ```{r}
 health_model_kmeans <- lm(logtelomean ~ as.factor(clu.group) +
      lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct +
-     as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = pop)
+     as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = pop_clus)
 
 health_model_kmeans %>% broom::tidy() %>% mutate(
   estimate = round(estimate, 4),
@@ -181,20 +178,107 @@ health_model_kmeans %>% broom::tidy() %>% mutate(
 
 health_model_kmeans %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
 ```
-### Plot models  *** I can't get this to work. The as.factor function is not working and I couldn't figure out why. 
+
+##### Plot
 
 ```{r}
 health_model_kmeans %>% broom::tidy() %>% as.tibble() %>% filter(grepl("clu.group", term)) %>% 
+  mutate(term = ifelse(term == "as.factor(clu.group)2", "Cluster 2", "")) %>% 
   ggplot(aes(x = term, y = estimate, color = term,
              ymin = estimate - 1.96*std.error,
              ymax = estimate + 1.96*std.error)) +
   geom_pointrange() + theme_bw() +
   geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
   theme(legend.position = "none") + coord_flip() +
-  labs(y = "Estimate", x = "Factor", title = "Association between cluster and LTL")
+  labs(y = "Estimate", x = "Factor", title = "Association between Clusters and LTL")
 ```
 
-# Hierarchical Clustering
+#### 3 Cluster Model
+
+Combine clusters grouping with original data outcome and covariants for K-means = 2
+
+```{r}
+clu.group3 <- km3$cluster #cluster group
+
+pop_clus3 <- as.tibble((cbind(pop, clu.group3)))
+table(pop_clus3$clu.group3)
+```
+
+```{r}
+health_model_kmeans3 <- lm(logtelomean ~ as.factor(clu.group3) +
+     lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct +
+     as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = pop_clus3)
+
+health_model_kmeans3 %>% broom::tidy() %>% mutate(
+  estimate = round(estimate, 4),
+  std.error = round(std.error, 4),
+  statistic = round(statistic, 4),
+  p.value = round(p.value, 4))
+
+health_model_kmeans %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
+```
+
+##### Plot
+
+```{r}
+health_model_kmeans3 %>% broom::tidy() %>% as.tibble() %>% filter(grepl("clu.group", term)) %>% 
+  mutate(term = ifelse(term == "as.factor(clu.group3)2", "Cluster 2", "Cluster 3")) %>% 
+  ggplot(aes(x = term, y = estimate, color = term,
+             ymin = estimate - 1.96*std.error,
+             ymax = estimate + 1.96*std.error)) +
+  geom_pointrange() + theme_bw() +
+  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+  theme(legend.position = "none") + coord_flip() +
+  labs(y = "Estimate", x = "Factor", title = "Association between Clusters and LTL")
+```
+
+#### 10 Cluster Model
+
+Combine clusters grouping with original data outcome and covariants for K-means = 2
+
+```{r}
+clu.group10 <- km10$cluster #cluster group
+
+pop_clus10 <- as.tibble((cbind(pop, clu.group10)))
+table(pop_clus10$clu.group10)
+```
+
+```{r}
+health_model_kmeans10 <- lm(logtelomean ~ as.factor(clu.group10) +
+     lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct +
+     as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = pop_clus10)
+
+health_model_kmeans10 %>% broom::tidy() %>% mutate(
+  estimate = round(estimate, 4),
+  std.error = round(std.error, 4),
+  statistic = round(statistic, 4),
+  p.value = round(p.value, 4))
+
+health_model_kmeans %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
+```
+
+##### Plot
+
+```{r}
+health_model_kmeans10 %>% broom::tidy() %>% as.tibble() %>% filter(grepl("clu.group", term)) %>% 
+  mutate(term = ifelse(term == "as.factor(clu.group10)2", "Cluster 2", 
+                 ifelse(term == "as.factor(clu.group10)3", "Cluster 3",
+                  ifelse(term == "as.factor(clu.group10)4", "Cluster 4",
+                   ifelse(term == "as.factor(clu.group10)5", "Cluster 5",
+                    ifelse(term == "as.factor(clu.group10)6", "Cluster 6",
+                     ifelse(term == "as.factor(clu.group10)7", "Cluster 7",
+                      ifelse(term == "as.factor(clu.group10)8", "Cluster 8", 
+                       ifelse(term == "as.factor(clu.group10)9", "Cluster 9", "Cluster 10"))))))))) %>%
+  ggplot(aes(x = term, y = estimate, color = term,
+             ymin = estimate - 1.96*std.error,
+             ymax = estimate + 1.96*std.error)) +
+  geom_pointrange() + theme_bw() +
+  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+  theme(legend.position = "none") + coord_flip() +
+  labs(y = "Estimate", x = "Factor", title = "Association between Clusters and LTL")
+```
+
+## Hierarchical Clustering
 
 ```{r h clustering}
 # Hierarchical clustering analysis
@@ -208,7 +292,7 @@ as.dendrogram(hc.average) %>% head()
 as.dendrogram(hc.single) %>% head()
 ```
 
-## Dendrograms
+### Dendrograms
 
 ```{r dendrograms}
 
@@ -236,7 +320,7 @@ plot.single <- ggplot(segment(dend.single)) +
 grid.arrange(plot.complete, plot.average, plot.single, ncol = 3)
 ```
 
-## Cut Trees at Different Heights
+### Cut Trees at Different Heights
 
 ```{r cutting trees}
 
@@ -260,5 +344,53 @@ dendro.complete %>%
   color_branches(k = 4) %>%
   plot(ylab = "Height", leaflab = "none") 
 abline(h = 10, lty = 3)
+```
+
+### Health Models
+
+#### 2 Cluster Model
+
+Combine clusters grouping with original data outcome and covariants for K-means = 2
+
+```{r}
+clu.group10 <- km10$cluster #cluster group
+
+pop_clus10 <- as.tibble((cbind(pop, clu.group10)))
+table(pop_clus10$clu.group10)
+```
+
+```{r}
+health_model_kmeans10 <- lm(logtelomean ~ as.factor(clu.group10) +
+     lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct +
+     as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = pop_clus10)
+
+health_model_kmeans10 %>% broom::tidy() %>% mutate(
+  estimate = round(estimate, 4),
+  std.error = round(std.error, 4),
+  statistic = round(statistic, 4),
+  p.value = round(p.value, 4))
+
+health_model_kmeans %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
+```
+
+##### Plot
+
+```{r}
+health_model_kmeans10 %>% broom::tidy() %>% as.tibble() %>% filter(grepl("clu.group", term)) %>% 
+  mutate(term = ifelse(term == "as.factor(clu.group10)2", "Cluster 2", 
+                 ifelse(term == "as.factor(clu.group10)3", "Cluster 3",
+                  ifelse(term == "as.factor(clu.group10)4", "Cluster 4",
+                   ifelse(term == "as.factor(clu.group10)5", "Cluster 5",
+                    ifelse(term == "as.factor(clu.group10)6", "Cluster 6",
+                     ifelse(term == "as.factor(clu.group10)7", "Cluster 7",
+                      ifelse(term == "as.factor(clu.group10)8", "Cluster 8", 
+                       ifelse(term == "as.factor(clu.group10)9", "Cluster 9", "Cluster 10"))))))))) %>%
+  ggplot(aes(x = term, y = estimate, color = term,
+             ymin = estimate - 1.96*std.error,
+             ymax = estimate + 1.96*std.error)) +
+  geom_pointrange() + theme_bw() +
+  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+  theme(legend.position = "none") + coord_flip() +
+  labs(y = "Estimate", x = "Factor", title = "Association between Clusters and LTL")
 ```
 
