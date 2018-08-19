@@ -33,6 +33,7 @@ options(scipen = 999)
 ```{r clean}
 studypop <- read_csv("./Data/studypop.csv") %>% 
   clean_names() %>% 
+  na.omit() %>%
   dplyr::select(3:10, 17:26) %>% #only include pollutants for FA, remove outcome and covariates
   na.omit() #remove missing
 

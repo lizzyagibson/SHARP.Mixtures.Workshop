@@ -151,24 +151,25 @@ summary.km
 
 ## Health model 
 
-Combine clusters grouping with original data outcome and covariants
+Combine clusters grouping with original data outcome and covariants for K-means = 2
 
 ```{r}
-clu.group <- Km2$ #cluster group
 
-pop_pca <- read_csv("./Data/studypop.csv") %>% 
+clu.group <- km2$cluster #cluster group
+
+pop <- read_csv("./Data/studypop.csv") %>% 
   clean_names() %>% 
   na.omit() %>%
   dplyr::select(-(3:10), -(17:26)) %>% 
   mutate(logtelomean = log(telomean))
 
 
-pop_pca <- as.tibble((cbind(pop_pca, x)))
+pop_clus <- as.tibble((cbind(pop, clu.group)))
 ```
-Model with 2  as a categorical variable (assigned to factor with highest score).
+Model with 2 clusters as a categorical variable.
 
 ```{r}
-categorical <- lm(logtelomean ~ as.factor(Max) +
+categorical <- lm(logtelomean ~ as.factor(clu.group) +
      lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct +
      as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = pop)
 
