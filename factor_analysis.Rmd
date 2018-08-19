@@ -278,7 +278,7 @@ pop <- read_csv("./Data/studypop.csv") %>%
   dplyr::select(-(3:10), -(17:26)) %>% 
   mutate(logtelomean = log(telomean))
 
-pop <- as.tibble(cbind(pop, scores))
+pop_fa <- as.tibble(cbind(pop, scores))
 ```
 
 ### Continuous
@@ -288,7 +288,7 @@ Put 5 factors (continuous) into a linear regression w/ covariates to estimate as
 ```{r}
 health_model <- lm(logtelomean ~ MR1  + MR2 +  MR3  +  MR4  + MR5 + 
      lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct +
-     as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = pop)
+     as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = pop_fa)
 
 health_model %>% broom::tidy() %>% mutate(
   estimate = round(estimate, 4),
@@ -306,7 +306,7 @@ Model with 5 factors as a categorical variable (assigned to factor with highest 
 ```{r}
 categorical <- lm(logtelomean ~ as.factor(Max) +
      lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct +
-     as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = pop)
+     as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = pop_fa)
 
 categorical %>% broom::tidy() %>% mutate(
   estimate = round(estimate, 4),
