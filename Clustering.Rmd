@@ -84,7 +84,7 @@ km1$totss ## total sum of squares
 km1$withinss ## within cluster sum of squares by cluster
 km1$tot.withinss ## total within cluster sum of squares -- this is what we want to minimize!
 km1$betweenss ## between cluster sum of squares
-Percent_bt_k1 = paste(round(100*(km1000$betweenss/km1000$totss),1), "%", sep = "")
+Percent_bt_k1 = paste(round(100*(km1$betweenss/km1$totss),1), "%", sep = "")
 
 
 #K-means with K = 2
@@ -169,19 +169,30 @@ pop_clus <- as.tibble((cbind(pop, clu.group)))
 Model with 2 clusters as a categorical variable.
 
 ```{r}
-categorical <- lm(logtelomean ~ as.factor(clu.group) +
+health_model_kmeans <- lm(logtelomean ~ as.factor(clu.group) +
      lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct +
      as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = pop)
 
-categorical %>% broom::tidy() %>% mutate(
+health_model_kmeans %>% broom::tidy() %>% mutate(
   estimate = round(estimate, 4),
   std.error = round(std.error, 4),
   statistic = round(statistic, 4),
   p.value = round(p.value, 4))
 
-categorical %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
+health_model_kmeans %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
 ```
+### Plot models  *** I can't get this to work. The as.factor function is not working and I couldn't figure out why. 
 
+```{r}
+health_model_kmeans %>% broom::tidy() %>% as.tibble() %>% filter(grepl("clu.group", term)) %>% 
+  ggplot(aes(x = term, y = estimate, color = term,
+             ymin = estimate - 1.96*std.error,
+             ymax = estimate + 1.96*std.error)) +
+  geom_pointrange() + theme_bw() +
+  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+  theme(legend.position = "none") + coord_flip() +
+  labs(y = "Estimate", x = "Factor", title = "Association between Largest Factors and LTL")
+```
 
 # Hierarchical Clustering
 
