@@ -41,6 +41,7 @@ library(pryr)
 ```{r data preping}
 studypop <- read_csv("./Data/studypop.csv") %>% 
   clean_names() %>% 
+  na.omit()%>%
   mutate(bmi_cat3 = as.factor(bmi_cat3),
   edu_cat = as.factor(edu_cat),
   race_cat = as.factor(race_cat),
@@ -89,7 +90,7 @@ Percent_bt_k1 = paste(round(100*(km1000$betweenss/km1000$totss),1), "%", sep = "
 #K-means with K = 2
 km2 <- kmeans(log.x, 2, nstart = 20) 
 km2
-
+km2$cluster
 km2$size
 km2$centers
 km2$totss 
@@ -149,8 +150,35 @@ summary.km
 ```
 
 ## Health model 
-```{r}
 
+Combine clusters grouping with original data outcome and covariants
+
+```{r}
+clu.group <- Km2$ #cluster group
+
+pop_pca <- read_csv("./Data/studypop.csv") %>% 
+  clean_names() %>% 
+  na.omit() %>%
+  dplyr::select(-(3:10), -(17:26)) %>% 
+  mutate(logtelomean = log(telomean))
+
+
+pop_pca <- as.tibble((cbind(pop_pca, x)))
+```
+Model with 2  as a categorical variable (assigned to factor with highest score).
+
+```{r}
+categorical <- lm(logtelomean ~ as.factor(Max) +
+     lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct +
+     as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = pop)
+
+categorical %>% broom::tidy() %>% mutate(
+  estimate = round(estimate, 4),
+  std.error = round(std.error, 4),
+  statistic = round(statistic, 4),
+  p.value = round(p.value, 4))
+
+categorical %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
 ```
 
 
