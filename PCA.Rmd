@@ -107,7 +107,6 @@ fviz_eig(pca.raw, main = "Raw data",
 
 ```
 
-
 ## Data Visualization of eigenvectors w/ Log-Transformed PCA Results
 
 ```{r PCA loadings}
@@ -167,8 +166,6 @@ pop <- read_csv("./Data/studypop.csv") %>%
 pop_pca <- as.tibble((cbind(pop, x)))
 ```
 
-### Continuous
-
 Put 2 components (continuous) into a linear regression w/ covariates to estimate association with LTL.
 
 ```{r}
@@ -184,9 +181,8 @@ health_model_pca %>% broom::tidy() %>% mutate(
 
 health_model_pca %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
 ```
-## Plot Models
 
-### Continuous   ***** I am not sure if I'm doing this right!!!:(
+### Plot Model
 
 ```{r}
 health_model_pca %>% broom::tidy() %>% as.tibble() %>% filter(grepl("PC", term)) %>% 
@@ -197,5 +193,4 @@ health_model_pca %>% broom::tidy() %>% as.tibble() %>% filter(grepl("PC", term))
   geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
   theme(legend.position = "none") + coord_flip() +
   labs(y = "Estimate", x = "Principal Component", title = "Association between Principal Component and LTL")
-
 ```
