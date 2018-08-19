@@ -190,7 +190,7 @@ health_model_kmeans %>% broom::tidy() %>% as.tibble() %>% filter(grepl("clu.grou
   geom_pointrange() + theme_bw() +
   geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
   theme(legend.position = "none") + coord_flip() +
-  labs(y = "Estimate", x = "Factor", title = "Association between Clusters and LTL")
+  labs(y = "Estimate", x = "Cluster Membership", title = "Association between Clusters and LTL")
 ```
 
 #### 3 Cluster Model
@@ -229,7 +229,7 @@ health_model_kmeans3 %>% broom::tidy() %>% as.tibble() %>% filter(grepl("clu.gro
   geom_pointrange() + theme_bw() +
   geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
   theme(legend.position = "none") + coord_flip() +
-  labs(y = "Estimate", x = "Factor", title = "Association between Clusters and LTL")
+  labs(y = "Estimate", x = "Cluster Membership", title = "Association between Clusters and LTL")
 ```
 
 #### 10 Cluster Model
@@ -275,7 +275,7 @@ health_model_kmeans10 %>% broom::tidy() %>% as.tibble() %>% filter(grepl("clu.gr
   geom_pointrange() + theme_bw() +
   geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
   theme(legend.position = "none") + coord_flip() +
-  labs(y = "Estimate", x = "Factor", title = "Association between Clusters and LTL")
+  labs(y = "Estimate", x = "Cluster Membership", title = "Association between Clusters and LTL")
 ```
 
 ## Hierarchical Clustering
@@ -326,7 +326,7 @@ grid.arrange(plot.complete, plot.average, plot.single, ncol = 3)
 
 dendro.complete <- as.dendrogram(hc.complete)
 
-par(mfrow = c(1,2))
+par(mfrow = c(1,1))
 
 #cut tree at a height of 12 resulting in 2 clusters
 dendro.complete %>% 
@@ -336,13 +336,13 @@ abline(h = 12, lty = 3)
 
 #cut tree at a height of 11.25 resulting in 3 clusters
 dendro.complete %>% color_branches(k = 3) %>% 
-    plot(ylab = "Height", leaflab = "none")
+    plot(main = "Complete Linkage", ylab = "Height", leaflab = "none")
   abline(h = 11.25, lty = 3)
   
 #cut tree at a height of 10 resulting in 4 clusters
 dendro.complete %>% 
   color_branches(k = 4) %>%
-  plot(ylab = "Height", leaflab = "none") 
+  plot(main = "Complete Linkage", ylab = "Height", leaflab = "none") 
 abline(h = 10, lty = 3)
 ```
 
@@ -350,47 +350,115 @@ abline(h = 10, lty = 3)
 
 #### 2 Cluster Model
 
-Combine clusters grouping with original data outcome and covariants for K-means = 2
+Combine clusters grouping with original data outcome and covariants for clusters = 2
 
 ```{r}
-clu.group10 <- km10$cluster #cluster group
-
-pop_clus10 <- as.tibble((cbind(pop, clu.group10)))
-table(pop_clus10$clu.group10)
+hc.clusters.2 = cutree(hc.complete, 2)
+hc_health_2 <- as.tibble(cbind(pop, hc.clusters.2))
+table(hc.clusters.2)
 ```
 
 ```{r}
-health_model_kmeans10 <- lm(logtelomean ~ as.factor(clu.group10) +
+health_model_hc2 <- lm(logtelomean ~ as.factor(hc.clusters.2) +
      lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct +
-     as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = pop_clus10)
+     as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = hc_health_2)
 
-health_model_kmeans10 %>% broom::tidy() %>% mutate(
+health_model_hc2 %>% broom::tidy() %>% mutate(
   estimate = round(estimate, 4),
   std.error = round(std.error, 4),
   statistic = round(statistic, 4),
   p.value = round(p.value, 4))
 
-health_model_kmeans %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
+health_model_hc2 %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
 ```
 
 ##### Plot
 
 ```{r}
-health_model_kmeans10 %>% broom::tidy() %>% as.tibble() %>% filter(grepl("clu.group", term)) %>% 
-  mutate(term = ifelse(term == "as.factor(clu.group10)2", "Cluster 2", 
-                 ifelse(term == "as.factor(clu.group10)3", "Cluster 3",
-                  ifelse(term == "as.factor(clu.group10)4", "Cluster 4",
-                   ifelse(term == "as.factor(clu.group10)5", "Cluster 5",
-                    ifelse(term == "as.factor(clu.group10)6", "Cluster 6",
-                     ifelse(term == "as.factor(clu.group10)7", "Cluster 7",
-                      ifelse(term == "as.factor(clu.group10)8", "Cluster 8", 
-                       ifelse(term == "as.factor(clu.group10)9", "Cluster 9", "Cluster 10"))))))))) %>%
+health_model_hc2 %>% broom::tidy() %>% as.tibble() %>% filter(grepl("cluster", term)) %>% 
+  mutate(term = ifelse(term == "as.factor(hc.clusters.2)2", "Cluster 2", "")) %>%
   ggplot(aes(x = term, y = estimate, color = term,
              ymin = estimate - 1.96*std.error,
              ymax = estimate + 1.96*std.error)) +
   geom_pointrange() + theme_bw() +
   geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
   theme(legend.position = "none") + coord_flip() +
-  labs(y = "Estimate", x = "Factor", title = "Association between Clusters and LTL")
+  labs(y = "Estimate", x = "Cluster Membership", title = "Association between Clusters and LTL")
 ```
 
+#### 3 Cluster Model
+
+Combine clusters grouping with original data outcome and covariants for clusters = 3
+
+```{r}
+hc.clusters.3 = cutree(hc.complete, 3)
+hc_health_3 <- as.tibble(cbind(pop, hc.clusters.3))
+table(hc.clusters.3)
+```
+
+```{r}
+health_model_hc3 <- lm(logtelomean ~ as.factor(hc.clusters.3) +
+     lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct +
+     as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = hc_health_3)
+
+health_model_hc3 %>% broom::tidy() %>% mutate(
+  estimate = round(estimate, 4),
+  std.error = round(std.error, 4),
+  statistic = round(statistic, 4),
+  p.value = round(p.value, 4))
+
+health_model_hc3 %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
+```
+
+##### Plot
+
+```{r}
+health_model_hc3 %>% broom::tidy() %>% as.tibble() %>% filter(grepl("cluster", term)) %>% 
+  mutate(term = ifelse(term == "as.factor(hc.clusters.3)2", "Cluster 2", "Cluster 3")) %>%
+  ggplot(aes(x = term, y = estimate, color = term,
+             ymin = estimate - 1.96*std.error,
+             ymax = estimate + 1.96*std.error)) +
+  geom_pointrange() + theme_bw() +
+  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+  theme(legend.position = "none") + coord_flip() +
+  labs(y = "Estimate", x = "Cluster Membership", title = "Association between Clusters and LTL")
+```
+
+#### 4 Cluster Model
+
+Combine clusters grouping with original data outcome and covariants for clusters = 3
+
+```{r}
+hc.clusters.4 = cutree(hc.complete, 4)
+hc_health_4 <- as.tibble(cbind(pop, hc.clusters.4))
+table(hc.clusters.4)
+```
+
+```{r}
+health_model_hc4 <- lm(logtelomean ~ as.factor(hc.clusters.4) +
+     lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct +
+     as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = hc_health_4)
+
+health_model_hc4 %>% broom::tidy() %>% mutate(
+  estimate = round(estimate, 4),
+  std.error = round(std.error, 4),
+  statistic = round(statistic, 4),
+  p.value = round(p.value, 4))
+
+health_model_hc4 %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
+```
+
+##### Plot
+
+```{r}
+health_model_hc4 %>% broom::tidy() %>% as.tibble() %>% filter(grepl("cluster", term)) %>% 
+  mutate(term = ifelse(term == "as.factor(hc.clusters.4)2", "Cluster 2", 
+                       ifelse(term == "as.factor(hc.clusters.4)3", "Cluster 3", "Cluster 4"))) %>%
+  ggplot(aes(x = term, y = estimate, color = term,
+             ymin = estimate - 1.96*std.error,
+             ymax = estimate + 1.96*std.error)) +
+  geom_pointrange() + theme_bw() +
+  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+  theme(legend.position = "none") + coord_flip() +
+  labs(y = "Estimate", x = "Cluster Membership", title = "Association between Clusters and LTL")
+```
