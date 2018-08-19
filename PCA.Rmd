@@ -24,7 +24,10 @@ library(ggfortify)
 library(gridExtra)
 #install.packages("factoextra")
 library(factoextra)
-
+#install.packages("dplyr")
+library(dplyr)
+#install.packages("knitr")
+library(knitr)
 ```
 
 # Data Import and Cleaning
@@ -68,11 +71,13 @@ summary(log.x)
 pca.ln  <- prcomp(log.x, scale = TRUE) #scale: a logical value indicating whether the variables should be scaled to have unit variance before the analysis takes place
 summary(pca.ln)
 
-eigen_log = pca.ln$sdev^2 #eigenvalues
-eigen_log
+eigenvalues_ln <- matrix(pca.ln$sdev^2)
+eigenvalues_ln <- cbind(1:18, eigenvalues_ln) 
+colum_ln <- c("Principal Component", "Eigenvalues")
+eigenvalues_raw <- kable(eigenvalues_ln, col.names = colum_ln)
+eigenvalues_raw 
 
-#Proportion of variance explained by each component
-pve.ln <- pca.ln$sdev^2/sum(pca.ln$sdev^2)
+
 ```
 
 ## PCA using Raw Data
@@ -82,18 +87,24 @@ pve.ln <- pca.ln$sdev^2/sum(pca.ln$sdev^2)
 pca.raw <- prcomp(na.omit(studypop[my.x]), scale = TRUE) 
 summary(pca.raw)
 
-eigen_raw = pca.raw$sdev^2 #eigenvalues
-eigen_raw
+#Eigenvalues 
+eigenvalues_raw <- matrix(pca.raw$sdev^2)
+eigenvalues_raw <- cbind(1:18, eigenvalues_raw) 
+colum_n <- c("Principal Component", "Eigenvalues")
+eigenvalues_raw <- kable(eigenvalues_raw, col.names = colum_n)
+eigenvalues_raw 
+  
 
-#Proportion of variance explained by each component
-pve.raw <- pca.raw$sdev^2/sum(pca.raw$sdev^2)
 ```
 
 ## Proportion of Variance Plots
 The first two components explained 73% of the variance int the log-transformed data and 71% of variance in the raw data. 
 ```{r PVE plots}
 
-#Plots the proportion of variance explained by each component 
+#Plots the proportion of variance explained by each component (scree plot)
+
+pve.ln <- pca.ln$sdev^2/sum(pca.ln$sdev^2) #log-transformed data
+pve.raw <- pca.raw$sdev^2/sum(pca.raw$sdev^2) #raw data
 
 #log-transformed data
 fviz_eig(pca.ln, main = "Log - Transformed data",
