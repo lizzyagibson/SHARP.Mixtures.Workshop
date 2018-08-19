@@ -149,6 +149,25 @@ c4plot <- ggplot(pca.ln.ld, aes(x = chem, y = PC4)) + geom_bar(stat = "identity"
 grid.arrange(c1plot, c2plot, c3plot, c4plot, ncol = 2)
 ```
 
+```{r}
+loadings_pca <- pca.ln.ld %>% 
+  mutate(Group = ifelse(chem == "lbx118la.l2", "TEQ", 
+                        ifelse(grepl("lbx1", chem), "Non-Dioxin-like PCB",
+                               ifelse(grepl("lbx0", chem), "Non-Dioxin-like PCB",
+                                      ifelse(grepl("lbxp", chem), "Non-Ortho PCB",
+                                             ifelse(grepl("lbxh", chem), "Non-Ortho PCB", "TEQ"))))))
+plot_loadings_pca <- loadings_pca %>% 
+  gather(key = "PC", value = "Loading", -chem, -Group) %>% as.tibble()
+
+plot_loadings_pca %>% 
+  filter(PC %in% c("PC1", "PC2", "PC3", "PC4")) %>% 
+  ggplot(aes(x = chem, y = Loading, fill = Group)) + geom_col() +
+  facet_wrap(~ PC) + theme_bw() + 
+  theme(legend.position = "bottom", axis.text.x = element_text(angle = 90, hjust = 1)) +
+  geom_hline(yintercept = 0, size = 0.2) +
+  labs(title = "Variable Loadings on First 4 Principle Components", x = "Chemicals")
+```
+
 ## Principal Component Biplot w/ Log-Transformed PCA Results
 
 ```{r PCA biplot}

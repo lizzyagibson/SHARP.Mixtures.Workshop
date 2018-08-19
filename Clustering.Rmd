@@ -190,7 +190,7 @@ health_model_kmeans %>% broom::tidy() %>% as.tibble() %>% filter(grepl("clu.grou
   geom_pointrange() + theme_bw() +
   geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
   theme(legend.position = "none") + coord_flip() +
-  labs(y = "Estimate", x = "Factor", title = "Association between Clusters and LTL")
+  labs(y = "Estimate", x = "Cluster Membership", title = "Association between Clusters and LTL")
 ```
 
 #### 3 Cluster Model
@@ -229,7 +229,7 @@ health_model_kmeans3 %>% broom::tidy() %>% as.tibble() %>% filter(grepl("clu.gro
   geom_pointrange() + theme_bw() +
   geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
   theme(legend.position = "none") + coord_flip() +
-  labs(y = "Estimate", x = "Factor", title = "Association between Clusters and LTL")
+  labs(y = "Estimate", x = "Cluster Membership", title = "Association between Clusters and LTL")
 ```
 
 #### 10 Cluster Model
@@ -275,7 +275,7 @@ health_model_kmeans10 %>% broom::tidy() %>% as.tibble() %>% filter(grepl("clu.gr
   geom_pointrange() + theme_bw() +
   geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
   theme(legend.position = "none") + coord_flip() +
-  labs(y = "Estimate", x = "Factor", title = "Association between Clusters and LTL")
+  labs(y = "Estimate", x = "Cluster Membership", title = "Association between Clusters and LTL")
 ```
 
 ## Hierarchical Clustering
@@ -383,7 +383,7 @@ health_model_hc2 %>% broom::tidy() %>% as.tibble() %>% filter(grepl("cluster", t
   geom_pointrange() + theme_bw() +
   geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
   theme(legend.position = "none") + coord_flip() +
-  labs(y = "Estimate", x = "Factor", title = "Association between Clusters and LTL")
+  labs(y = "Estimate", x = "Cluster Membership", title = "Association between Clusters and LTL")
 ```
 
 #### 3 Cluster Model
@@ -421,7 +421,7 @@ health_model_hc3 %>% broom::tidy() %>% as.tibble() %>% filter(grepl("cluster", t
   geom_pointrange() + theme_bw() +
   geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
   theme(legend.position = "none") + coord_flip() +
-  labs(y = "Estimate", x = "Factor", title = "Association between Clusters and LTL")
+  labs(y = "Estimate", x = "Cluster Membership", title = "Association between Clusters and LTL")
 ```
 
 #### 4 Cluster Model
@@ -460,5 +460,5 @@ health_model_hc4 %>% broom::tidy() %>% as.tibble() %>% filter(grepl("cluster", t
   geom_pointrange() + theme_bw() +
   geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
   theme(legend.position = "none") + coord_flip() +
-  labs(y = "Estimate", x = "Factor", title = "Association between Clusters and LTL")
+  labs(y = "Estimate", x = "Cluster Membership", title = "Association between Clusters and LTL")
 ```
