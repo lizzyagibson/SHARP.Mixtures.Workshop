@@ -72,49 +72,35 @@ pca.ln  <- prcomp(log.x, scale = TRUE) #scale: a logical value indicating whethe
 summary(pca.ln)
 
 eigenvalues_ln <- matrix(pca.ln$sdev^2)
-eigenvalues_ln <- cbind(1:18, eigenvalues_ln) 
-colum_ln <- c("Principal Component", "Eigenvalues")
-eigenvalues_raw <- kable(eigenvalues_ln, col.names = colum_ln)
-eigenvalues_raw 
+perc_variance <- round(100*matrix(pca.ln$sdev^2/sum(pca.ln$sdev^2)),1 )
+
+eigenvalues_ln <- cbind(1:18, eigenvalues_ln, perc_variance) 
+colum_ln <- c("Principal Component", "Eigenvalues", "Percent Variance")
+eigenvalues_ln <- kable(eigenvalues_ln, col.names = colum_ln)
+eigenvalues_ln 
 
 
 ```
 
-## PCA using Raw Data
 
-```{r PCA in raw data}
-#PCA
-pca.raw <- prcomp(na.omit(studypop[my.x]), scale = TRUE) 
-summary(pca.raw)
-
-#Eigenvalues 
-eigenvalues_raw <- matrix(pca.raw$sdev^2)
-eigenvalues_raw <- cbind(1:18, eigenvalues_raw) 
-colum_n <- c("Principal Component", "Eigenvalues")
-eigenvalues_raw <- kable(eigenvalues_raw, col.names = colum_n)
-eigenvalues_raw 
   
 
-```
+
 
 ## Proportion of Variance Plots
-The first two components explained 73% of the variance int the log-transformed data and 71% of variance in the raw data. 
+The first two components explained 73% of the variance 
 ```{r PVE plots}
 
 #Plots the proportion of variance explained by each component (scree plot)
 
-pve.ln <- pca.ln$sdev^2/sum(pca.ln$sdev^2) #log-transformed data
-pve.raw <- pca.raw$sdev^2/sum(pca.raw$sdev^2) #raw data
+pve.ln <- pca.ln$sdev^2/sum(pca.ln$sdev^2) #proportion of variance explain by each component
+ 
 
 #log-transformed data
 fviz_eig(pca.ln, main = "Log - Transformed data",
          xlab = "Principal component",
          ylim = c(0,70)) 
 
-#Raw data
-fviz_eig(pca.raw, main = "Raw data",
-         xlab = "Principal component",
-         ylim = c(0,70))
 
 ```
 
