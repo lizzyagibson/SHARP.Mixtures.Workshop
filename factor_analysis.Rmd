@@ -49,7 +49,7 @@ melted_cormat <- melt(cormat) %>% rename(Correlation = value)
 ggplot(melted_cormat, aes(Var1, Var2, fill = Correlation)) +
  geom_tile(color = "white") +
  scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
-                      midpoint = 0, limit = c(-1,1), space = "Lab", 
+                      midpoint = 0, limit = c(0,1), space = "Lab", 
                       name = "Pearson\nCorrelation") +
   theme_minimal() + # minimal theme
   theme(axis.text.x = element_text(angle = 90, vjust = 1, size = 12, hjust = 1),
@@ -130,7 +130,7 @@ fa_3_p <- fa(logstudypop,
 print(fa_3_p, digits = 2, sort = TRUE)
 
 fa_4_p <- fa(logstudypop, 
-                 nfactors = 4, n.obs = 1003,
+                 nfactors = 4,
                  rotate = "promax",
                  scores = "regression")
 
@@ -147,45 +147,36 @@ print(fa_5_p, digits = 2, sort = TRUE)
 ### Fit Indices
 
 BIC -- lower (better fit)
-TLI -- >0.90/0.95 (good fit)
-RMSEA -- < 0.06 (good fit) / < 0.08 (adequate fit)
+
+eBIC -- When normal theory fails (e.g., in the case of non-positive definite matrices), it useful to examine the empirically derived eBIC based upon the empirical chi^2 - 2 df.
 
 ```{r}
-fit <- as.data.frame(rbind(cbind("2 Factor", "Varimax", round(fa_2$BIC), 
-                                 round(fa_2$TLI, 4), round(unname(fa_2$RMSEA[1]), 4)),
-      cbind("3 Factor", "Varimax", round(fa_3$BIC), round(fa_3$TLI, 4),
-            round(unname(fa_3$RMSEA[1]), 4)),
-      cbind("4 Factor", "Varimax", round(fa_4$BIC), round(fa_4$TLI, 4), 
-            round(unname(fa_4$RMSEA[1]), 4)),
-      cbind("5 Factor", "Varimax", round(fa_5$BIC), round(fa_5$TLI, 4), 
-            round(unname(fa_5$RMSEA[1]), 4)),
-      cbind("2 Factor", "Promax", round(fa_2_p$BIC), round(fa_2_p$TLI, 4), 
-            round(unname(fa_2_p$RMSEA[1]), 4)),
-      cbind("3 Factor", "Promax", round(fa_3_p$BIC), round(fa_3_p$TLI, 4), 
-            round(unname(fa_3_p$RMSEA[1]), 4)),
-      cbind("4 Factor", "Promax", round(fa_4_p$BIC), round(fa_4_p$TLI, 4), 
-            round(unname(fa_4_p$RMSEA[1]), 4)),
-      cbind("5 Factor", "Promax", round(fa_5_p$BIC), round(fa_5_p$TLI, 4), 
-            round(unname(fa_5_p$RMSEA[1]), 4))))
+fit <- as.data.frame(rbind(cbind("2 Factor", "Varimax", round(fa_2$EBIC)),
+      cbind("3 Factor", "Varimax", round(fa_3$EBIC)),
+      cbind("4 Factor", "Varimax", round(fa_4$EBIC)),
+      cbind("5 Factor", "Varimax", round(fa_5$EBIC)),
+      cbind("2 Factor", "Promax", round(fa_2_p$EBIC)),
+      cbind("3 Factor", "Promax", round(fa_3_p$EBIC)),
+      cbind("4 Factor", "Promax", round(fa_4_p$EBIC)),
+      cbind("5 Factor", "Promax", round(fa_5_p$EBIC))))
 
-names(fit) <- c("Model", "Rotation", "BIC", "TLI", "RMSEA")
+names(fit) <- c("Model", "Rotation", "EBIC")
 fit %>% knitr::kable()
 ```
 
 ## Parameters
 
-Choose Varimax 5 factor model based on fit statistics.
+Choose Promax 5 factor model based on fit statistics and interpretability.
 
 ```{r}
-loadings <- as.tibble(cbind(rownames(fa_5$loadings[]), fa_5$loadings[])) %>% 
+loadings <- as.tibble(cbind(rownames(fa_4_p$loadings[]), fa_4_p$loadings[])) %>% 
   rename(Variable = V1) %>% 
   mutate(MR1 = as.numeric(MR1),
          MR2 = as.numeric(MR2),
          MR3 = as.numeric(MR3),
-         MR4 = as.numeric(MR4),
-         MR5 = as.numeric(MR5))
+         MR4 = as.numeric(MR4))
 
-loadings$Max <- colnames(loadings[,2:6])[max.col(loadings[,2:6], ties.method = "first")]
+loadings$Max <- colnames(loadings[,2:5])[max.col(loadings[,2:5], ties.method = "first")]
 
 loadings %>% knitr::kable()
 
@@ -193,11 +184,8 @@ loadings %>% filter(Max == "MR1") %>% count()
 loadings %>% filter(Max == "MR2") %>% count()
 loadings %>% filter(Max == "MR3") %>% count()
 loadings %>% filter(Max == "MR4") %>% count()
-loadings %>% filter(Max == "MR5") %>% count()
 
-9 + 3 + 3 + 2 + 1 
-
-scores <- as.tibble(cbind(rownames(fa_5$scores[]), fa_5$scores[]))
+scores <- as.tibble(cbind(rownames(fa_4_p$scores[]), fa_4_p$scores[]))
 
 scores$Max <- colnames(scores)[max.col(scores, ties.method = "first")]
 
@@ -207,9 +195,7 @@ scores %>% filter(Max == "MR1") %>% count()
 scores %>% filter(Max == "MR2") %>% count()
 scores %>% filter(Max == "MR3") %>% count()
 scores %>% filter(Max == "MR4") %>% count()
-scores %>% filter(Max == "MR5") %>% count()
 
-231 + 196 + 216 + 201 + 159
 ```
 
 ## Data Visualization
@@ -228,7 +214,7 @@ loadings %>%
                                   box.padding   = 0.35,
                                   point.padding = 0.5,
                                   segment.color = 'grey50') + 
-  theme_bw() + theme(legend.position = "none") +
+  theme_bw() + theme(legend.position = "bottom") +
   labs(title = "Variable Loadings on First and Second Factors")
 
 loadings %>% 
@@ -286,7 +272,7 @@ pop_fa <- as.tibble(cbind(pop, scores))
 Put 5 factors (continuous) into a linear regression w/ covariates to estimate association with LTL.
 
 ```{r}
-health_model <- lm(logtelomean ~ MR1  + MR2 +  MR3  +  MR4  + MR5 + 
+health_model <- lm(logtelomean ~ MR1  + MR2 +  MR3  +  MR4  + 
      lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct +
      as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = pop_fa)
 
@@ -336,6 +322,11 @@ health_model %>% broom::tidy() %>% as.tibble() %>% filter(grepl("MR", term)) %>%
 
 ```{r}
 categorical %>% broom::tidy() %>% as.tibble() %>% filter(grepl("MR", term)) %>% 
+  mutate(term = ifelse(term == "as.factor(Max)MR2", "MR2",
+                       ifelse(term == "as.factor(Max)MR3", "MR3", "MR4"))) %>% 
+  rbind(., c("MR1", 0, 0, 0, 0)) %>% 
+  mutate(estimate = as.numeric(estimate),
+         std.error = as.numeric(std.error)) %>% 
   ggplot(aes(x = term, y = estimate, color = term,
              ymin = estimate - 1.96*std.error,
              ymax = estimate + 1.96*std.error)) +
@@ -344,4 +335,3 @@ categorical %>% broom::tidy() %>% as.tibble() %>% filter(grepl("MR", term)) %>%
   theme(legend.position = "none") + coord_flip() +
   labs(y = "Estimate", x = "Factor", title = "Association between Largest Factors and LTL")
 ```
-
