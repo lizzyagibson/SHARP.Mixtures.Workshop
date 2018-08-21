@@ -141,7 +141,6 @@ Percent_bt_k100 = paste(round(100*(km100$betweenss/km100$totss),1), "%", sep = "
 
 ```
 
-
 ### Total Within Cluster/Total Variation 
 
 ```{r cache = TRUE}
