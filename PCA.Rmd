@@ -122,7 +122,7 @@ plot_loadings_pca %>%
   facet_wrap(~ PC) + theme_bw() + 
   theme(legend.position = "bottom", axis.text.x = element_text(angle = 90, hjust = 1)) +
   geom_hline(yintercept = 0, size = 0.2) +
-  labs(title = "Loadings for First 4 Principle Components", x = "Chemicals",
+  labs(title = "Loadings for First 3 Principle Components", x = "Chemicals",
        y = "Loadings")
 ```
 
