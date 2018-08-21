@@ -265,20 +265,22 @@ health_model_kmeans5 <- lm(logtelomean ~ as.factor(clu.group) +
      lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct +
      as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = pop_clus)
 
-health_model_kmeans %>% broom::tidy() %>% mutate(
+health_model_kmeans5 %>% broom::tidy() %>% mutate(
   estimate = round(estimate, 4),
   std.error = round(std.error, 4),
   statistic = round(statistic, 4),
   p.value = round(p.value, 4))
 
-health_model_kmeans %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
+health_model_kmeans5 %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
 ```
 
 ##### Plot
 ****Need to be fix
 ```{r}
 health_model_kmeans5 %>% broom::tidy() %>% as.tibble() %>% filter(grepl("clu.group", term)) %>% 
-  mutate(term = ifelse(term == "as.factor(clu.group5)4", "Cluster 2", "Cluster 3", "Cluster 4", "Cluster 5")) %>% 
+  mutate(term = ifelse(term == "as.factor(clu.group)2", "Cluster 2", 
+                  ifelse(term == "as.factor(clu.group)3", "Cluster 3",
+                    ifelse(term == "as.factor(clu.group)4", "Cluster 4", "Cluster 5")))) %>% 
       rbind(., c("Cluster 1", 0, 0, 0, 0)) %>% 
   mutate(estimate = as.numeric(estimate),
          std.error = as.numeric(std.error)) %>% 
@@ -289,8 +291,6 @@ health_model_kmeans5 %>% broom::tidy() %>% as.tibble() %>% filter(grepl("clu.gro
   geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
   theme(legend.position = "none") + coord_flip() +
   labs(y = "Estimate", x = "Cluster Membership", title = "Association between Clusters and LTL")
-
-
 
 ```
 
@@ -316,7 +316,7 @@ health_model_kmeans3 %>% broom::tidy() %>% mutate(
   statistic = round(statistic, 4),
   p.value = round(p.value, 4))
 
-health_model_kmeans %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
+health_model_kmeans3 %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
 ```
 
 ##### Plot
