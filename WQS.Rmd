@@ -6,6 +6,7 @@ output:
   html_document:
     toc: TRUE
     toc_float: TRUE
+    toc_depth : 4
 ---
 
 ```{r setup, include=FALSE}
@@ -20,12 +21,16 @@ library(tidyverse)
 
 ```{r import}
 # import the dataset
-dataset = read_csv("./Data/studypop.csv") 
+dataset = read_csv("./Data/studypop.csv") %>% mutate(logtelomean = log(TELOMEAN))
 
 # define the chemicals to include in the mixture
 mixture = c("LBX074LA", "LBX099LA", "LBX118LA", "LBX138LA", "LBX153LA", "LBX170LA", "LBX180LA", "LBX187LA",
             "LBX194LA", "LBXD03LA", "LBXD05LA", "LBXD07LA", "LBXF03LA", "LBXF04LA", "LBXF05LA", "LBXF08LA",
             "LBXHXCLA", "LBXPCBLA")
+
+logdataset <- dataset
+logdataset[,3:10] <- log(dataset[,3:10])
+logdataset[,17:26] <- log(dataset[,17:26])
 ```
 
 ## Weighted Quantile Sums
@@ -34,12 +39,12 @@ mixture = c("LBX074LA", "LBX099LA", "LBX118LA", "LBX138LA", "LBX153LA", "LBX170L
 ```{r model_1}
 # fit a first unadjusted model to look at the association between the mixture and the outcome
 # TELOMEAN = Mean Telomere Length
-results1 = gwqs(TELOMEAN ~ NULL, mix_name = mixture, data = dataset, q = 10, validation = 0.6, 
+results1 = gwqs(logtelomean ~ NULL, mix_name = mixture, data = dataset, q = 10, validation = 0.6, 
                 valid_var = NULL,b = 100, b1_pos = FALSE, b1_constr = TRUE, family = "gaussian", 
                 seed = 100597, wqs2 = FALSE, plots = TRUE, tables = TRUE)
 
 summary(results1$fit)
-results1$final_weights
+results1$final_weights %>% knitr::kable()
 ```
 
 ### Adjusted Model
@@ -53,7 +58,7 @@ dataset$race_cat = factor(dataset$race_cat, levels = c(1, 2, 3, 4), labels = c(1
 dataset$edu_cat = factor(dataset$edu_cat, levels = c(1, 2, 3, 4), labels = c(1, 2, 3, 4))
 dataset$bmi_cat3 = factor(dataset$bmi_cat3, levels = c(1, 2, 3), labels = c(1, 2, 3))
 
-result2 = gwqs(TELOMEAN ~ LBXWBCSI + LBXLYPCT + LBXMOPCT + LBXEOPCT + LBXBAPCT + LBXNEPCT + age_cent +
+result2 = gwqs(logtelomean ~ LBXWBCSI + LBXLYPCT + LBXMOPCT + LBXEOPCT + LBXBAPCT + LBXNEPCT + age_cent +
                  age_sq + race_cat + bmi_cat3 + ln_lbxcot + edu_cat + male, mix_name = mixture, 
                  data = dataset, q = 10, 
                  validation = 0.6, valid_var = NULL, b = 100, b1_pos = TRUE, b1_constr = TRUE, 
@@ -61,7 +66,79 @@ result2 = gwqs(TELOMEAN ~ LBXWBCSI + LBXLYPCT + LBXMOPCT + LBXEOPCT + LBXBAPCT +
 
 summary(result2$fit)
 
-result2$final_weights
+result2$final_weights %>% knitr::kable()
+```
+
+### Log Transformed Predictors
+
+#### Unadjusted Model
+```{r model_3}
+# fit a first unadjusted model to look at the association between the mixture and the outcome
+# TELOMEAN = Mean Telomere Length
+results3 = gwqs(logtelomean ~ NULL, mix_name = mixture, data = logdataset, q = 10, validation = 0.6, 
+                valid_var = NULL,b = 100, b1_pos = FALSE, b1_constr = TRUE, family = "gaussian", 
+                seed = 100597, wqs2 = FALSE, plots = TRUE, tables = TRUE)
+
+summary(results3$fit)
+results3$final_weights %>% knitr::kable()
+```
+
+#### Adjusted Model
+```{r model_4}
+# adjust for covariates:
+# blood data: LBXWBCSI LBXLYPCT LBXMOPCT LBXEOPCT LBXBAPCT LBXNEPCT
+# demographics: age_cent age_sq race_cat bmi_cat3 ln_lbxcot edu_cat
+
+# redefine variables race_cat and edu_cat as factors
+logdataset$race_cat = factor(dataset$race_cat, levels = c(1, 2, 3, 4), labels = c(1, 2, 3, 4))
+logdataset$edu_cat = factor(dataset$edu_cat, levels = c(1, 2, 3, 4), labels = c(1, 2, 3, 4))
+logdataset$bmi_cat3 = factor(dataset$bmi_cat3, levels = c(1, 2, 3), labels = c(1, 2, 3))
+
+result4 = gwqs(logtelomean ~ LBXWBCSI + LBXLYPCT + LBXMOPCT + LBXEOPCT + LBXBAPCT + LBXNEPCT + age_cent +
+                 age_sq + race_cat + bmi_cat3 + ln_lbxcot + edu_cat + male, mix_name = mixture, 
+                 data = logdataset, q = 10, 
+                 validation = 0.6, valid_var = NULL, b = 100, b1_pos = TRUE, b1_constr = TRUE, 
+                 family = "gaussian", seed = 100597, wqs2 = FALSE, plots = TRUE, tables = TRUE)
+
+summary(result4$fit)
+
+result4$final_weights %>% knitr::kable()
+```
+
+### No Transformations
+
+#### Unadjusted Model
+```{r model_5}
+# fit a first unadjusted model to look at the association between the mixture and the outcome
+# TELOMEAN = Mean Telomere Length
+results5 = gwqs(TELOMEAN ~ NULL, mix_name = mixture, data = dataset, q = 10, validation = 0.6, 
+                valid_var = NULL,b = 100, b1_pos = FALSE, b1_constr = TRUE, family = "gaussian", 
+                seed = 100597, wqs2 = FALSE, plots = TRUE, tables = TRUE)
+
+summary(results5$fit)
+results5$final_weights %>% knitr::kable()
+```
+
+#### Adjusted Model
+```{r model_6}
+# adjust for covariates:
+# blood data: LBXWBCSI LBXLYPCT LBXMOPCT LBXEOPCT LBXBAPCT LBXNEPCT
+# demographics: age_cent age_sq race_cat bmi_cat3 ln_lbxcot edu_cat
+
+# redefine variables race_cat and edu_cat as factors
+logdataset$race_cat = factor(dataset$race_cat, levels = c(1, 2, 3, 4), labels = c(1, 2, 3, 4))
+logdataset$edu_cat = factor(dataset$edu_cat, levels = c(1, 2, 3, 4), labels = c(1, 2, 3, 4))
+logdataset$bmi_cat3 = factor(dataset$bmi_cat3, levels = c(1, 2, 3), labels = c(1, 2, 3))
+
+result6 = gwqs(TELOMEAN ~ LBXWBCSI + LBXLYPCT + LBXMOPCT + LBXEOPCT + LBXBAPCT + LBXNEPCT + age_cent +
+                 age_sq + race_cat + bmi_cat3 + ln_lbxcot + edu_cat + male, mix_name = mixture, 
+                 data = dataset, q = 10, 
+                 validation = 0.6, valid_var = NULL, b = 100, b1_pos = TRUE, b1_constr = TRUE, 
+                 family = "gaussian", seed = 100597, wqs2 = FALSE, plots = TRUE, tables = TRUE)
+
+summary(result6$fit)
+
+result6$final_weights %>% knitr::kable()
 ```
 
 
