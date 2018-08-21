@@ -175,107 +175,6 @@ km.res[1:30,]  %>%
        x = "Number of Clusters")
 ```
 
-
-### means
-
-Mean for each chemical whitin the population
-
-```{r}
-
-chem_means <- as.data.frame(colMeans(log.x)) #chem means
-chem_means$chem <- row.names(chem_means)
-
-plot_chem_means <- chem_means %>%
-  mutate(Group = ifelse(chem == "lbx118la.l2", "TEQ", 
-                        ifelse(grepl("lbx1", chem), "Non-Dioxin-like PCB",
-                               ifelse(grepl("lbx0", chem), "Non-Dioxin-like PCB",
-                                      ifelse(grepl("lbxp", chem), "Non-Ortho PCB",
-                                             ifelse(grepl("lbxh", chem), "Non-Ortho PCB", "TEQ"))))))
-
-plot_chem_means %>% 
-  ggplot(aes(x = chem, y = colMeans(log.x), fill = Group)) + geom_col() + theme_bw() + 
-  theme(legend.position = "bottom", axis.text.x = element_text(angle = 90, hjust = 1)) +
-  geom_hline(yintercept = 0, size = 0.2) +
-  labs(title = "Chemical Means in the Population", x = "Chemicals",
-       y = "Mean")
-```
-
-#Visualiztion
-
-Plots of cluster means for K-means N=3 and N=5
-
-```{r}
- #K-means N=3
-km3_centers <- as.data.frame.matrix(t(km3$centers)) #centers
-km3_centers$chem <- row.names(km3_centers)
-
-means_km3 <- km3_centers %>% 
-  mutate(Group = ifelse(chem == "lbx118la.l2", "TEQ", 
-                        ifelse(grepl("lbx1", chem), "Non-Dioxin-like PCB",
-                               ifelse(grepl("lbx0", chem), "Non-Dioxin-like PCB",
-                                      ifelse(grepl("lbxp", chem), "Non-Ortho PCB",
-                                             ifelse(grepl("lbxh", chem), "Non-Ortho PCB", "TEQ"))))))
-plot_means_km3 <- means_km3 %>% 
-  gather(key = "Cluster", value = "mean", -chem, -Group) %>% as.tibble()
-
-plot_means_km3 %>% 
-  ggplot(aes(x = chem, y = mean, fill = Group)) + geom_col() +
-  facet_wrap(~ Cluster) + theme_bw() + 
-  theme(legend.position = "bottom", axis.text.x = element_text(angle = 90, hjust = 1)) +
-  geom_hline(yintercept = 0, size = 0.2) +
-  labs(title = "Cluster means, N = 3", x = "Chemicals",
-       y = "Mean")
-
-
-#K-means N=5
-
-km5_centers <- as.data.frame.matrix(t(km5$centers))
-km5_centers$chem <- row.names(km5_centers)
-
-means_km5 <- km5_centers %>% 
-  mutate(Group = ifelse(chem == "lbx118la.l2", "TEQ", 
-                        ifelse(grepl("lbx1", chem), "Non-Dioxin-like PCB",
-                               ifelse(grepl("lbx0", chem), "Non-Dioxin-like PCB",
-                                      ifelse(grepl("lbxp", chem), "Non-Ortho PCB",
-                                             ifelse(grepl("lbxh", chem), "Non-Ortho PCB", "TEQ"))))))
-plot_means_km5 <- means_km5 %>% 
-  gather(key = "Cluster", value = "mean", -chem, -Group) %>% as.tibble()
-
-plot_means_km5 %>% 
-  ggplot(aes(x = chem, y = mean, fill = Group)) + geom_col() +
-  facet_wrap(~ Cluster) + theme_bw() + 
-  theme(legend.position = "bottom", axis.text.x = element_text(angle = 90, hjust = 1)) +
-  geom_hline(yintercept = 0, size = 0.2) +
-  labs(title = "Cluster means, N = 5", x = "Chemicals",
-       y = "Mean")
-```
-
-```{r}
-plot_chem_means %>% as.tibble() %>% rename(pop_mean = `colMeans(log.x)`) %>% 
-  right_join(., plot_means_km3, by = c("Group", "chem")) %>% 
-  ggplot(aes(x = chem, y = mean, fill = Group)) + geom_col() +
-  geom_point(aes(y = pop_mean), size = 1) +
-  facet_wrap(~ Cluster) + theme_bw() + 
-  theme(legend.position = "bottom", axis.text.x = element_text(angle = 90, hjust = 1),
-        plot.caption = element_text(size = 11, hjust = 0)) +
-  geom_hline(yintercept = 0, size = 0.2) +
-  labs(title = "Cluster means, N = 3", x = "Chemicals",
-       y = "Mean", caption = "*Points indicate population means")
-```
-
-```{r}
-plot_chem_means %>% as.tibble() %>% rename(pop_mean = `colMeans(log.x)`) %>% 
-  right_join(., plot_means_km5, by = c("Group", "chem")) %>% 
-  ggplot(aes(x = chem, y = mean, fill = Group)) + geom_col() +
-  geom_point(aes(y = pop_mean), size = 1) +
-  facet_wrap(~ Cluster) + theme_bw() + 
-  theme(legend.position = "bottom", axis.text.x = element_text(angle = 90, hjust = 1),
-        plot.caption = element_text(size = 11, hjust = 0)) +
-  geom_hline(yintercept = 0, size = 0.2) +
-  labs(title = "Cluster means, N = 5", x = "Chemicals",
-       y = "Mean", caption = "*Points indicate population means")
-```
-
 ### Summary Table 
 
 ```{r summary}
@@ -289,6 +188,82 @@ summary.km <- round(as.table(summary.km), 2)
 summary.km <- kable(summary.km)
 summary.km
 ```
+
+### Visualization
+
+```{r}
+
+##creating data frame with the chemical means within the population
+chem_means <- as.data.frame(colMeans(log.x)) #chem means
+chem_means$chem <- row.names(chem_means)
+
+plot_chem_means <- chem_means %>%
+  mutate(Group = ifelse(chem == "lbx118la.l2", "TEQ", 
+                        ifelse(grepl("lbx1", chem), "Non-Dioxin-like PCB",
+                               ifelse(grepl("lbx0", chem), "Non-Dioxin-like PCB",
+                                      ifelse(grepl("lbxp", chem), "Non-Ortho PCB",
+                                             ifelse(grepl("lbxh", chem), "Non-Ortho PCB", "TEQ"))))))
+
+
+##creating data fram with cluster means for k-means N=3
+km3_centers <- as.data.frame.matrix(t(km3$centers)) #centers
+km3_centers$chem <- row.names(km3_centers)
+
+means_km3 <- km3_centers %>% 
+  mutate(Group = ifelse(chem == "lbx118la.l2", "TEQ", 
+                        ifelse(grepl("lbx1", chem), "Non-Dioxin-like PCB",
+                               ifelse(grepl("lbx0", chem), "Non-Dioxin-like PCB",
+                                      ifelse(grepl("lbxp", chem), "Non-Ortho PCB",
+                                             ifelse(grepl("lbxh", chem), "Non-Ortho PCB", "TEQ"))))))
+plot_means_km3 <- means_km3 %>% 
+  gather(key = "Cluster", value = "mean", -chem, -Group) %>% as.tibble()
+
+
+##creating data frame with cluster means for k-means N=5
+km5_centers <- as.data.frame.matrix(t(km5$centers))
+km5_centers$chem <- row.names(km5_centers)
+
+means_km5 <- km5_centers %>% 
+  mutate(Group = ifelse(chem == "lbx118la.l2", "TEQ", 
+                        ifelse(grepl("lbx1", chem), "Non-Dioxin-like PCB",
+                               ifelse(grepl("lbx0", chem), "Non-Dioxin-like PCB",
+                                      ifelse(grepl("lbxp", chem), "Non-Ortho PCB",
+                                             ifelse(grepl("lbxh", chem), "Non-Ortho PCB", "TEQ"))))))
+plot_means_km5 <- means_km5 %>% 
+  gather(key = "Cluster", value = "mean", -chem, -Group) %>% as.tibble()
+```
+
+Plots of cluster means for K-means N=3 and N=5
+
+```{r}
+ #K-means N=3
+
+plot_chem_means %>% as.tibble() %>% rename(pop_mean = `colMeans(log.x)`) %>% 
+  right_join(., plot_means_km3, by = c("Group", "chem")) %>% 
+  ggplot(aes(x = chem, y = mean, fill = Group)) + geom_col() +
+  geom_point(aes(y = pop_mean), size = 1) +
+  facet_wrap(~ Cluster) + theme_bw() + 
+  theme(legend.position = "bottom", axis.text.x = element_text(angle = 90, hjust = 1),
+        plot.caption = element_text(size = 11, hjust = 0)) +
+  geom_hline(yintercept = 0, size = 0.2) +
+  labs(title = "Cluster means, N = 3", x = "Chemicals",
+       y = "Mean", caption = "*Points indicate population means")
+
+#k-means N=5
+
+plot_chem_means %>% as.tibble() %>% rename(pop_mean = `colMeans(log.x)`) %>% 
+  right_join(., plot_means_km5, by = c("Group", "chem")) %>% 
+  ggplot(aes(x = chem, y = mean, fill = Group)) + geom_col() +
+  geom_point(aes(y = pop_mean), size = 1) +
+  facet_wrap(~ Cluster) + theme_bw() + 
+  theme(legend.position = "bottom", axis.text.x = element_text(angle = 90, hjust = 1),
+        plot.caption = element_text(size = 11, hjust = 0)) +
+  geom_hline(yintercept = 0, size = 0.2) +
+  labs(title = "Cluster means, N = 5", x = "Chemicals",
+       y = "Mean", caption = "*Points indicate population means")
+```
+
+
 
 ### Health model 
 
