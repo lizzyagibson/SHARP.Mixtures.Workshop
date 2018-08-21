@@ -184,6 +184,11 @@ health_model_kmeans %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
 ```{r}
 health_model_kmeans %>% broom::tidy() %>% as.tibble() %>% filter(grepl("clu.group", term)) %>% 
   mutate(term = ifelse(term == "as.factor(clu.group)2", "Cluster 2", "")) %>% 
+  rbind(., c("Cluster 1", 0, 0, 0, 0)) %>% 
+  mutate(estimate = as.numeric(estimate),
+         std.error = as.numeric(std.error)) %>% 
+  mutate(estimate = as.numeric(estimate),
+         std.error = as.numeric(std.error)) %>% 
   ggplot(aes(x = term, y = estimate, color = term,
              ymin = estimate - 1.96*std.error,
              ymax = estimate + 1.96*std.error)) +
@@ -223,6 +228,9 @@ health_model_kmeans %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
 ```{r}
 health_model_kmeans3 %>% broom::tidy() %>% as.tibble() %>% filter(grepl("clu.group", term)) %>% 
   mutate(term = ifelse(term == "as.factor(clu.group3)2", "Cluster 2", "Cluster 3")) %>% 
+    rbind(., c("Cluster 1", 0, 0, 0, 0)) %>% 
+  mutate(estimate = as.numeric(estimate),
+         std.error = as.numeric(std.error)) %>% 
   ggplot(aes(x = term, y = estimate, color = term,
              ymin = estimate - 1.96*std.error,
              ymax = estimate + 1.96*std.error)) +
@@ -269,6 +277,9 @@ health_model_kmeans10 %>% broom::tidy() %>% as.tibble() %>% filter(grepl("clu.gr
                      ifelse(term == "as.factor(clu.group10)7", "Cluster 7",
                       ifelse(term == "as.factor(clu.group10)8", "Cluster 8", 
                        ifelse(term == "as.factor(clu.group10)9", "Cluster 9", "Cluster 10"))))))))) %>%
+    rbind(., c("Cluster 1", 0, 0, 0, 0)) %>% 
+  mutate(estimate = as.numeric(estimate),
+         std.error = as.numeric(std.error)) %>% 
   ggplot(aes(x = term, y = estimate, color = term,
              ymin = estimate - 1.96*std.error,
              ymax = estimate + 1.96*std.error)) +
