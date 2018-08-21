@@ -267,7 +267,7 @@ table(pop_clus$clu.group)
 ```
 
 ```{r}
-health_model_kmeans <- lm(logtelomean ~ as.factor(clu.group) +
+health_model_kmeans5 <- lm(logtelomean ~ as.factor(clu.group) +
      lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct +
      as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = pop_clus)
 
@@ -281,15 +281,13 @@ health_model_kmeans %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
 ```
 
 ##### Plot
-
+****Need to be fix
 ```{r}
-health_model_kmeans %>% broom::tidy() %>% as.tibble() %>% filter(grepl("clu.group", term)) %>% 
-  mutate(term = ifelse(term == "as.factor(clu.group)5", "",
-  ifelse(term == "as.factor(clu.group)4", "MR3", "MR4"))) %>% 
-  rbind(., c("MR1", 0, 0, 0, 0)) %>% 
+health_model_kmeans5 %>% broom::tidy() %>% as.tibble() %>% filter(grepl("clu.group", term)) %>% 
+  mutate(term = ifelse(term == "as.factor(clu.group5)4", "Cluster 2", "Cluster 3", "Cluster 4", "Cluster 5")) %>% 
+      rbind(., c("Cluster 1", 0, 0, 0, 0)) %>% 
   mutate(estimate = as.numeric(estimate),
-         std.error = as.numeric(std.error)) %>%
-  
+         std.error = as.numeric(std.error)) %>% 
   ggplot(aes(x = term, y = estimate, color = term,
              ymin = estimate - 1.96*std.error,
              ymax = estimate + 1.96*std.error)) +
@@ -332,6 +330,9 @@ health_model_kmeans %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
 ```{r}
 health_model_kmeans3 %>% broom::tidy() %>% as.tibble() %>% filter(grepl("clu.group", term)) %>% 
   mutate(term = ifelse(term == "as.factor(clu.group3)2", "Cluster 2", "Cluster 3")) %>% 
+      rbind(., c("Cluster 1", 0, 0, 0, 0)) %>% 
+  mutate(estimate = as.numeric(estimate),
+         std.error = as.numeric(std.error)) %>% 
   ggplot(aes(x = term, y = estimate, color = term,
              ymin = estimate - 1.96*std.error,
              ymax = estimate + 1.96*std.error)) +
@@ -441,6 +442,10 @@ health_model_hc3 %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
 ```{r}
 health_model_hc3 %>% broom::tidy() %>% as.tibble() %>% filter(grepl("cluster", term)) %>% 
   mutate(term = ifelse(term == "as.factor(hc.clusters.3)2", "Cluster 2", "Cluster 3")) %>%
+      rbind(., c("Cluster 1", 0, 0, 0, 0)) %>% 
+  mutate(estimate = as.numeric(estimate),
+         std.error = as.numeric(std.error)) %>% 
+
   ggplot(aes(x = term, y = estimate, color = term,
              ymin = estimate - 1.96*std.error,
              ymax = estimate + 1.96*std.error)) +
