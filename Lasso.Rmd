@@ -88,7 +88,27 @@ featurePlot(x = conf,
 # For reproducibility, set a seed
 set.seed(2)
 
+# Example of extreme lambda values
+# create a grid with a range of lambda values
+lgrid <- seq(0, 100, length = 100) 
+
+# generate a lasso model using exposure, outcome, and grid of lambda values
+lasso.mod = glmnet(x, lny, alpha = 1, lambda = lgrid)
+
+plot(lasso.mod)
+
+lasso.mod$lambda
+
+coef(lasso.mod)[,10]
+
+# Use cross-validation (CV) to find best lambda value
 # n-folds is set to a default of 10 for cv.glmnet
+cv.out = cv.glmnet(x, y, alpha = 1)
+plot(cv.out)
+
+best_lambda = cv.out$lambda.min
+best_lambda
+
 ## can include weights using "weights = ..."
 ## alpha is set to 1 due lasso's penalty
 ## use penalty.factor to retain certain variables in the model
@@ -229,40 +249,4 @@ coef_summ = merge(enet_beta, lasso_beta, by = "variable")
 
 ind <- rbind(enet_beta, lasso_beta)
 write_csv(ind, "ind_betas.csv")
-```
-
-# OLS from Lasso Results
-
-```{r}
-lasso_beta %>%
-  filter(grepl("la", variable)) %>% 
-  filter(beta != 0)
-
-studypop <- study_pop %>% mutate(logtelomean = log(telomean))
-
-lm_from_lasso <- lm(logtelomean ~ lbx099la + lbx118la + lbxf03la +lbxpcbla +
-     lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct +
-     as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = studypop)
-
-lm_from_lasso %>% broom::tidy() %>% mutate(
-  estimate = round(estimate, 4),
-  std.error = round(std.error, 4),
-  statistic = round(statistic, 4),
-  p.value = round(p.value, 4))
-
-lm_from_lasso %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
-```
-
-## Plot Model
-
-```{r}
-lm_from_lasso %>% broom::tidy() %>% as.tibble() %>% filter(grepl("la", term)) %>% 
-  ggplot(aes(x = term, y = estimate, color = term,
-             ymin = estimate - 1.96*std.error,
-             ymax = estimate + 1.96*std.error)) +
-  geom_pointrange() + theme_bw() +
-  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
-  theme(legend.position = "none") + coord_flip() +
-  labs(y = "Estimate", x = "Pollutant", title = "Association between Pollutants from Lasso and LTL")
-
 ```
