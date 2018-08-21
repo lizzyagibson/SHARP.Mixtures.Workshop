@@ -1,14 +1,15 @@
----
-title: "All Packages Required"
-author: "Mixtures Workshop"
-date: "8/16/2018"
-output: html_document
----
+################################################
+###  Package Codes for Mixtures Workshop     ###
+###  developed by Mixtures Team              ### 
+###  last updated: 8/21/18                   ###
+################################################
 
-Please install all of the following packages:
+# Please install all of the following packages prior to the workshop:
 
-```{r setup}
-# All packages used
+################################################
+###               Packages                   ###
+################################################
+
 install.packages("bkmr", dependencies = TRUE)
 install.packages("caret", dependencies = TRUE)
 install.packages("corrplot", dependencies = TRUE)
@@ -31,4 +32,3 @@ install.packages("refund", dependencies = TRUE)
 install.packages("refund.shiny", dependencies = TRUE)
 install.packages("splines", dependencies = TRUE)
 install.packages("tidyverse", dependencies = TRUE)
-```

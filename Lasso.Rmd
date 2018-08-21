@@ -88,7 +88,27 @@ featurePlot(x = conf,
 # For reproducibility, set a seed
 set.seed(2)
 
+# Example of extreme lambda values
+# create a grid with a range of lambda values
+lgrid <- seq(0, 100, length = 100) 
+
+# generate a lasso model using exposure, outcome, and grid of lambda values
+lasso.mod = glmnet(x, lny, alpha = 1, lambda = lgrid)
+
+plot(lasso.mod)
+
+lasso.mod$lambda
+
+coef(lasso.mod)[,10]
+
+# Use cross-validation (CV) to find best lambda value
 # n-folds is set to a default of 10 for cv.glmnet
+cv.out = cv.glmnet(x, y, alpha = 1)
+plot(cv.out)
+
+best_lambda = cv.out$lambda.min
+best_lambda
+
 ## can include weights using "weights = ..."
 ## alpha is set to 1 due lasso's penalty
 ## use penalty.factor to retain certain variables in the model
