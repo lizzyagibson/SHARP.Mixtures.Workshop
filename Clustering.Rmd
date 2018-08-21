@@ -141,44 +141,38 @@ Percent_bt_k100 = paste(round(100*(km100$betweenss/km100$totss),1), "%", sep = "
 
 ```
 
+### Total Within Cluster/Total Variation 
 
-###total within cluster/total variation 
-Ahlam if you can just make this nicer
-```{r}
+```{r cache = TRUE}
+# create an empty data frame
+km.res <- data.frame(matrix(NA, (dim(log.x)[1] - 1), 3))
 
-km.res <- data.frame(matrix(NA, (dim(log.x)[1]-1), 3))
-
- 
-
-for (k in 1:(dim(log.x)[1]-1)){
-
- 
-
+# use a loop to run k-means for 0 - 30 clusters and generate variance values
+for (k in 1:(dim(log.x)[1] - 1)) {
   kk <- kmeans(log.x, k, nstart = 20)
-
   km.res[k, ] <- cbind(k, kk$tot.withinss, kk$totss) 
-
-  
-
   }
 
- 
-
+# name the variables created
 names(km.res) <- c("clusters", "WithinSS", "TotSS")
 
+# create a variable for within cluster variance/total SS
 km.res$PropWithin <- 100*km.res$WithinSS/km.res$TotSS
 
- 
+# compare the within cluster variance/total SS to number of clusters
+km.res %>% 
+  ggplot(aes(x = clusters, y = PropWithin)) + geom_line() +
+  labs(title = "Optimal Number of Clusters", 
+       y = "Proportion of Within over Total SS", 
+       x = "Number of Clusters")
 
-plot(km.res$clusters, km.res$PropWithin, type='l', las = 1, ylab = "Proportion of Within over Total SS",
-
-     xlab = "Number of Clusters")
-
- 
-
-plot(km.res$clusters[1:30], km.res$PropWithin[1:30], type='l', las = 1, ylab = "Proportion of Within over Total SS",
-
-     xlab = "Number of Clusters", ylim = c(0,100))
+# look at a smaller subset of data
+km.res[1:30,]  %>% 
+  ggplot(aes(x = clusters, y = PropWithin)) + geom_point() + 
+  geom_vline(xintercept = 5, color = "red", linetype = "dotted") + 
+  labs(title = "Optimal Number of Clusters", 
+       y = "Proportion of Within over Total SS", 
+       x = "Number of Clusters")
 ```
 
 
