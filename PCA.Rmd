@@ -71,9 +71,10 @@ summary(log.x)
 pca.ln  <- prcomp(log.x, scale = TRUE) #scale: a logical value indicating whether the variables should be scaled to have unit variance before the analysis takes place
 summary(pca.ln)
 
-eigenvalues_ln <- matrix(pca.ln$sdev^2)
-perc_variance <- round(100*matrix(pca.ln$sdev^2/sum(pca.ln$sdev^2)),1 )
+eigenvalues_ln <- matrix(pca.ln$sdev^2) #eigenvalues
+perc_variance <- round(100*matrix(pca.ln$sdev^2/sum(pca.ln$sdev^2)),1) #variance
 
+#Summary table 
 eigenvalues_ln <- cbind(1:18, eigenvalues_ln, perc_variance) 
 colum_ln <- c("Principal Component", "Eigenvalues", "Percent Variance")
 eigenvalues_ln <- kable(eigenvalues_ln, col.names = colum_ln)
@@ -81,11 +82,6 @@ eigenvalues_ln
 
 
 ```
-
-
-  
-
-
 
 ## Proportion of Variance Plots
 The first two components explained 73% of the variance 
@@ -106,34 +102,6 @@ fviz_eig(pca.ln, main = "Log - Transformed data",
 
 ## Data Visualization of eigenvectors w/ Log-Transformed PCA Results
 
-```{r PCA loadings}
-#creates a data frame of the eigenvectors
-pca.ln.ld <- as.data.frame.matrix(pca.ln$rotation)
-pca.ln.ld$chem <- row.names(pca.ln.ld)
-
-#Bars represent eigenvectors
-c1plot <- ggplot(pca.ln.ld, aes(x = chem, y = PC1)) + geom_bar(stat = "identity") +
-  theme_bw() +  xlab("Chemicals") + ylab("Component 1")  + 
-  theme(axis.title.x = element_blank(), axis.text.x = element_blank()) + 
-  ylim(min(pca.ln.ld[,1:4]), max(pca.ln.ld[,1:4]))
-
-c2plot <- ggplot(pca.ln.ld, aes(x = chem, y = PC2)) + geom_bar(stat = "identity") +
-  theme_bw() + xlab("Chemicals") + ylab("Component 2")  + 
-  theme(axis.title.x = element_blank(), axis.text.x = element_blank()) + 
-  ylim(min(pca.ln.ld[,1:4]), max(pca.ln.ld[,1:4]))
-
-c3plot <- ggplot(pca.ln.ld, aes(x = chem, y = PC3)) + geom_bar(stat = "identity") +
-  theme_bw() + xlab("Chemicals") + ylab("Component 3")  + 
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
-  ylim(min(pca.ln.ld[,1:4]), max(pca.ln.ld[,1:4]))
-
-c4plot <- ggplot(pca.ln.ld, aes(x = chem, y = PC4)) + geom_bar(stat = "identity") +
-  theme_bw() + xlab("Chemicals") + ylab("Component 4")  + 
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
-  ylim(min(pca.ln.ld[,1:4]), max(pca.ln.ld[,1:4]))
-
-grid.arrange(c1plot, c2plot, c3plot, c4plot, ncol = 2)
-```
 
 ```{r}
 loadings_pca <- pca.ln.ld %>% 
@@ -151,8 +119,8 @@ plot_loadings_pca %>%
   facet_wrap(~ PC) + theme_bw() + 
   theme(legend.position = "bottom", axis.text.x = element_text(angle = 90, hjust = 1)) +
   geom_hline(yintercept = 0, size = 0.2) +
-  labs(title = "Eigenvectors for First 4 Principle Components", x = "Chemicals",
-       y = "Eigenvectors (unit normalized loadings)")
+  labs(title = "Loadings for First 4 Principle Components", x = "Chemicals",
+       y = "Loadings")
 ```
 
 ## Principal Component Biplot w/ Log-Transformed PCA Results
@@ -186,9 +154,10 @@ pop_pca <- as.tibble((cbind(pop, x)))
 Put 2 components (continuous) into a linear regression w/ covariates to estimate association with LTL.
 
 ```{r}
-health_model_pca <- lm(logtelomean ~PC1  + PC2 +   
+health_model_pca <- lm(logtelomean ~PC1  + PC2 + PC3 +   
      lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct +
      as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = pop_pca)
+
 
 health_model_pca %>% broom::tidy() %>% mutate(
   estimate = round(estimate, 4),
@@ -210,4 +179,5 @@ health_model_pca %>% broom::tidy() %>% as.tibble() %>% filter(grepl("PC", term))
   geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
   theme(legend.position = "none") + coord_flip() +
   labs(y = "Estimate", x = "Principal Component", title = "Association between Principal Component and LTL")
+
 ```
