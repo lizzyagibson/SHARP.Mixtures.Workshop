@@ -359,3 +359,40 @@ grouped <- rbind(lasso_beta_3, mcp_beta_3, scad_beta_3) %>%
 write_csv(grouped, "grouped_betas.csv")
 ```
 
+## OLS from MCP Results
+
+```{r}
+mcp_beta_4 %>% 
+  filter(group4 %in% c("Dioxin", "Furan", "Non-Dioxin-like PCB", "Non-Ortho PCB")) %>% 
+  filter(beta != 0)
+
+studypop <- studypop %>% mutate(logtelomean = log(telomean))
+
+lm_from_mcp <- lm(logtelomean ~ lbx118la + lbxpcbla +  lbxhxcla + 
+     lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct +
+     as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = studypop)
+
+lm_from_mcp %>% broom::tidy() %>% mutate(
+  estimate = round(estimate, 4),
+  std.error = round(std.error, 4),
+  statistic = round(statistic, 4),
+  p.value = round(p.value, 4))
+
+lm_from_mcp %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
+```
+
+### Plot Model
+
+```{r}
+lm_from_mcp %>% broom::tidy() %>% as.tibble() %>% filter(grepl("la", term)) %>% 
+  ggplot(aes(x = term, y = estimate, color = term,
+             ymin = estimate - 1.96*std.error,
+             ymax = estimate + 1.96*std.error)) +
+  geom_pointrange() + theme_bw() +
+  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+  theme(legend.position = "none") + coord_flip() +
+  labs(y = "Estimate", x = "Pollutant", title = "Association between Pollutants from MCP and LTL")
+
+```
+
+

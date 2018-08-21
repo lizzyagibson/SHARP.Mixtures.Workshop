@@ -230,3 +230,39 @@ coef_summ = merge(enet_beta, lasso_beta, by = "variable")
 ind <- rbind(enet_beta, lasso_beta)
 write_csv(ind, "ind_betas.csv")
 ```
+
+# OLS from Lasso Results
+
+```{r}
+lasso_beta %>%
+  filter(grepl("la", variable)) %>% 
+  filter(beta != 0)
+
+studypop <- study_pop %>% mutate(logtelomean = log(telomean))
+
+lm_from_lasso <- lm(logtelomean ~ lbx099la + lbx118la + lbxf03la +lbxpcbla +
+     lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct +
+     as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = studypop)
+
+lm_from_lasso %>% broom::tidy() %>% mutate(
+  estimate = round(estimate, 4),
+  std.error = round(std.error, 4),
+  statistic = round(statistic, 4),
+  p.value = round(p.value, 4))
+
+lm_from_lasso %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
+```
+
+## Plot Model
+
+```{r}
+lm_from_lasso %>% broom::tidy() %>% as.tibble() %>% filter(grepl("la", term)) %>% 
+  ggplot(aes(x = term, y = estimate, color = term,
+             ymin = estimate - 1.96*std.error,
+             ymax = estimate + 1.96*std.error)) +
+  geom_pointrange() + theme_bw() +
+  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+  theme(legend.position = "none") + coord_flip() +
+  labs(y = "Estimate", x = "Pollutant", title = "Association between Pollutants from Lasso and LTL")
+
+```
