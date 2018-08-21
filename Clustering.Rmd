@@ -185,7 +185,7 @@ plot(km.res$clusters[1:30], km.res$PropWithin[1:30], type='l', las = 1, ylab = "
 ### means
 
 ```{r}
-#K-means N=2
+#K-means N=3
 
 km3_centers <- as.data.frame.matrix(t(km3$centers))
 km3_centers$chem <- row.names(km3_centers)
@@ -207,6 +207,28 @@ plot_means_km3 %>%
   labs(title = "K-means, N = 3", x = "Chemicals",
        y = "Mean")
 
+
+#K-means N=5
+
+km5_centers <- as.data.frame.matrix(t(km5$centers))
+km5_centers$chem <- row.names(km5_centers)
+
+means_km5 <- km5_centers %>% 
+  mutate(Group = ifelse(chem == "lbx118la.l2", "TEQ", 
+                        ifelse(grepl("lbx1", chem), "Non-Dioxin-like PCB",
+                               ifelse(grepl("lbx0", chem), "Non-Dioxin-like PCB",
+                                      ifelse(grepl("lbxp", chem), "Non-Ortho PCB",
+                                             ifelse(grepl("lbxh", chem), "Non-Ortho PCB", "TEQ"))))))
+plot_means_km5 <- means_km5 %>% 
+  gather(key = "Cluster", value = "mean", -chem, -Group) %>% as.tibble()
+
+plot_means_km5 %>% 
+  ggplot(aes(x = chem, y = mean, fill = Group)) + geom_col() +
+  facet_wrap(~ Cluster) + theme_bw() + 
+  theme(legend.position = "bottom", axis.text.x = element_text(angle = 90, hjust = 1)) +
+  geom_hline(yintercept = 0, size = 0.2) +
+  labs(title = "K-means, N = 5", x = "Chemicals",
+       y = "Mean")
 ```
 
 
@@ -229,7 +251,7 @@ summary.km
 
 #### 5 Cluster Model
 
-Combine clusters grouping with original data outcome and covariants for K-means = ?
+Combine clusters grouping with original data outcome and covariants for K-means = 5
 
 ```{r}
 clu.group <- km5$cluster #cluster group
@@ -277,19 +299,7 @@ health_model_kmeans %>% broom::tidy() %>% as.tibble() %>% filter(grepl("clu.grou
   labs(y = "Estimate", x = "Cluster Membership", title = "Association between Clusters and LTL")
 
 
-categorical %>% broom::tidy() %>% as.tibble() %>% filter(grepl("MR", term)) %>% 
-  mutate(term = ifelse(term == "as.factor(Max)MR2", "MR2",
-                       ifelse(term == "as.factor(Max)MR3", "MR3", "MR4"))) %>% 
-  rbind(., c("MR1", 0, 0, 0, 0)) %>% 
-  mutate(estimate = as.numeric(estimate),
-         std.error = as.numeric(std.error)) %>% 
-  ggplot(aes(x = term, y = estimate, color = term,
-             ymin = estimate - 1.96*std.error,
-             ymax = estimate + 1.96*std.error)) +
-  geom_pointrange() + theme_bw() +
-  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
-  theme(legend.position = "none") + coord_flip() +
-  labs(y = "Estimate", x = "Factor", title = "Association between Largest Factors and LTL")
+
 ```
 
 #### 3 Cluster Model
