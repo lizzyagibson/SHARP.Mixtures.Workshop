@@ -277,7 +277,7 @@ health_model_kmeans10 %>% broom::tidy() %>% as.tibble() %>% filter(grepl("clu.gr
                      ifelse(term == "as.factor(clu.group10)7", "Cluster 7",
                       ifelse(term == "as.factor(clu.group10)8", "Cluster 8", 
                        ifelse(term == "as.factor(clu.group10)9", "Cluster 9", "Cluster 10"))))))))) %>%
-    rbind(., c("Cluster 1", 0, 0, 0, 0)) %>% 
+  rbind(., c("Cluster 1", 0, 0, 0, 0)) %>% 
   mutate(estimate = as.numeric(estimate),
          std.error = as.numeric(std.error)) %>% 
   ggplot(aes(x = term, y = estimate, color = term,
