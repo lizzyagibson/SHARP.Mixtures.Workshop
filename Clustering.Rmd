@@ -260,6 +260,8 @@ pop_clus <- as.tibble((cbind(pop, clu.group)))
 table(pop_clus$clu.group)
 ```
 
+Put 5 clusters (categorical) into a linear regression w/ covariates to estimate association with LTL.
+
 ```{r}
 health_model_kmeans5 <- lm(logtelomean ~ as.factor(clu.group) +
      lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct +
@@ -275,7 +277,7 @@ health_model_kmeans5 %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
 ```
 
 ##### Plot
-****Need to be fix
+
 ```{r}
 health_model_kmeans5 %>% broom::tidy() %>% as.tibble() %>% filter(grepl("clu.group", term)) %>% 
   mutate(term = ifelse(term == "as.factor(clu.group)2", "Cluster 2", 
@@ -296,7 +298,7 @@ health_model_kmeans5 %>% broom::tidy() %>% as.tibble() %>% filter(grepl("clu.gro
 
 #### 3 Cluster Model
 
-Combine clusters grouping with original data outcome and covariants for K-means = 2
+Combine clusters grouping with original data outcome and covariants for K-means = 3
 
 ```{r}
 clu.group3 <- km3$cluster #cluster group
@@ -304,6 +306,8 @@ clu.group3 <- km3$cluster #cluster group
 pop_clus3 <- as.tibble((cbind(pop, clu.group3)))
 table(pop_clus3$clu.group3)
 ```
+
+Put 3 clusters (categorical) into a linear regression w/ covariates to estimate association with LTL.
 
 ```{r}
 health_model_kmeans3 <- lm(logtelomean ~ as.factor(clu.group3) +
