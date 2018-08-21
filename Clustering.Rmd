@@ -169,7 +169,7 @@ km.res %>%
 # look at a smaller subset of data
 km.res[1:30,]  %>% 
   ggplot(aes(x = clusters, y = PropWithin)) + geom_point() + 
-  geom_vline(xintercept = 5, linetype = "dotted") + 
+  geom_vline(xintercept = 5, color = "red", linetype = "dotted") + 
   labs(title = "Optimal Number of Clusters", 
        y = "Proportion of Within over Total SS", 
        x = "Number of Clusters")
