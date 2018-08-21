@@ -117,7 +117,7 @@ plot_loadings_pca <- loadings_pca %>%
   gather(key = "PC", value = "Loading", -chem, -Group) %>% as.tibble()
 
 plot_loadings_pca %>% 
-  filter(PC %in% c("PC1", "PC2", "PC3", "PC4")) %>% 
+  filter(PC %in% c("PC1", "PC2", "PC3")) %>% 
   ggplot(aes(x = chem, y = Loading, fill = Group)) + geom_col() +
   facet_wrap(~ PC) + theme_bw() + 
   theme(legend.position = "bottom", axis.text.x = element_text(angle = 90, hjust = 1)) +
