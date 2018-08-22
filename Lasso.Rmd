@@ -35,7 +35,7 @@ study_pop = read_csv("./Data/studypop.csv") %>%
          male = as.factor(male)) 
 ```
 
-Quick data descriptions; because of the lenght of the output, we don't execute this command here, but encourage you to!
+Quick data descriptions; because of the length of the output, we don't execute this command here, but encourage you to!
 
 ```{r, eval = FALSE}
 
@@ -282,7 +282,7 @@ rownames(compare) = colnames(lasso_mse); colnames(compare) = c("Lasso Lambda", "
 knitr::kable(compare, align = "c")
 ```
 
-Oddly, although lasso is a special case of the elastic net, the lasso appears to outperform the elastic net in this case! This might be addressable through more careful tuning parameter selection, or the slight improvement might itself be a random fluctuation.
+Oddly, although lasso is a special case of the elastic net, the lasso appears to outperform the elastic net in this case! This might be addressed through more careful tuning parameter selection, or the slight improvement might itself be a random fluctuation.
 
 ```{r create_4_plot}
 coef_summ = merge(enet_beta, lasso_beta, by = "variable")
