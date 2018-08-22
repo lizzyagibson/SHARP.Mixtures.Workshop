@@ -14,12 +14,6 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 #install.packages("grpreg")
 library(grpreg)
-#install.packages("splines")
-library(splines)
-#install.packages("refund")
-library(refund)
-#install.packages("refund.shiny")
-library(refund.shiny)
 #install.packages("janitor")
 library(janitor)
 
@@ -27,36 +21,69 @@ library(janitor)
 options(scipen = 999)
 ```
 
-## Data Import and Cleaning
+# Data Import and Cleaning 
 
-```{r clean}
-studypop <- read_csv("./Data/studypop.csv") %>% 
-  clean_names() %>% 
-  na.omit() %>% #remove missing
+First, load the dataset; clean up names as needed; and convert factors to, well, factors. 
+
+```{r}
+study_pop = read_csv("./Data/studypop.csv") %>% 
+  clean_names(case = c("old_janitor")) %>% 
   mutate(bmi_cat3 = as.factor(bmi_cat3),
          edu_cat = as.factor(edu_cat),
          race_cat = as.factor(race_cat),
-         male = as.factor(male)) %>% #create factor variables
-  dplyr::select(-seqn) #remove ID variable
+         male = as.factor(male)) 
+```
 
-#Group lasso wants data SEPARATE, with y value as one vector, X as a matrix of predictors (numeric values, categorical variables must be changed to 0/1 dummy variables), and grouping variable as a factor vector.
+Quick data descriptions; because of the lenght of the output, we don't execute this command here, but encourage you to!
 
-#Create X matrix of predictors with ln-transformed continuous variables (PCBs, Dioxins, and Furans) and dummy variables for those that are categorical.
-x <- model.matrix(telomean ~ ., studypop)[,-1]
+```{r, eval = FALSE}
 
-#ln transform x
-x[,1:8] <- log(x[,1:8])
-x[,15:24] <- log(x[,15:24])
-#grpreg standardizes the data for us
-#these are complete cases
+describe(study_pop)
 
-#y is the outcome variable
-#ln transform y
-y <- log(studypop$telomean)
+```
 
-#Create grouping variable two ways. If there are coefficients to be included in the model without being penalized, assign them to group 0 (or "0"). This includes all covariates we want to keep in the model. Group must be a FACTOR. 
+Next we remove missing values and reorder predictors (environmental variables first, confounders second). In keeping with standard practice, we'll ln-transform the environmental exposures and the outcome. This is the dataset we'll use to illustrate variable selection methods. 
 
-# (1) 3 groups = 8 non-Dioxin-like PCBs, 2 non-ortho PCBs, and TEQ (3 dioxins, 4 furans, 1 mono-ortho (Dioxin-like) PCBs). 
+```{r}
+data_lasso = study_pop %>% 
+  mutate_at(vars(contains("la")), log) %>% 
+  mutate(log_telomean = log(telomean)) %>% 
+  dplyr::select(log_telomean, lbx074la:lbx187la, lbxd03la:lbx194la, everything(), -seqn, -telomean) %>% 
+  na.omit(log_telomean) 
+
+names(data_lasso)
+
+dim(data_lasso)
+```
+
+Model fitting methods aren't "tidy-compliant" yet, so we'll focus on creating the relevant matrices and vectors. 
+
+```{r}
+# Create a matrix of predictors as x
+x = model.matrix(log_telomean ~ ., data_lasso)[,-1]
+
+# Extract outcome vector
+y = data_lasso$log_telomean
+```
+
+Let's take a quick look at our design matrix.
+
+```{r}
+dim(x)
+colnames(x)
+
+#View(x)
+```
+
+It's helpful to note that chemical exposures appear in columns 1 to 18, and more traditional confounders appear in columns 19 to 36.
+
+# Group definitions
+
+Create grouping variable two ways. If there are coefficients to be included in the model without being penalized, assign them to group 0 (or "0"). This includes all covariates we want to keep in the model. Group must be a FACTOR. 
+
+First, 3 groups = 8 non-Dioxin-like PCBs, 2 non-ortho PCBs, and TEQ (3 dioxins, 4 furans, 1 mono-ortho (Dioxin-like) PCBs). 
+
+```{r}
 group3 <- vector()
 group3[grepl("lbx1|0",colnames(x))] <- "Non-Dioxin-like PCB"
 group3[grepl("lbxd", colnames(x))] <- "TEQ"
@@ -74,9 +101,11 @@ group3[grepl("age", colnames(x))] <- "0"
 group3 <- as.factor(group3)
 
 cbind(colnames(x), group3) #bind by columns
+```
 
-# (2) 4 groups = 8 non-dioxin-like PCBs, 3 non-ortho PCBs, 3 dioxins, and 4 furans.
+Second, 4 groups = 8 non-dioxin-like PCBs, 3 non-ortho PCBs, 3 dioxins, and 4 furans.
 
+```{r}
 group4 <- vector()
 group4[grepl("lbx1|0",colnames(x))] <- "Non-Dioxin-like PCB"
 group4[grepl("lbxd", colnames(x))] <- "Dioxin"
@@ -96,23 +125,28 @@ group4 <- as.factor(group4)
 cbind(colnames(x), group4)
 ```
 
-## Grouped Variable Selection
+# Grouped Variable Selection
 
-```{r models}
-#Lasso
+The code chunk below fits a three-group model using lasso, MCP, and SCAD penalties.
+
+```{r models_3}
 lasso_3 <- grpreg(x, y, group3, penalty = "grLasso")
-
-#MCP
 MCP_3 <- grpreg(x, y, group3, penalty = "grMCP")
-
-#SCAD
 SCAD_3 <- grpreg(x, y, group3, penalty = "grSCAD")
+```
 
+Results are illustrated below. 
+
+```{r}
 par(mfrow = c(1,3))
 plot(lasso_3)
 plot(MCP_3)
 plot(SCAD_3)
+```
 
+We repeat this process for the four-group categorization next.
+
+```{r}
 lasso_4 <- grpreg(x, y, group4, penalty = "grLasso")
 MCP_4 <- grpreg(x, y, group4, penalty = "grMCP")
 SCAD_4 <- grpreg(x, y, group4, penalty = "grSCAD")
@@ -123,30 +157,30 @@ plot(MCP_4)
 plot(SCAD_4)
 ```
 
-## Lasso w/ CV
+# Lasso w/ CV
+
+As with `glmnet`, we can use CV to choose the tuning parameters. If not specified in code, ten-fold CV is the default. 
+
+We perform this analysis first with the three-group model and the lasso penalty.
 
 ```{r cvlasso}
-#3 group model
-
-#Cross-validation (CV) to choose the best tuning parameter lambda. If not specified in code, ten-fold CV is the default.
-cv_lasso_3 <- cv.grpreg(x, y, group3
-                        , penalty = "grLasso"
-                        , seed = 1988
-                        )
+cv_lasso_3 <- cv.grpreg(x, y, group3, 
+                        penalty = "grLasso", seed = 1988)
 
 #Find the lambda that results in the smallest CV error
 best_lasso_3 <- cv_lasso_3$lambda.min
 
 #Fit model with cross-validated lambda
-fit_lasso_3 <- grpreg(x, y, group3, penalty = "grLasso"
-                      , lambda = best_lasso_3
-                      )
+fit_lasso_3 <- grpreg(x, y, group3, penalty = "grLasso", lambda = best_lasso_3)
 
 #Look at coefficients from model with best lambda
 fit_lasso_3$beta
+```
 
+For completeness, we can repeat this with four groups. 
+
+```{r}
 #4 group model
-#Use CV to choose the best tuning parameter lambda (ten-fold default)
 cv_lasso_4 <- cv.grpreg(x, y, group4, penalty = "grLasso", seed = 1988)
 
 #Find the lambda that results in the smallest CV error
@@ -160,21 +194,20 @@ fit_lasso_4 <- grpreg(x, y, group4, penalty = "grLasso",
 fit_lasso_4$beta
 ```
 
-### Data Visualization
+## Data Visualization
 
 ```{r vizlasso}
 #3 group model
-lasso_beta_3 <- cbind(rownames(fit_lasso_3$beta), fit_lasso_3$beta) %>% 
-  as.tibble() %>% 
-  rename(variable = V1, beta = `0.0058`) %>% 
-  mutate(beta = as.numeric(beta)) %>% 
+lasso_beta_3 <- as_tibble(fit_lasso_3$beta, rownames = "variable") %>% 
+  rename(beta = `0.0058`) %>% 
   filter(variable != "(Intercept)") %>% 
   mutate(group3 = group3,
          group4 = group4,
          method = "Grouped Lasso")
 
 #Filter out covariates
-lasso_beta_3 %>% filter(group3 %in% c("TEQ", "Non-Dioxin-like PCB", "Non-Ortho PCB")) %>% 
+lasso_beta_3 %>% 
+  filter(group3 %in% c("TEQ", "Non-Dioxin-like PCB", "Non-Ortho PCB")) %>% 
   ggplot(aes(x = variable, y = round(beta, 5))) + 
   geom_point() + theme_minimal() + geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
   facet_wrap(~ group3, scales = "free_y") +
@@ -182,10 +215,8 @@ lasso_beta_3 %>% filter(group3 %in% c("TEQ", "Non-Dioxin-like PCB", "Non-Ortho P
   labs(title = "Lasso Coefficients for 3 Group Model", y = "Beta Coefficient", x = "Variable")
 
 #4 group model
-lasso_beta_4 <- cbind(rownames(fit_lasso_4$beta), fit_lasso_4$beta) %>% 
-  as.tibble() %>% 
-  rename(variable = V1, beta = `0.0059`) %>% 
-  mutate(beta = as.numeric(beta)) %>% 
+lasso_beta_4 <- as_tibble(fit_lasso_4$beta, rownames = "variable") %>% 
+  rename(beta = `0.0059`) %>% 
   filter(variable != "(Intercept)") %>% 
   mutate(group3 = group3,
          group4 = group4)
@@ -200,23 +231,23 @@ lasso_beta_4 %>%
   labs(title = "Lasso Coefficients for 4 Group Model", y = "Beta Coefficient", x = "Variable")
 ```
 
-## MCP w/ CV
+# MCP w/ CV
+
+We repeat the previous analyses, substituting the MCP penalty for the lasso. 
 
 ```{r cvmcp}
 #3 group model
 
 #CV to choose the best tuning parameter lambda (ten-fold default)
-cv_mcp_3 <- cv.grpreg(x, y, group3
-                        , penalty = "grMCP"
-                        , seed = 1988
-                        )
+cv_mcp_3 <- cv.grpreg(x, y, group3,
+                      penalty = "grMCP", 
+                      seed = 1988)
+
 #Find the lambda that results in the smallest CV error
 best_mcp_3 <- cv_mcp_3$lambda.min
 
 #Fit model with cross-validated lambda
-fit_mcp_3 <- grpreg(x, y, group3, penalty = "grMCP"
-                      , lambda = best_mcp_3
-                      )
+fit_mcp_3 <- grpreg(x, y, group3, penalty = "grMCP", lambda = best_mcp_3)
 
 #Look at coefficients from model with best lambda
 fit_mcp_3$beta
@@ -229,28 +260,26 @@ cv_mcp_4 <- cv.grpreg(x, y, group4, penalty = "grMCP", seed = 1988)
 best_mcp_4 <- cv_mcp_4$lambda.min
 
 #Fit model with cross-validated lambda
-fit_mcp_4 <- grpreg(x, y, group4, penalty = "grMCP", 
-                      lambda = best_mcp_4)
+fit_mcp_4 <- grpreg(x, y, group4, penalty = "grMCP", lambda = best_mcp_4)
 
 #Look at coefficients from model with best lambda
 fit_mcp_4$beta
 ```
 
-### Data Visualization
+## Data Visualization
 
 ```{r vizmcp}
 #3 group model
-mcp_beta_3 <- cbind(rownames(fit_mcp_3$beta), fit_mcp_3$beta) %>% 
-  as.tibble() %>% 
-  rename(variable = V1, beta = `0.0123`) %>% 
-  mutate(beta = as.numeric(beta)) %>% 
+mcp_beta_3 <- as_tibble(fit_mcp_3$beta, rownames = "variable") %>% 
+  rename(beta = `0.0123`) %>% 
   filter(variable != "(Intercept)") %>% 
   mutate(group3 = group3,
          group4 = group4,
          method = "MCP")
 
 #Filter out covariates
-mcp_beta_3 %>% filter(group3 %in% c("TEQ", "Non-Dioxin-like PCB", "Non-Ortho PCB")) %>% 
+mcp_beta_3 %>% 
+  filter(group3 %in% c("TEQ", "Non-Dioxin-like PCB", "Non-Ortho PCB")) %>% 
   ggplot(aes(x = variable, y = round(beta, 5))) + 
   geom_point() + theme_minimal() + geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
   facet_wrap(~ group3, scales = "free_y") +
@@ -258,10 +287,8 @@ mcp_beta_3 %>% filter(group3 %in% c("TEQ", "Non-Dioxin-like PCB", "Non-Ortho PCB
   labs(title = "MCP Coefficients for 3 Group Model", y = "Beta Coefficient", x = "Variable")
 
 #4 group model
-mcp_beta_4 <- cbind(rownames(fit_mcp_4$beta), fit_mcp_4$beta) %>% 
-  as.tibble() %>% 
-  rename(variable = V1, beta = `0.0085`) %>% 
-  mutate(beta = as.numeric(beta)) %>% 
+mcp_beta_4 <- as_tibble(fit_mcp_4$beta, rownames = "variable") %>% 
+  rename(beta = `0.0085`) %>% 
   filter(variable != "(Intercept)") %>% 
   mutate(group3 = group3,
          group4 = group4)
@@ -276,23 +303,21 @@ mcp_beta_4 %>%
   labs(title = "MCP Coefficients for 4 Group Model", y = "Beta Coefficient", x = "Variable")
 ```
 
-## SCAD w/ CV
+# SCAD w/ CV
 
 ```{r cvscad}
 #3 group model
 
 #CV to choose the best tuning parameter lambda (ten-fold default)
-cv_scad_3 <- cv.grpreg(x, y, group3
-                        , penalty = "grSCAD"
-                        , seed = 1988
-                        )
+cv_scad_3 <- cv.grpreg(x, y, group3, 
+                       penalty = "grSCAD", 
+                       seed = 1988)
+
 #Find the lambda that results in the smallest CV error
 best_scad_3 <- cv_scad_3$lambda.min
 
 #Fit model with cross-validated lambda
-fit_scad_3 <- grpreg(x, y, group3, penalty = "grSCAD"
-                      , lambda = best_scad_3
-                      )
+fit_scad_3 <- grpreg(x, y, group3, penalty = "grSCAD", lambda = best_scad_3)
 
 #Look at coefficients from model with best lambda
 fit_scad_3$beta
@@ -305,39 +330,36 @@ cv_scad_4 <- cv.grpreg(x, y, group4, penalty = "grSCAD", seed = 1988)
 best_scad_4 <- cv_scad_4$lambda.min
 
 #Fit model with cross-validated lambda
-fit_scad_4 <- grpreg(x, y, group4, penalty = "grSCAD", 
-                      lambda = best_scad_4)
+fit_scad_4 <- grpreg(x, y, group4, penalty = "grSCAD", lambda = best_scad_4)
 
 #Look at coefficients from model with best lambda
 fit_scad_4$beta
 ```
 
-### Data Visualization
+## Data Visualization
 
 ```{r vizscad}
 #3 group model
-scad_beta_3 <- cbind(rownames(fit_scad_3$beta), fit_scad_3$beta) %>% 
-  as.tibble() %>% 
-  rename(variable = V1, beta = `0.0077`) %>% 
-  mutate(beta = as.numeric(beta)) %>% 
+scad_beta_3 <- as_tibble(fit_scad_3$beta, rownames = "variable") %>% 
+  rename(beta = `0.0077`) %>% 
   filter(variable != "(Intercept)") %>% 
   mutate(group3 = group3,
          group4 = group4,
          method = "SCAD")
 
 #Filter out covariates
-scad_beta_3 %>% filter(group3 %in% c("TEQ", "Non-Dioxin-like PCB", "Non-Ortho PCB")) %>% 
+scad_beta_3 %>% 
+  filter(group3 %in% c("TEQ", "Non-Dioxin-like PCB", "Non-Ortho PCB")) %>% 
   ggplot(aes(x = variable, y = round(beta, 5))) + 
-  geom_point() + theme_minimal() + geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+  geom_point() + theme_minimal() + 
+  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
   facet_wrap(~ group3, scales = "free_y") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) + coord_flip() + 
   labs(title = "SCAD Coefficients for 3 Group Model", y = "Beta Coefficient", x = "Variable")
 
 #4 group model
-scad_beta_4 <- cbind(rownames(fit_scad_4$beta), fit_scad_4$beta) %>% 
-  as.tibble() %>% 
-  rename(variable = V1, beta = `0.0071`) %>% 
-  mutate(beta = as.numeric(beta)) %>% 
+scad_beta_4 <- as_tibble(fit_scad_4$beta, rownames = "variable") %>% 
+  rename(beta = `0.0071`) %>% 
   filter(variable != "(Intercept)") %>% 
   mutate(group3 = group3,
          group4 = group4)
@@ -345,8 +367,9 @@ scad_beta_4 <- cbind(rownames(fit_scad_4$beta), fit_scad_4$beta) %>%
 #Filter out covariates
 scad_beta_4 %>% 
   filter(group4 %in% c("Dioxin", "Furan", "Non-Dioxin-like PCB", "Non-Ortho PCB")) %>% 
-  ggplot(aes(x = variable, y = round(beta, 5))) + geom_point() +
-  theme_minimal() + geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+  ggplot(aes(x = variable, y = round(beta, 5))) + 
+  geom_point() + theme_minimal() + 
+  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
   facet_wrap(~ group4, scales = "free_y") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) + coord_flip() + 
   labs(title = "SCAD Coefficients for 4 Group Model", y = "Beta Coefficient", x = "Variable")
@@ -361,38 +384,26 @@ write_csv(grouped, "grouped_betas.csv")
 
 ## OLS from MCP Results
 
+Lastly, we compare the results for MCP (with four groups) with the results from the corresponding OLS fit
+
 ```{r}
-mcp_beta_4 %>% 
-  filter(group4 %in% c("Dioxin", "Furan", "Non-Dioxin-like PCB", "Non-Ortho PCB")) %>% 
-  filter(beta != 0)
+mcp_beta = 
+  mcp_beta_4 %>% 
+  filter(beta != 0) %>% 
+  dplyr::select(term = variable, mcp = beta)
 
-studypop <- studypop %>% mutate(logtelomean = log(telomean))
-
-lm_from_mcp <- lm(logtelomean ~ lbx118la + lbxpcbla +  lbxhxcla + 
+lm_from_mcp <- lm(log_telomean ~ lbx118la + lbxpcbla +  lbxhxcla + 
      lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct +
-     as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = studypop)
+     bmi_cat3 + edu_cat + race_cat + male, data = data_lasso)
 
-lm_from_mcp %>% broom::tidy() %>% mutate(
-  estimate = round(estimate, 4),
-  std.error = round(std.error, 4),
-  statistic = round(statistic, 4),
-  p.value = round(p.value, 4))
+ols_beta =
+  lm_from_mcp %>% 
+  broom::tidy() %>% 
+  dplyr::select(term, ols = estimate)
 
-lm_from_mcp %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
-```
+ols_v_gmcp = left_join(mcp_beta, ols_beta)
+ols_v_gmcp
 
-### Plot Model
-
-```{r}
-lm_from_mcp %>% broom::tidy() %>% as.tibble() %>% filter(grepl("la", term)) %>% 
-  ggplot(aes(x = term, y = estimate, color = term,
-             ymin = estimate - 1.96*std.error,
-             ymax = estimate + 1.96*std.error)) +
-  geom_pointrange() + theme_bw() +
-  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
-  theme(legend.position = "none") + coord_flip() +
-  labs(y = "Estimate", x = "Pollutant", title = "Association between Pollutants from MCP and LTL")
+ggplot(ols_v_gmcp, aes(x = mcp, y = ols)) + geom_point()
 
 ```
-
-
