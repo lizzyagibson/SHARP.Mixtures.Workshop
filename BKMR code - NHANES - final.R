@@ -18,7 +18,7 @@ library(ggplot2)
 
 ## read in data and only consider complete data 
 ## this drops 327 individuals, but BKMR does not handle missing data
-nhanes <- na.omit(read.csv("/Users/KatrinaHartzler/Dropbox/MixturesWorkshop_Aug2018/Data/studypop.csv"))
+nhanes <- na.omit(read.csv("./Data/studypop.csv"))
 
 ## center/scale continous covariates and create indicators for categorical covariates
 nhanes$age_z         <- scale(nhanes$age_cent)         ## center and scale age
