@@ -21,8 +21,6 @@ library(psych)
 library(GPArotation)
 #install.packages("ggrepel")
 library(ggrepel)
-#install.packages("reshape2")
-library(reshape2)
 
 #This turns off scientific notation
 options(scipen = 999)
@@ -40,25 +38,6 @@ studypop <- read_csv("./Data/studypop.csv") %>%
 logstudypop <- log(studypop) #log transform variables
 ```
 
-## Heat Map
-
-```{r}
-cormat <- round(cor(logstudypop, use = "pairwise.complete.obs", method = c("pearson")),2)
-melted_cormat <- melt(cormat) %>% rename(Correlation = value)
-
-ggplot(melted_cormat, aes(Var1, Var2, fill = Correlation)) +
- geom_tile(color = "white") +
- scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
-                      midpoint = 0, limit = c(0,1), space = "Lab", 
-                      name = "Pearson\nCorrelation") +
-  theme_minimal() + # minimal theme
-  theme(axis.text.x = element_text(angle = 90, vjust = 1, size = 12, hjust = 1),
-        axis.text.y = element_text(vjust = 1, size = 12, hjust = 1),
-        axis.title.x = element_text(size = 15),
-        axis.title.y = element_text(size = 15)) +
-  coord_fixed() + labs(x = "", y = "", title = "Correlation Heat Map of Pollutants")
-```
-
 ## Exploratory Factor Analysis (FA)
 
 Perform an eigenvalue analysis to get an estimate (or range) for the number of underlying dimensions. Recommend fitting at least one more and one less factor than suggested by the eigenvalue analysis.
@@ -73,7 +52,6 @@ simple.pca$sdev^2
 summary(simple.pca)
 # First 3 PC explain 80% of variance
 
-fa.parallel(logstudypop)
 ```
 
 ### Orthogonal Models

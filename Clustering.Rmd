@@ -31,6 +31,8 @@ library(knitr)
 library(dendextend)
 #install.packages("pryr")
 library(pryr)
+#install.packages("reshape2")
+library(reshape2)
 ```
 
 ## Data Import and Cleaning
@@ -63,6 +65,25 @@ dim(log.x)
 
 #summary statistics on dataset
 summary(log.x)
+```
+
+## Heat Map
+
+```{r}
+cormat <- round(cor(log.x, use = "pairwise.complete.obs", method = c("pearson")),2)
+melted_cormat <- melt(cormat) %>% rename(Correlation = value)
+
+ggplot(melted_cormat, aes(Var1, Var2, fill = Correlation)) +
+ geom_tile(color = "white") +
+ scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
+                      midpoint = 0, limit = c(0,1), space = "Lab", 
+                      name = "Pearson\nCorrelation") +
+  theme_minimal() + # minimal theme
+  theme(axis.text.x = element_text(angle = 90, vjust = 1, size = 12, hjust = 1),
+        axis.text.y = element_text(vjust = 1, size = 12, hjust = 1),
+        axis.title.x = element_text(size = 15),
+        axis.title.y = element_text(size = 15)) +
+  coord_fixed() + labs(x = "", y = "", title = "Correlation Heat Map of Pollutants")
 ```
 
 ## K-Means Clustering
@@ -143,7 +164,7 @@ Percent_bt_k100 = paste(round(100*(km100$betweenss/km100$totss),1), "%", sep = "
 
 ### Total Within Cluster/Total Variation 
 
-```{r cache = TRUE}
+```{r loop, cache = TRUE}
 # create an empty data frame
 km.res <- data.frame(matrix(NA, (dim(log.x)[1] - 1), 3))
 
