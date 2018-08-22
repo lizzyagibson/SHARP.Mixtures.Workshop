@@ -60,9 +60,10 @@ covariates <- with(nhanes, cbind(age_z, agez_sq, male, bmicat2, bmicat3, educat1
 
 
 ### create knots matrix for Gaussian predictive process (to speed up BKMR with large datasets)
+set.seed(10)
 knots100     <- fields::cover.design(lnmixture_z, nd = 100)$design
 knots100.PCB <- fields::cover.design(lnPCB_z, nd = 100)$design
-save(knots100, knots100.PCB, file="NHANES_knots.RData")
+save(knots100, knots100.PCB, file="NHANES_knots100.RData")
 
 
 
@@ -71,39 +72,27 @@ save(knots100, knots100.PCB, file="NHANES_knots.RData")
 ###         Fit Models                       ###
 ################################################
 
-load("NHANES_knots.RData")
+load("NHANES_knots100.RData")
 
 ##### fit BKMR models WITH Gaussian predictive process using 100 knots
-
-### component-wise variable selection (VS) with all exposures
-set.seed(1000)
-fit_vs_knots100 <-  kmbayes(y=lnLTL_z, Z=lnmixture_z, X=covariates, iter=100000, verbose=TRUE, varsel=TRUE, knots=knots100)
-save(fit_vs_knots100,file="bkmr_NHANES_vs_knots100.RData")
-
-
-### component-wise VS with PCBs only 
-set.seed(1000)
-fit_vs_knots100_PCB <-  kmbayes(y=lnLTL_z, Z=lnPCB_z, X=covariates, iter=100000, verbose=TRUE, varsel=TRUE, knots=knots100.PCB)
-save(fit_vs_knots100_PCB,file="bkmr_NHANES_vs_knots100_PCB.RData")
-
 
 ### Group VS fit with all exposures using GPP and 100 knots 
 set.seed(1000)
 fit_gvs_knots100 <-  kmbayes(y=lnLTL_z, Z=lnmixture_z, X=covariates, iter=100000, verbose=TRUE, varsel=TRUE, 
                              groups=c(rep(1,times=9),rep(2,times=2),rep(3,times=3),rep(4,times=4)), knots=knots100)
+summary(fit_gvs_knots100)
 save(fit_gvs_knots100,file="bkmr_NHANES_gvs_knots100.RData")
 
 ### Group VS fit with PCBs only 
 set.seed(1000)
 fit_gvs_knots100_PCB <-  kmbayes(y=lnLTL_z, Z=lnPCB_z, X=covariates, iter=100000, verbose=TRUE, varsel=TRUE, 
                                  groups=c(rep(1,times=9),rep(2,times=2)), knots=knots100.PCB)
+summary(fit_gvs_knots100_PCB)
 save(fit_gvs_knots100_PCB,file="bkmr_NHANES_gvs_knots100_PCB.RData")
 
 
 ## obtain posterior inclusion probabilities (PIPs)
-ExtractPIPs(fit_vs_knots100)
 ExtractPIPs(fit_gvs_knots100)
-ExtractPIPs(fit_vs_knots100_PCB)
 ExtractPIPs(fit_gvs_knots100_PCB)
 
 
@@ -113,9 +102,7 @@ ExtractPIPs(fit_gvs_knots100_PCB)
 ##############################################
 
 
-load("bkmr_NHANES_vs_knots100.RData")
 load("bkmr_NHANES_gvs_knots100.RData")
-load("bkmr_NHANES_vs_knots100_PCB.RData")
 load("bkmr_NHANES_gvs_knots100_PCB.RData")
 
 
@@ -131,10 +118,10 @@ dev.off()
 
 
 ### change this for each model you fit and then rerun the code from here to the bottom
-modeltoplot      <- fit_vs_knots100   ## name of model object
-modeltoplot.name <- "fit_vs_knots100" ## name of model for saving purposes
-plot.name        <- "vs_knots100"     ## part that changed in plot name 
-
+modeltoplot      <- fit_gvs_knots100   ## name of model object
+modeltoplot.name <- "fit_gvs_knots100" ## name of model for saving purposes
+plot.name        <- "gvs_knots100"     ## part that changed in plot name 
+Z                <- lnmixture_z        ## Z matrix to match what was used in model
 
 ### values to keep after burnin/thin
 sel<-seq(50001,100000,by=50)
@@ -155,7 +142,7 @@ par(mfrow=c(1,1))
 #### create dataframes for ggplot (this takes a little while to run)
 pred.resp.univar <- PredictorResponseUnivar(fit = modeltoplot, sel=sel, method="approx")
 pred.resp.bivar  <- PredictorResponseBivar(fit = modeltoplot,  min.plot.dist = 1, sel=sel, method="approx")
-pred.resp.bivar.levels <- PredictorResponseBivarLevels(pred.resp.df = pred.resp.bivar, Z = lnmixture_z,
+pred.resp.bivar.levels <- PredictorResponseBivarLevels(pred.resp.df = pred.resp.bivar, Z = Z,
                                                           both_pairs = TRUE, qs = c(0.25, 0.5, 0.75))
 risks.overall <- OverallRiskSummaries(fit = modeltoplot, qs = seq(0.25, 0.75, by = 0.05), q.fixed = 0.5, method = "approx",sel=sel)
 risks.singvar <- SingVarRiskSummaries(fit = modeltoplot, qs.diff = c(0.25, 0.75),
