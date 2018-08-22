@@ -24,112 +24,143 @@ library(glmnet)
 
 # Data Import and Cleaning 
 
+First, load the dataset; clean up names as needed; and convert factors to, well, factors. 
+
 ```{r}
-# Import dataset
 study_pop = read_csv("./Data/studypop.csv") %>% 
   clean_names(case = c("old_janitor")) %>% 
   mutate(bmi_cat3 = as.factor(bmi_cat3),
          edu_cat = as.factor(edu_cat),
          race_cat = as.factor(race_cat),
          male = as.factor(male)) 
+```
 
-# Check variables for missing, etc.
+Quick data descriptions; because of the length of the output, we don't execute this command here, but encourage you to!
+
+```{r, eval = FALSE}
+
 describe(study_pop)
 
-# Remove missing
+```
+
+Next we remove missing values and reorder predictors (environmental variables first, confounders second). In keeping with standard practice, we'll ln-transform the environmental exposures and the outcome. This is the dataset we'll use to illustrate variable selection methods. 
+
+```{r}
 data_lasso = study_pop %>% 
-  dplyr::select(telomean, lbx074la:lbx187la, lbxd03la:lbx194la, everything(), -seqn) %>% 
-  na.omit(telomean)
+  mutate_at(vars(contains("la")), log) %>% 
+  mutate(log_telomean = log(telomean)) %>% 
+  dplyr::select(log_telomean, lbx074la:lbx187la, lbxd03la:lbx194la, everything(), -seqn, -telomean) %>% 
+  na.omit(log_telomean) 
 
 names(data_lasso)
 
-# Check dimensions of dataset
 dim(data_lasso)
-
-# Create a matrix of predictors as x
-x = model.matrix(telomean ~ ., data_lasso)[,-1]
-
-# ln transform within x matrix
-x[,1:18] <- log(x[,1:18])
-
-# Group pollutants
-my.x = names(data_lasso)[grep("la", names(data_lasso))]
-length(my.x)
-
-# Transform outcome
-y = data_lasso$telomean
-lny = log(data_lasso$telomean)
-
-# Group confounders
-covs = data_lasso[names(data_lasso)[-which(names(data_lasso) %in% c(my.x, "telomean", "seqn"))]]
-names(covs)
-conf = x[,19:36]
 ```
 
+Model fitting methods aren't "tidy-compliant" yet, so we'll focus on creating the relevant matrices and vectors. 
+
+```{r}
+# Create a matrix of predictors as x
+x = model.matrix(log_telomean ~ ., data_lasso)[,-1]
+
+# Extract outcome vector
+y = data_lasso$log_telomean
+```
+
+Let's take a quick look at our design matrix.
+
+```{r}
+dim(x)
+colnames(x)
+
+#View(x)
+```
+
+It's helpful to note that chemical exposures appear in columns 1 to 18, and more traditional confounders appear in columns 19 to 36.
+
+
 ## Data Visualization
+
+A few quick plots to examine associations between exposures and the outcome. First, chemical exposures:
 
 ```{r dataviz, warning = FALSE}
 # Visualize log-transformed x variables
 featurePlot(x = x[,1:18],
-            y = lny,
+            y = y,
             between = list(x = 1, y = 1), 
             type = c("g", "p", "smooth"))
+```
 
+Next, remaining confounders:
+
+```{r, warning = FALSE}
 # Visualize confounders
-featurePlot(x = conf,
-            y = lny,
+featurePlot(x = x[,19:36],
+            y = y,
             between = list(x = 1, y = 1),
             type = c("g", "p", "smooth"))
 ```
 
 # Lasso w/ CV
 
+We'll begin by looking at the lasso applied to the complete design matrix. In the following, we'll use CV to identify tuning parameters; this is a random process, so we'll set the seed to ensure reproducibility. First we'll use a specified grid of tuning parameter values and fit the lasso model for each.
+
 ```{r lasso}
-# For reproducibility, set a seed
 set.seed(2)
 
-# Example of extreme lambda values
-# create a grid with a range of lambda values
-lgrid <- seq(0, 100, length = 100) 
+lam_grid <- .5 ^ (-20:20)
+lasso.mod = glmnet(x, y, alpha = 1, lambda = lam_grid)
+```
 
-# generate a lasso model using exposure, outcome, and grid of lambda values
-lasso.mod = glmnet(x, lny, alpha = 1, lambda = lgrid)
+We can explore the results using a coefficient path plot or numerically.
 
+```{r}
 plot(lasso.mod)
 
-lasso.mod$lambda
-
 coef(lasso.mod)[,10]
+```
 
-# Use cross-validation (CV) to find best lambda value
+Some built-in functions will conduct a cross-validation analysis and identify the "best" tuning parameter.
+
+```{r}
 # n-folds is set to a default of 10 for cv.glmnet
 cv.out = cv.glmnet(x, y, alpha = 1)
+
 plot(cv.out)
+coef(cv.out)
 
 best_lambda = cv.out$lambda.min
 best_lambda
 
-## can include weights using "weights = ..."
-## alpha is set to 1 due lasso's penalty
-## use penalty.factor to retain certain variables in the model
-lasso = glmnet(x, lny, 
-               penalty.factor = c(rep(1, ncol(x[,1:18])), rep(0, ncol(x[,19:36]))),
+```
+
+Optional arguments to `glmnet` can be useful -- in particular, `weights` can be used in the context of the adaptive lasso and `penalty.factor` can separate penalized variables from confounders. 
+
+```{r]}
+is_penalized = c(rep(1, ncol(x[,1:18])), rep(0, ncol(x[,19:36])))
+
+lasso = glmnet(x, y, 
+               penalty.factor = is_penalized,
                alpha = 1)
 plot(lasso)
 
 # Use cross-validation (CV) to find best lambda value
-cv.lasso = cv.glmnet(x, lny, 
-                     penalty.factor = c(rep(1, ncol(x[,1:18])), rep(0, ncol(x[,19:36]))),
+cv.lasso = cv.glmnet(x, y, 
+                     penalty.factor = is_penalized,
                      type.measure = "mse", alpha = 1)
 plot(cv.lasso)
 
-best_llambda = cv.lasso$lambda.min
-best_llambda
+best_lambda = cv.lasso$lambda.min
+best_lambda
+```
 
+Let's examine the model with the best CV score. 
+
+```{r}
 # Lasso model using cross-validated lambda value
-lasso.mod = glmnet(x, lny, 
-                   penalty.factor = c(rep(1, ncol(x[,1:18])), rep(0, ncol(x[,19:36]))),
-                   alpha = 1, lambda = best_llambda)
+lasso.mod = glmnet(x, y, 
+                   penalty.factor = is_penalized,
+                   alpha = 1, lambda = best_lambda)
 
 coef_lasso = coef(lasso.mod)
 coef_lasso
@@ -145,8 +176,10 @@ lasso_mse = cv.lasso$lambda.1se
 lasso_mse
 ```
 
+The final code chunk saves the best lasso coefficients for later use. 
+
 ```{r combo_plot_lasso}
-lasso_beta <- cbind(rownames(coef_lasso), as.vector(coef_lasso)) %>% 
+lasso_beta = cbind(rownames(coef_lasso), as.vector(coef_lasso)) %>% 
   as.tibble() %>% 
   rename(variable = 1, beta = 2) %>% 
   mutate(beta = as.numeric(beta)) %>% 
@@ -154,9 +187,10 @@ lasso_beta <- cbind(rownames(coef_lasso), as.vector(coef_lasso)) %>%
   mutate(method = "Lasso")
 ```
 
+
 # Elastic Net w/ CV
 
-## Tune Alpha
+`glmnet` implements the elastic net -- we've set `alpha` to 1 to focus on lasso regression, but could choose `alpha` between 0 and 1. In the following, we can tune alpha and lambda simultaneously.
 
 ```{r enalpha, results = "hide"}
 # For reproducibility, set a seed
@@ -165,7 +199,7 @@ set.seed(2)
 # Use CV to select best alpha value
 ## Create a tuning grid of alpha and lambda values
 egrid <- expand.grid(alpha = (1:10) * 0.1, 
-                     lambda = seq(0.01,0.4,0.01))
+                     lambda = .5^(3:20))
 
 ## Create a tuning control for cv
 control <- trainControl(method = "repeatedcv", 
@@ -174,41 +208,40 @@ control <- trainControl(method = "repeatedcv",
 
 ## Use the tuning grid and control to find best alpha
 elnetFit <- train(x = x, 
-            y = lny,
+            y = y,
             method = "glmnet",
+            penalty.factor = is_penalized,
             tuneGrid = egrid,
             trControl = control)
 plot(elnetFit)
 
-# The global minimum is 0.8 for alpha, thus it was chosen for the elastic net
+best_alpha = elnetFit$bestTune$alpha
 ```
 
-## Tune Lambda and Coefficients
+For the optimal `alpha` value, we identify a best lambda and explore the results. 
 
 ```{r elnet}
+elnet = glmnet(x, y, 
+               penalty.factor = is_penalized,
+               alpha = best_alpha)
+plot(elnet)
+
+
 # For reproducibility, set a seed
 set.seed(2)
 
-# n-folds is set to a default of 10 for cv.glmnet
-elnet = glmnet(x, lny, 
-               penalty.factor = c(rep(1, ncol(x[,1:18])), 
-                                  rep(0, ncol(x[,19:36]))),
-               alpha = 0.8)
-plot(elnet)
-
 # Use CV to find best lambda value
-cv.elnet = cv.glmnet(x, lny, 
-                     penalty.factor = c(rep(1, ncol(x[,1:18])), rep(0, ncol(x[,19:36]))),,
-                     type.measure = "mse", alpha = 0.8)
+cv.elnet = cv.glmnet(x, y, 
+                     penalty.factor = is_penalized,
+                     type.measure = "mse", alpha = best_alpha)
 plot(cv.elnet)
 
 best_elambda = cv.elnet$lambda.min
 best_elambda
 
-# Elastic Net model using cross-validated alpha and lambda values
-elnet.mod = glmnet(x, lny, 
-                   penalty.factor = c(rep(1, ncol(x[,1:18])), rep(0, ncol(x[,19:36]))),
-                   alpha = 0.8, lambda = best_elambda)
+elnet.mod = glmnet(x, y, 
+                   penalty.factor = is_penalized,
+                   alpha = best_alpha, lambda = best_elambda)
 
 coef_elnet = coef(elnet.mod)
 coef_elnet
@@ -224,6 +257,8 @@ elnet_mse = cv.elnet$lambda.1se
 elnet_mse
 ```
 
+The final code chunk saves the best lasso coefficients for later use. 
+
 ```{r combo_plot_enet}
 enet_beta <- cbind(rownames(coef_elnet), as.vector(coef_elnet)) %>% 
   as.tibble() %>% 
@@ -233,16 +268,21 @@ enet_beta <- cbind(rownames(coef_elnet), as.vector(coef_elnet)) %>%
   mutate(method = "Elastic Net")
 ```
 
+
 # Compare Lasso and Elastic Net
+
+The table below compares the lasso and elastic net in terms of MSE.
 
 ```{r compare}
 # Table of lambda and MSE values for lasso and elastic net
-compare = cbind(as.vector(best_llambda), as.vector(lasso_mse), as.vector(best_elambda), as.vector(elnet_mse))
+compare = cbind(as.vector(best_lambda), as.vector(lasso_mse), as.vector(best_elambda), as.vector(elnet_mse))
 
 rownames(compare) = colnames(lasso_mse); colnames(compare) = c("Lasso Lambda", "Lasso MSE", "Elastic Lambda", "Elastic Net MSE")
 
 knitr::kable(compare, align = "c")
 ```
+
+Oddly, although lasso is a special case of the elastic net, the lasso appears to outperform the elastic net in this case! This might be addressed through more careful tuning parameter selection, or the slight improvement might itself be a random fluctuation.
 
 ```{r create_4_plot}
 coef_summ = merge(enet_beta, lasso_beta, by = "variable")
@@ -250,3 +290,28 @@ coef_summ = merge(enet_beta, lasso_beta, by = "variable")
 ind <- rbind(enet_beta, lasso_beta)
 write_csv(ind, "ind_betas.csv")
 ```
+
+# OLS from Lasso Results
+
+We can compare the results of the lasso fit to an OLS fit using the selected variables
+
+```{r}
+lasso_beta = lasso_beta %>%
+  filter(beta != 0) %>% 
+  select(term = variable, lasso = beta)
+
+lm_from_lasso <- lm(log_telomean ~ lbx099la + lbx118la + lbxf03la +lbxpcbla +
+     lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct +
+     bmi_cat3 + edu_cat + race_cat + male, data = data_lasso)
+
+ols_beta =
+  lm_from_lasso %>% 
+  broom::tidy() %>% 
+  select(term, ols = estimate)
+
+ols_v_lasso = left_join(lasso_beta, ols_beta)
+ols_v_lasso
+
+ggplot(ols_v_lasso, aes(x = lasso, y = ols)) + geom_point()
+```
+
