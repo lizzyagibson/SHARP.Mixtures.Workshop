@@ -34,7 +34,7 @@ study_pop = read_csv("./Data/studypop.csv") %>%
          male = as.factor(male)) 
 ```
 
-Quick data descriptions; because of the lenght of the output, we don't execute this command here, but encourage you to!
+Quick data descriptions; because of the length of the output, we don't execute this command here, but encourage you to!
 
 ```{r, eval = FALSE}
 
@@ -384,7 +384,7 @@ write_csv(grouped, "grouped_betas.csv")
 
 ## OLS from MCP Results
 
-Lastly, we compare the results for MCP (with four groups) with the results from the corresponding OLS fit
+Lastly, we compare the results for MCP (with four groups) with the results from the corresponding OLS fit.
 
 ```{r}
 mcp_beta = 
