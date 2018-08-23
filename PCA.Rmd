@@ -158,7 +158,7 @@ Put 2 components (continuous) into a linear regression w/ covariates to estimate
 
 ```{r}
 health_model_pca <- lm(logtelomean ~PC1  + PC2 + PC3 +   
-     lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct +
+     lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct + age_cent + age_sq +
      as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = pop_pca)
 
 
@@ -182,5 +182,4 @@ health_model_pca %>% broom::tidy() %>% as.tibble() %>% filter(grepl("PC", term))
   geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
   theme(legend.position = "none") + coord_flip() +
   labs(y = "Estimate", x = "Principal Component", title = "Association between Principal Component and LTL")
-
 ```

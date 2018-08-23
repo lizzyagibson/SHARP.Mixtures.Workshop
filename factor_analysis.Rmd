@@ -250,7 +250,7 @@ pop_fa <- as.tibble(cbind(pop, scores))
 Put 5 factors (continuous) into a linear regression w/ covariates to estimate association with LTL.
 
 ```{r}
-health_model <- lm(logtelomean ~ MR1  + MR2 +  MR3  +  MR4  + 
+health_model <- lm(logtelomean ~ MR1  + MR2 +  MR3  +  MR4 + age_cent + age_sq + 
      lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct +
      as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = pop_fa)
 
@@ -268,7 +268,7 @@ health_model %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
 Model with 5 factors as a categorical variable (assigned to factor with highest score).
 
 ```{r}
-categorical <- lm(logtelomean ~ as.factor(Max) +
+categorical <- lm(logtelomean ~ as.factor(Max) + age_cent + age_sq + 
      lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct +
      as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = pop_fa)
 
