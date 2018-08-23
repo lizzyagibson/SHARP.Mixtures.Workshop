@@ -9,8 +9,8 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-library(tidyverse)
 #install.packages("tidyverse")
+library(tidyverse)
 ```
 
 ## Combine Effect Estimates
