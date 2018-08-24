@@ -230,7 +230,7 @@ ggplot(risks.singvar, aes(variable, est, ymin = est - 1.96*sd,  ymax = est + 1.9
 dev.off()
 ```
 
-### Single Variable Risk Summaries
+#### Single Variable Interaction Terms
 
 ```{r save6}
 pdf(file=paste0("interactplot_ex_",plot.name,".pdf"), width=5, height=10)
