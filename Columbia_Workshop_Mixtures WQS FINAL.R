@@ -9,6 +9,7 @@ library(gWQS)
 
 # define the path
 directory_path = "/Users/stefanorenzetti/Documents/Columbia Workshop Mixtures/"
+directory_path = "/Users/gennic01/desktop/temp teaching/mailman mixtures workshop 2018/"
 
 # import the dataset
 dataset = read.csv(paste0(directory_path, "studypop.csv"))
@@ -26,14 +27,28 @@ dataset$log_TELOMEAN = log(dataset$TELOMEAN)
 results1 = gwqs(log_TELOMEAN ~ NULL, mix_name = mixture, data = dataset, q = 10, validation = 0.6, valid_var = NULL,
                 b = 100, b1_pos = FALSE, b1_constr = FALSE, family = "gaussian", seed = 123, wqs2 = FALSE,
                 plots = TRUE, tables = TRUE)
+summary(results1$fit)
+results1$final_weights
 
 # adjusting for covariates:
 # blood data: LBXWBCSI LBXLYPCT LBXMOPCT LBXEOPCT LBXBAPCT LBXNEPCT
 # demographics: age_cent age_sq race_cat bmi_cat3 ln_lbxcot edu_cat
+# positive direction
 result2 = gwqs(log_TELOMEAN ~ LBXWBCSI + LBXLYPCT + LBXMOPCT + LBXEOPCT + LBXBAPCT + LBXNEPCT + age_cent + age_sq + 
                  race_cat + bmi_cat3 + ln_lbxcot + edu_cat, mix_name = mixture, data = dataset, q = 10, 
                validation = 0.6, valid_var = NULL, b = 100, b1_pos = TRUE, b1_constr = FALSE, family = "gaussian", 
                seed = 123, wqs2 = FALSE, plots = TRUE, tables = TRUE)
+summary(result2$fit)
+result2$final_weights
+
+# negative direction
+result3 = gwqs(log_TELOMEAN ~ LBXWBCSI + LBXLYPCT + LBXMOPCT + LBXEOPCT + LBXBAPCT + LBXNEPCT + age_cent + age_sq + 
+                 race_cat + bmi_cat3 + ln_lbxcot + edu_cat, mix_name = mixture, data = dataset, q = 10, 
+               validation = 0.6, valid_var = NULL, b = 100, b1_pos = FALSE, b1_constr = TRUE, family = "gaussian", 
+               seed = 123, wqs2 = FALSE, plots = TRUE, tables = TRUE)
+summary(result3$fit)
+result3$final_weights
+
 
 
 # stratified analysis by sex
@@ -63,10 +78,13 @@ dataset_new = cbind(dataset, XM, XF)
 
 # run the wqs model using the stratified variables in the mixtures
 mixture_new = c(mixture_m, mixture_f)
-result2 = gwqs(log_TELOMEAN ~ LBXWBCSI + LBXLYPCT + LBXMOPCT + LBXEOPCT + LBXBAPCT + LBXNEPCT + age_cent + age_sq + 
+result4 = gwqs(log_TELOMEAN ~ LBXWBCSI + LBXLYPCT + LBXMOPCT + LBXEOPCT + LBXBAPCT + LBXNEPCT + age_cent + age_sq + 
                  race_cat + bmi_cat3 + ln_lbxcot + edu_cat, mix_name = mixture_new, data = dataset_new, q = 10, 
                validation = 0.6, valid_var = NULL, b = 100, b1_pos = TRUE, b1_constr = FALSE, family = "gaussian", 
                seed = 123, wqs2 = FALSE, plots = TRUE, tables = TRUE)
+
+summary(result4$fit)
+result4$final_weights
 
 
 
