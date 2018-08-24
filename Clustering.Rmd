@@ -308,8 +308,13 @@ table(pop_clus$clu.group)
 Put 5 clusters (categorical) into a linear regression w/ covariates to estimate association with LTL.
 
 ```{r}
+<<<<<<< HEAD
 health_model_kmeans5 <- lm(I(log(telomean)) ~ as.factor(clu.group) +
      lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct +
+=======
+health_model_kmeans5 <- lm(logtelomean ~ as.factor(clu.group) +
+     lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct + age_cent + age_sq +
+>>>>>>> b727a89dd990c31c1456e3a269c31a4248b03b8e
      as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = pop_clus)
 
 health_model_kmeans5 %>% broom::tidy() %>% mutate(
@@ -355,7 +360,7 @@ table(pop_clus3$clu.group3)
 Put 3 clusters (categorical) into a linear regression w/ covariates to estimate association with LTL.
 
 ```{r}
-health_model_kmeans3 <- lm(logtelomean ~ as.factor(clu.group3) +
+health_model_kmeans3 <- lm(logtelomean ~ as.factor(clu.group3) + age_cent + age_sq +
      lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct +
      as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = pop_clus3)
 
@@ -471,7 +476,7 @@ Put 3 clusters (categorical) into a linear regression w/ covariates to estimate 
 
 ```{r}
 health_model_hc3 <- lm(logtelomean ~ as.factor(hc.clusters.3) +
-     lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct +
+     lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct + age_cent + age_sq +
      as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = hc_health_3)
 
 health_model_hc3 %>% broom::tidy() %>% mutate(
