@@ -22,6 +22,11 @@ mixture = c("LBX074LA", "LBX099LA", "LBX118LA", "LBX138LA", "LBX153LA", "LBX170L
 # log-transform the outcome
 dataset$log_TELOMEAN = log(dataset$TELOMEAN)
 
+# redefine variables race_cat and edu_cat as factors
+dataset$race_cat = factor(dataset$race_cat, levels = c(1, 2, 3, 4), labels = c(1, 2, 3, 4))
+dataset$edu_cat = factor(dataset$edu_cat, levels = c(1, 2, 3, 4), labels = c(1, 2, 3, 4))
+dataset$bmi_cat3 = factor(dataset$bmi_cat3, levels = c(1, 2, 3), labels = c(1, 2, 3))
+
 # fit a first unadjusted model to look at the association between the mixture and the outcome
 # TELOMEAN = Mean Telomere Length
 results1 = gwqs(log_TELOMEAN ~ NULL, mix_name = mixture, data = dataset, q = 10, validation = 0.6, valid_var = NULL,
