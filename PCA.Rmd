@@ -101,7 +101,7 @@ fviz_eig(pca.ln, main = "Log - Transformed data",
 ```
 
 ## Data Visualization of eigenvectors w/ Log-Transformed PCA Results
-
+Loadings are the weights that each chemical contribute to the component. Scores are the sum of: loadings multiple by concentration of each chemical for each person. So you get a score for each person but you have a loading for each chemical
 
 ```{r}
 pca.ln.ld <- as.data.frame.matrix(pca.ln$rotation)

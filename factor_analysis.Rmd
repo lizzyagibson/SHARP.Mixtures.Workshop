@@ -44,6 +44,8 @@ Perform an eigenvalue analysis to get an estimate (or range) for the number of u
 
 One way to determine the number of factors or components in a data or correlation matrix is to examine the “scree" plot of the successive eigenvalues. Sharp breaks in the plot suggest the appropriate number of components or factors to extract. “Parallel" analyis is an alternative technique that compares the scree of factors of the observed data with that of a random data matrix of the same size as the original.
 
+***In factor analysis we need to pre-specify the number of factors we want. So is helpful to first run a pca to get an idea of how many factors is a good idea for the factor analysis.
+
 ```{r}
 simple.pca <- princomp(logstudypop, cor = TRUE)
 simple.pca$sdev^2
@@ -57,7 +59,7 @@ summary(simple.pca)
 ### Orthogonal Models
 
 Orthogonal rotation is used if it is desirable to identify factors that are as independent from one another as possible.
-
+In Factor analysis you get values for uniqueness and comparativeness. 
 ```{r}
 fa_2 <- fa(logstudypop, 
                  nfactors = 2, n.obs = 1003,
@@ -91,6 +93,7 @@ print(fa_5, digits = 2, sort = TRUE)
 ### Oblique Models
 
 Oblique rotation (i.e. correlated factors) are commonly used since we often hypothesize our latent variables of interest to be correlated with one another.
+Rotated ortogonal solution to get correlated results. In the orthogonal solution we only get uncorrelated results. 
 
 ```{r}
 fa_2_p <- fa(logstudypop, 

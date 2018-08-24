@@ -301,14 +301,14 @@ pop <- read_csv("./Data/studypop.csv") %>%
   dplyr::select(-(3:10), -(17:26)) %>% 
   mutate(logtelomean = log(telomean))
 
-pop_clus <- as.tibble((cbind(pop, clu.group)))
+pop_clus <- as.tibble((cbind(studypop, clu.group)))
 table(pop_clus$clu.group)
 ```
 
 Put 5 clusters (categorical) into a linear regression w/ covariates to estimate association with LTL.
 
 ```{r}
-health_model_kmeans5 <- lm(logtelomean ~ as.factor(clu.group) +
+health_model_kmeans5 <- lm(I(log(telomean)) ~ as.factor(clu.group) +
      lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct +
      as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = pop_clus)
 
@@ -463,7 +463,7 @@ Combine clusters grouping with original data outcome and covariants for clusters
 
 ```{r}
 hc.clusters.3 = cutree(hc.complete, 3)
-hc_health_3 <- as.tibble(cbind(pop, hc.clusters.3))
+hc_health_3 <- as.tibble(cbind(studypop, hc.clusters.3))
 table(hc.clusters.3)
 ```
 
@@ -505,6 +505,9 @@ health_model_hc3 %>% broom::tidy() %>% as.tibble() %>% filter(grepl("cluster", t
 ```
 
 Visualization of Hierarchical clustering N=3 
+
+Means of the pollutants in each cluster compare to the mean of the chemicals in the entired population to identified in which clusters individuals 
+are located based on exposure. We see that in cluster 1, we find individuals that have means of chemical higher than the chemical mean in the entire population. In the case of cluster 2, most of the observations within this cluster very similar chemical concentrations to the mean of the chemical in the entire popullation. In the third cluster, we see that most of the individuals within this cluster have chemical means below the chemical means of the entire population.  
 
 ```{r}
 hc3.cl <- aggregate(as.matrix(log.x) ~ as.factor(hc.clusters.3), data = hc_health_3, FUN = mean)[,-1]

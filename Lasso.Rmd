@@ -105,6 +105,8 @@ featurePlot(x = x[,19:36],
 
 We'll begin by looking at the lasso applied to the complete design matrix. In the following, we'll use CV to identify tuning parameters; this is a random process, so we'll set the seed to ensure reproducibility. First we'll use a specified grid of tuning parameter values and fit the lasso model for each.
 
+How to get a good lambda value? 
+
 ```{r lasso}
 set.seed(2)
 
@@ -124,19 +126,19 @@ Some built-in functions will conduct a cross-validation analysis and identify th
 
 ```{r}
 # n-folds is set to a default of 10 for cv.glmnet
-cv.out = cv.glmnet(x, y, alpha = 1)
+cv.out = cv.glmnet(x, y, alpha = 1) ##implements the cross-validation prediction 10-fold. 
 
 plot(cv.out)
 coef(cv.out)
 
 best_lambda = cv.out$lambda.min
-best_lambda
+best_lambda # we choose a lambda between the dashes lines. 
 
 ```
 
 Optional arguments to `glmnet` can be useful -- in particular, `weights` can be used in the context of the adaptive lasso and `penalty.factor` can separate penalized variables from confounders. 
 
-```{r]}
+```{r}
 is_penalized = c(rep(1, ncol(x[,1:18])), rep(0, ncol(x[,19:36])))
 
 lasso = glmnet(x, y, 
@@ -190,7 +192,9 @@ lasso_beta = cbind(rownames(coef_lasso), as.vector(coef_lasso)) %>%
 
 # Elastic Net w/ CV
 
-`glmnet` implements the elastic net -- we've set `alpha` to 1 to focus on lasso regression, but could choose `alpha` between 0 and 1. In the following, we can tune alpha and lambda simultaneously.
+`glmnet` implements the elastic net -- we've set `alpha` to 1 to focus on lasso regression, but could choose `alpha` between 0 and 1. In the following, we can tune alpha and lambda simultaneously. (or set alpha equals to 0 to look into ridge regression)
+
+See plot below, for a fix alpha there is a U-shape curve that gives you what the ultimate value for lambda would be. 
 
 ```{r enalpha, results = "hide"}
 # For reproducibility, set a seed
@@ -202,7 +206,7 @@ egrid <- expand.grid(alpha = (1:10) * 0.1,
                      lambda = .5^(3:20))
 
 ## Create a tuning control for cv
-control <- trainControl(method = "repeatedcv", 
+control <- trainControl(method = "repeatedcv", ##trainControl is a function in the carrot package. 
                         repeats = 3, 
                         verboseIter = TRUE)
 
@@ -223,7 +227,7 @@ For the optimal `alpha` value, we identify a best lambda and explore the results
 ```{r elnet}
 elnet = glmnet(x, y, 
                penalty.factor = is_penalized,
-               alpha = best_alpha)
+               alpha = best_alpha) ## instead of setting alpha = 1, we set it to whatever value yield the best value for lambda. In this case 0.8.
 plot(elnet)
 
 
