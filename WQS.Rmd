@@ -47,7 +47,7 @@ summary(results1$fit)
 results1$final_weights %>% knitr::kable()
 ```
 
-### Adjusted Model
+### Positive Adjusted Model
 
 ```{r model_2}
 # adjust for covariates:
@@ -60,7 +60,7 @@ dataset$edu_cat = factor(dataset$edu_cat, levels = c(1, 2, 3, 4), labels = c(1, 
 dataset$bmi_cat3 = factor(dataset$bmi_cat3, levels = c(1, 2, 3), labels = c(1, 2, 3))
 
 result2 = gwqs(log_TELOMEAN ~ LBXWBCSI + LBXLYPCT + LBXMOPCT + LBXEOPCT + LBXBAPCT + LBXNEPCT + age_cent + age_sq + 
-               race_cat + bmi_cat3 + ln_lbxcot + edu_cat, mix_name = mixture, data = dataset, q = 10, 
+               race_cat + bmi_cat3 + ln_lbxcot + edu_cat + male, mix_name = mixture, data = dataset, q = 10, 
                validation = 0.6, valid_var = NULL, b = 100, b1_pos = TRUE, b1_constr = FALSE, family = "gaussian", 
                seed = 123, wqs2 = FALSE, plots = TRUE, tables = TRUE)
 
@@ -68,7 +68,7 @@ summary(result2$fit)
 result2$final_weights %>% knitr::kable()
 ```
 
-### Constrained Model
+### Negative Constrained Model
 
 ```{r model_3}
 # negative direction
@@ -76,7 +76,7 @@ result2$final_weights %>% knitr::kable()
 # blood data: LBXWBCSI LBXLYPCT LBXMOPCT LBXEOPCT LBXBAPCT LBXNEPCT
 # demographics: age_cent age_sq race_cat bmi_cat3 ln_lbxcot edu_cat
 result3 = gwqs(log_TELOMEAN ~ LBXWBCSI + LBXLYPCT + LBXMOPCT + LBXEOPCT + LBXBAPCT + LBXNEPCT + age_cent + age_sq + 
-               race_cat + bmi_cat3 + ln_lbxcot + edu_cat, mix_name = mixture, data = dataset, q = 10, 
+               race_cat + bmi_cat3 + ln_lbxcot + edu_cat + male, mix_name = mixture, data = dataset, q = 10, 
                validation = 0.6, valid_var = NULL, b = 100, b1_pos = FALSE, b1_constr = TRUE, family = "gaussian", 
                seed = 123, wqs2 = FALSE, plots = TRUE, tables = TRUE)
 
@@ -122,4 +122,3 @@ result4 = gwqs(log_TELOMEAN ~ LBXWBCSI + LBXLYPCT + LBXMOPCT + LBXEOPCT + LBXBAP
 summary(result4$fit)
 result4$final_weights %>% knitr::kable()
 ```
-
