@@ -5,6 +5,6 @@ Day 1:
 Unsupervised methods -- Clustering (hierarchical and k-means), principal component analysis, factor analysis
 Variable Selection -- Lasso, elastic net, group lasso, MCP, SCAD
 
-Dat 2:
+Day 2:
 Bayesian Kernel Machine Regression
 Weighted Quantile Sum Regression
