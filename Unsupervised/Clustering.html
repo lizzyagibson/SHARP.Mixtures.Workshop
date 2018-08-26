@@ -228,7 +228,10 @@ div.tocify {
 
 <div id="data-import-and-cleaning" class="section level2">
 <h2>Data Import and Cleaning</h2>
-<pre class="r"><code>studypop &lt;- read_csv(&quot;../Data/studypop.csv&quot;) %&gt;% 
+<pre class="r"><code>#Need two periods to knit: &quot;../&quot;
+#Need one period to run in console: &quot;./&quot;
+#Or change file path to match your computer
+studypop &lt;- read_csv(&quot;../Data/studypop.csv&quot;) %&gt;% 
   clean_names() %&gt;% 
   na.omit()%&gt;%
   mutate(bmi_cat3 = as.factor(bmi_cat3),
@@ -768,6 +771,9 @@ plot_chem_means %&gt;% as.tibble() %&gt;% rename(pop_mean = `colMeans(log.x)`) %
 <p>Combine clusters grouping with original data outcome and covariants for K-means = 5</p>
 <pre class="r"><code>clu.group &lt;- km5$cluster #cluster group
 
+#Need two periods to knit: &quot;../&quot;
+#Need one period to run in console: &quot;./&quot;
+#Or change file path to match your computer
 pop &lt;- read_csv(&quot;../Data/studypop.csv&quot;) %&gt;% 
   clean_names() %&gt;% 
   na.omit() %&gt;%

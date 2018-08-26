@@ -230,7 +230,10 @@ div.tocify {
 <h2>Data Manipulation</h2>
 <pre class="r"><code>## read in data and only consider complete data 
 ## this drops 327 individuals, but BKMR does not handle missing data
-nhanes = na.omit(read.csv(&quot;./Data/studypop.csv&quot;))
+#Need two periods to knit: &quot;../&quot;
+#Need one period to run in console: &quot;./&quot;
+#Or change file path to match your computer
+nhanes = na.omit(read.csv(&quot;../Data/studypop.csv&quot;))
 
 ## center/scale continous covariates and create indicators for categorical covariates
 nhanes$age_z = scale(nhanes$age_cent) ## center and scale age
@@ -279,8 +282,11 @@ knots100     &lt;- fields::cover.design(lnmixture_z, nd = 100)$design
 <h2>Fit Models</h2>
 <div id="group-vs-fit-with-all-exposures-using-gpp-and-100-knots" class="section level3">
 <h3>Group VS Fit with all Exposures using GPP and 100 Knots</h3>
-<pre class="r"><code>### Group VS fit with all exposures using GPP and 100 knots 
-load(&quot;NHANES_knots100.RData&quot;)
+<pre class="r"><code>#Need two periods to knit: &quot;../&quot;
+#Need one period to run in console: &quot;./&quot;
+#Or change file path to match your computer
+### Group VS fit with all exposures using GPP and 100 knots 
+load(&quot;../BKMR/NHANES_knots100.RData&quot;)
 
 ##### fit BKMR models WITH Gaussian predictive process using 100 knots
 
@@ -295,7 +301,7 @@ set.seed(1000)
 
 temp &lt;-  kmbayes(y=lnLTL_z, Z=lnmixture_z, X=covariates, iter=100, verbose=TRUE, varsel=TRUE, 
                              groups=c(rep(1,times=9),rep(2,times=2),rep(3,times=3),rep(4,times=4)), knots=knots100)</code></pre>
-<pre><code>## Iteration: 10 (10% completed; 2.09153 secs elapsed)</code></pre>
+<pre><code>## Iteration: 10 (10% completed; 2.35951 secs elapsed)</code></pre>
 <pre><code>## Acceptance rates for Metropolis-Hastings algorithm:
 ##               param      rate
 ## 1            lambda 0.1111111
@@ -303,7 +309,7 @@ temp &lt;-  kmbayes(y=lnLTL_z, Z=lnmixture_z, X=covariates, iter=100, verbose=TR
 ## 3 r/delta  (move 1) 1.0000000
 ## 4 r/delta  (move 2) 0.6666667
 ## 5 r/delta  (move 3) 0.5000000</code></pre>
-<pre><code>## Iteration: 20 (20% completed; 4.0264 secs elapsed)</code></pre>
+<pre><code>## Iteration: 20 (20% completed; 4.99273 secs elapsed)</code></pre>
 <pre><code>## Acceptance rates for Metropolis-Hastings algorithm:
 ##               param      rate
 ## 1            lambda 0.1578947
@@ -311,7 +317,7 @@ temp &lt;-  kmbayes(y=lnLTL_z, Z=lnmixture_z, X=covariates, iter=100, verbose=TR
 ## 3 r/delta  (move 1) 0.6666667
 ## 4 r/delta  (move 2) 0.6000000
 ## 5 r/delta  (move 3) 0.3333333</code></pre>
-<pre><code>## Iteration: 30 (30% completed; 5.95347 secs elapsed)</code></pre>
+<pre><code>## Iteration: 30 (30% completed; 7.37018 secs elapsed)</code></pre>
 <pre><code>## Acceptance rates for Metropolis-Hastings algorithm:
 ##               param      rate
 ## 1            lambda 0.1034483
@@ -319,7 +325,7 @@ temp &lt;-  kmbayes(y=lnLTL_z, Z=lnmixture_z, X=covariates, iter=100, verbose=TR
 ## 3 r/delta  (move 1) 0.6000000
 ## 4 r/delta  (move 2) 0.6153846
 ## 5 r/delta  (move 3) 0.1666667</code></pre>
-<pre><code>## Iteration: 40 (40% completed; 8.17606 secs elapsed)</code></pre>
+<pre><code>## Iteration: 40 (40% completed; 9.48339 secs elapsed)</code></pre>
 <pre><code>## Acceptance rates for Metropolis-Hastings algorithm:
 ##               param       rate
 ## 1            lambda 0.07692308
@@ -327,7 +333,7 @@ temp &lt;-  kmbayes(y=lnLTL_z, Z=lnmixture_z, X=covariates, iter=100, verbose=TR
 ## 3 r/delta  (move 1) 0.42857143
 ## 4 r/delta  (move 2) 0.53333333
 ## 5 r/delta  (move 3) 0.10000000</code></pre>
-<pre><code>## Iteration: 50 (50% completed; 10.14697 secs elapsed)</code></pre>
+<pre><code>## Iteration: 50 (50% completed; 11.51049 secs elapsed)</code></pre>
 <pre><code>## Acceptance rates for Metropolis-Hastings algorithm:
 ##               param       rate
 ## 1            lambda 0.06122449
@@ -335,7 +341,7 @@ temp &lt;-  kmbayes(y=lnLTL_z, Z=lnmixture_z, X=covariates, iter=100, verbose=TR
 ## 3 r/delta  (move 1) 0.47058824
 ## 4 r/delta  (move 2) 0.58823529
 ## 5 r/delta  (move 3) 0.06666667</code></pre>
-<pre><code>## Iteration: 60 (60% completed; 12.03967 secs elapsed)</code></pre>
+<pre><code>## Iteration: 60 (60% completed; 13.51286 secs elapsed)</code></pre>
 <pre><code>## Acceptance rates for Metropolis-Hastings algorithm:
 ##               param       rate
 ## 1            lambda 0.05084746
@@ -343,7 +349,7 @@ temp &lt;-  kmbayes(y=lnLTL_z, Z=lnmixture_z, X=covariates, iter=100, verbose=TR
 ## 3 r/delta  (move 1) 0.55000000
 ## 4 r/delta  (move 2) 0.52380952
 ## 5 r/delta  (move 3) 0.11111111</code></pre>
-<pre><code>## Iteration: 70 (70% completed; 13.92353 secs elapsed)</code></pre>
+<pre><code>## Iteration: 70 (70% completed; 15.44595 secs elapsed)</code></pre>
 <pre><code>## Acceptance rates for Metropolis-Hastings algorithm:
 ##               param       rate
 ## 1            lambda 0.04347826
@@ -351,7 +357,7 @@ temp &lt;-  kmbayes(y=lnLTL_z, Z=lnmixture_z, X=covariates, iter=100, verbose=TR
 ## 3 r/delta  (move 1) 0.54545455
 ## 4 r/delta  (move 2) 0.50000000
 ## 5 r/delta  (move 3) 0.13043478</code></pre>
-<pre><code>## Iteration: 80 (80% completed; 15.74182 secs elapsed)</code></pre>
+<pre><code>## Iteration: 80 (80% completed; 17.30297 secs elapsed)</code></pre>
 <pre><code>## Acceptance rates for Metropolis-Hastings algorithm:
 ##               param       rate
 ## 1            lambda 0.03797468
@@ -359,7 +365,7 @@ temp &lt;-  kmbayes(y=lnLTL_z, Z=lnmixture_z, X=covariates, iter=100, verbose=TR
 ## 3 r/delta  (move 1) 0.55555556
 ## 4 r/delta  (move 2) 0.46153846
 ## 5 r/delta  (move 3) 0.11538462</code></pre>
-<pre><code>## Iteration: 90 (90% completed; 17.80814 secs elapsed)</code></pre>
+<pre><code>## Iteration: 90 (90% completed; 19.46891 secs elapsed)</code></pre>
 <pre><code>## Acceptance rates for Metropolis-Hastings algorithm:
 ##               param       rate
 ## 1            lambda 0.03370787
@@ -367,7 +373,7 @@ temp &lt;-  kmbayes(y=lnLTL_z, Z=lnmixture_z, X=covariates, iter=100, verbose=TR
 ## 3 r/delta  (move 1) 0.54838710
 ## 4 r/delta  (move 2) 0.44444444
 ## 5 r/delta  (move 3) 0.12903226</code></pre>
-<pre><code>## Iteration: 100 (100% completed; 20.00028 secs elapsed)</code></pre>
+<pre><code>## Iteration: 100 (100% completed; 21.4155 secs elapsed)</code></pre>
 <pre><code>## Acceptance rates for Metropolis-Hastings algorithm:
 ##               param       rate
 ## 1            lambda 0.03030303
@@ -379,7 +385,10 @@ temp &lt;-  kmbayes(y=lnLTL_z, Z=lnmixture_z, X=covariates, iter=100, verbose=TR
 ##    our fit based on 100 samples. Rather we will load in the results from 100,000. 
 
 #save(fit_gvs_knots100,file=&quot;bkmr_NHANES_gvs_knots100.RData&quot;)
-load(&quot;bkmr_NHANES_gvs_knots100.RData&quot;)
+#Need two periods to knit: &quot;../&quot;
+#Need one period to run in console: &quot;./&quot;
+#Or change file path to match your computer
+load(&quot;../BKMR/bkmr_NHANES_gvs_knots100.RData&quot;)
 summary(fit_gvs_knots100)</code></pre>
 <pre><code>## Fitted object of class 'bkmrfit'
 ## Iterations: 1e+05 
@@ -484,13 +493,19 @@ ExtractPIPs(fit_gvs_knots100)</code></pre>
 </div>
 <div id="data-visualization" class="section level2">
 <h2>Data Visualization</h2>
-<pre class="r"><code>load(&quot;bkmr_NHANES_gvs_knots100.RData&quot;)</code></pre>
+<pre class="r"><code>#Need two periods to knit: &quot;../&quot;
+#Need one period to run in console: &quot;./&quot;
+#Or change file path to match your computer
+load(&quot;../BKMR/bkmr_NHANES_gvs_knots100.RData&quot;)</code></pre>
 <div id="correlation-matrix" class="section level3">
 <h3>Correlation Matrix</h3>
 <pre class="r"><code>### correlation matrix
 cor.Z = cor(lnmixture_z, use = &quot;complete.obs&quot;)
 
-pdf(file=&quot;cor_nhanes.pdf&quot;, width=12, height=12)
+#Need two periods to knit: &quot;../&quot;
+#Need one period to run in console: &quot;./&quot;
+#Or change file path to match your computer
+pdf(file= &quot;../BKMR/cor_nhanes.pdf&quot;, width=12, height=12)
 corrplot.mixed(cor.Z, upper = &quot;ellipse&quot;, lower.col = &quot;black&quot;)
 dev.off()</code></pre>
 <pre><code>## quartz_off_screen 
@@ -697,9 +712,15 @@ risks.int &lt;- SingVarIntSummaries(fit = modeltoplot, qs.diff = c(0.25, 0.75), 
 #save(pred.resp.univar, pred.resp.bivar, pred.resp.bivar.levels, risks.overall, risks.singvar, risks.int, file=paste0(modeltoplot.name,&quot;_plots.RData&quot;))
 
 # Load in the results, which were computed previously and saved using the command just above this
-load(paste0(modeltoplot.name,&quot;_plots.RData&quot;))</code></pre>
+#Need two periods to knit: &quot;../&quot;
+#Need one period to run in console: &quot;./&quot;
+#Or change file path to match your computer
+load(paste0(&quot;../BKMR/&quot;, modeltoplot.name,&quot;_plots.RData&quot;))</code></pre>
 <pre class="r"><code>### run and save ggplots for each bkmr model
-pdf(file=paste0(&quot;univar_ex_&quot;,plot.name,&quot;.pdf&quot;), width=15, height=15)
+#Need two periods to knit: &quot;../&quot;
+#Need one period to run in console: &quot;./&quot;
+#Or change file path to match your computer
+pdf(file=paste0(&quot;../BKMR/&quot;, &quot;univar_ex_&quot; ,plot.name,&quot;.pdf&quot;), width=15, height=15)
 ggplot(pred.resp.univar, aes(z, est, ymin = est - 1.96*se, ymax = est + 1.96*se)) + 
   geom_smooth(stat = &quot;identity&quot;) + ylab(&quot;h(z)&quot;) + facet_wrap(~ variable) 
 dev.off()</code></pre>
@@ -708,7 +729,10 @@ dev.off()</code></pre>
 </div>
 <div id="bivariable-exposure-response-functions" class="section level4">
 <h4>Bivariable Exposure-Response Functions</h4>
-<pre class="r"><code>pdf(file=paste0(&quot;bivar_ex_&quot;,plot.name,&quot;.pdf&quot;), width=30, height=30)
+<pre class="r"><code>#Need two periods to knit: &quot;../&quot;
+#Need one period to run in console: &quot;./&quot;
+#Or change file path to match your computer
+pdf(file=paste0(&quot;../BKMR/&quot;, &quot;bivar_ex_&quot;,plot.name,&quot;.pdf&quot;), width=30, height=30)
 ggplot(pred.resp.bivar, aes(z1, z2, fill = est)) + 
   geom_raster() + 
   facet_grid(variable2 ~ variable1) +
@@ -719,7 +743,10 @@ ggplot(pred.resp.bivar, aes(z1, z2, fill = est)) +
 dev.off()</code></pre>
 <pre><code>## quartz_off_screen 
 ##                 2</code></pre>
-<pre class="r"><code>pdf(file=paste0(&quot;bivar_levels_ex_&quot;,plot.name,&quot;.pdf&quot;), width=30, height=30)
+<pre class="r"><code>#Need two periods to knit: &quot;../&quot;
+#Need one period to run in console: &quot;./&quot;
+#Or change file path to match your computer
+pdf(file=paste0(&quot;../BKMR/&quot;, &quot;bivar_levels_ex_&quot;,plot.name,&quot;.pdf&quot;), width=30, height=30)
 ggplot(pred.resp.bivar.levels, aes(z1, est)) + 
   geom_smooth(aes(col = quantile), stat = &quot;identity&quot;) + 
   facet_grid(variable2 ~ variable1) +
@@ -732,7 +759,10 @@ ggplot(pred.resp.bivar.levels, aes(z1, est)) +
 </div>
 <div id="overall-mixture-effect" class="section level4">
 <h4>Overall Mixture Effect</h4>
-<pre class="r"><code>pdf(file=paste0(&quot;overallrisks_ex_&quot;,plot.name,&quot;.pdf&quot;), width=10, height=10)
+<pre class="r"><code>#Need two periods to knit: &quot;../&quot;
+#Need one period to run in console: &quot;./&quot;
+#Or change file path to match your computer
+pdf(file=paste0(&quot;../BKMR/&quot;, &quot;overallrisks_ex_&quot;,plot.name,&quot;.pdf&quot;), width=10, height=10)
 ggplot(risks.overall, aes(quantile, est, ymin = est - 1.96*sd, ymax = est + 1.96*sd)) +  
   geom_hline(yintercept=00, linetype=&quot;dashed&quot;, color=&quot;gray&quot;) + 
   geom_pointrange() + scale_y_continuous(name=&quot;estimate&quot;) 
@@ -743,7 +773,10 @@ dev.off()</code></pre>
 </div>
 <div id="single-variable" class="section level3">
 <h3>Single Variable</h3>
-<pre class="r"><code>pdf(file=paste0(&quot;singvar_ex_&quot;,plot.name,&quot;.pdf&quot;), width=5, height=10)
+<pre class="r"><code>#Need two periods to knit: &quot;../&quot;
+#Need one period to run in console: &quot;./&quot;
+#Or change file path to match your computer
+pdf(file=paste0(&quot;../BKMR/&quot;, &quot;singvar_ex_&quot;,plot.name,&quot;.pdf&quot;), width=5, height=10)
 ggplot(risks.singvar, aes(variable, est, ymin = est - 1.96*sd,  ymax = est + 1.96*sd, col = q.fixed)) + 
   geom_hline(aes(yintercept=0), linetype=&quot;dashed&quot;, color=&quot;gray&quot;) +  
   geom_pointrange(position = position_dodge(width = 0.75)) +  coord_flip() + 
@@ -751,16 +784,19 @@ ggplot(risks.singvar, aes(variable, est, ymin = est - 1.96*sd,  ymax = est + 1.9
 dev.off()</code></pre>
 <pre><code>## quartz_off_screen 
 ##                 2</code></pre>
-</div>
-<div id="single-variable-risk-summaries" class="section level3">
-<h3>Single Variable Risk Summaries</h3>
-<pre class="r"><code>pdf(file=paste0(&quot;interactplot_ex_&quot;,plot.name,&quot;.pdf&quot;), width=5, height=10)
+<div id="single-variable-interaction-terms" class="section level4">
+<h4>Single Variable Interaction Terms</h4>
+<pre class="r"><code>#Need two periods to knit: &quot;../&quot;
+#Need one period to run in console: &quot;./&quot;
+#Or change file path to match your computer
+pdf(file=paste0(&quot;../BKMR/&quot;, &quot;interactplot_ex_&quot;,plot.name,&quot;.pdf&quot;), width=5, height=10)
 ggplot(risks.int, aes(variable, est, ymin = est - 1.96*sd, ymax = est + 1.96*sd)) + 
   geom_pointrange(position = position_dodge(width = 0.75)) + 
   geom_hline(yintercept = 0, lty = 2, col = &quot;brown&quot;) + coord_flip()
 dev.off()</code></pre>
 <pre><code>## quartz_off_screen 
 ##                 2</code></pre>
+</div>
 </div>
 </div>
 
