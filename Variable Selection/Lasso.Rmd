@@ -291,7 +291,7 @@ Oddly, although lasso is a special case of the elastic net, the lasso appears to
 coef_summ = merge(enet_beta, lasso_beta, by = "variable")
 
 ind <- rbind(enet_beta, lasso_beta)
-write_csv(ind, "ind_betas.csv")
+write_csv(ind, "../Variable Selection/ind_betas.csv")
 ```
 
 # OLS from Lasso Results

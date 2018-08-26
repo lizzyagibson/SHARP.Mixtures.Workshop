@@ -382,7 +382,7 @@ scad_beta_4 %>%
 grouped <- rbind(lasso_beta_3, mcp_beta_3, scad_beta_3) %>% 
   dplyr::select(-group3, -group4)
 
-write_csv(grouped, "grouped_betas.csv")
+write_csv(grouped, "../Variable Selection/grouped_betas.csv")
 ```
 
 ## OLS from MCP Results
