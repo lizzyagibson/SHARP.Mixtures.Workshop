@@ -16,6 +16,9 @@ library(tidyverse)
 ## Combine Effect Estimates
 
 ```{r}
+#Need two periods to knit: "../"
+#Need one period to run in console: "./"
+#Or change file path to match your computer
 grouped <- read_csv("../Variable Selection/grouped_betas.csv")
 ind <- read_csv("../Variable Selection/ind_betas.csv")
 

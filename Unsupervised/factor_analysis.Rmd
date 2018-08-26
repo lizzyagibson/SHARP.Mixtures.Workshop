@@ -29,6 +29,9 @@ options(scipen = 999)
 ## Data Import and Cleaning
 
 ```{r clean}
+#Need two periods to knit: "../"
+#Need one period to run in console: "./"
+#Or change file path to match your computer
 studypop <- read_csv("../Data/studypop.csv") %>% 
   clean_names() %>% 
   na.omit() %>% #remove missing
@@ -236,6 +239,9 @@ scores %>% ggplot(aes(x = Max, fill = Max)) + geom_bar() +
 Combine Factor scores with original data outcome and covariates.
 
 ```{r}
+#Need two periods to knit: "../"
+#Need one period to run in console: "./"
+#Or change file path to match your computer
 pop <- read_csv("../Data/studypop.csv") %>% 
   clean_names() %>% 
   na.omit() %>% #remove missing

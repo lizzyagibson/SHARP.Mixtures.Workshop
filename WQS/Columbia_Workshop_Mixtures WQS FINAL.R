@@ -10,8 +10,9 @@ library(gWQS)
 # define the path
 directory_path = "./Data/"
 
+
 # import the dataset
-dataset = read.csv(paste0(directory_path, "../Data/studypop.csv"))
+dataset = read.csv(paste0(directory_path, "studypop.csv"))
 
 # define the chemicals to include in the mixture
 mixture = c("LBX074LA", "LBX099LA", "LBX118LA", "LBX138LA", "LBX153LA", "LBX170LA", "LBX180LA", "LBX187LA",

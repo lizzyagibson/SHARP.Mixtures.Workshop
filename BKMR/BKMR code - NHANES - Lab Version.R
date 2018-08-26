@@ -76,7 +76,7 @@ save(knots100, file="NHANES_knots100.RData")
 ###         Fit Models                       ###
 ################################################
 
-load("../BKMR/NHANES_knots100.RData")
+load("./BKMR/NHANES_knots100.RData")
 
 ##### fit BKMR models WITH Gaussian predictive process using 100 knots
 
@@ -96,7 +96,7 @@ temp <-  kmbayes(y=lnLTL_z, Z=lnmixture_z, X=covariates, iter=100, verbose=TRUE,
 ##    our fit based on 100 samples. Rather we will load in the results from 100,000. 
 
 #save(fit_gvs_knots100,file="bkmr_NHANES_gvs_knots100.RData")
-load("../BKMR/bkmr_NHANES_gvs_knots100.RData")
+load("./BKMR/bkmr_NHANES_gvs_knots100.RData")
 summary(fit_gvs_knots100)
 
 
@@ -162,7 +162,7 @@ par(mfrow=c(1,1))
 #save(pred.resp.univar, pred.resp.bivar, pred.resp.bivar.levels, risks.overall, risks.singvar, risks.int, file=paste0(modeltoplot.name,"_plots.RData"))
 
 # Load in the results, which were computed previously and saved using the command just above this
-load(paste0("../BKMR/", modeltoplot.name,"_plots.RData"))
+load(paste0("./BKMR/", modeltoplot.name,"_plots.RData"))
 
 ### run and save ggplots for each bkmr model
 pdf(file=paste0("univar_",plot.name,".pdf"), width=15, height=15)

@@ -26,7 +26,10 @@ library(ggplot2)
 ```{r read_data}
 ## read in data and only consider complete data 
 ## this drops 327 individuals, but BKMR does not handle missing data
-nhanes = na.omit(read.csv("./Data/studypop.csv"))
+#Need two periods to knit: "../"
+#Need one period to run in console: "./"
+#Or change file path to match your computer
+nhanes = na.omit(read.csv("../Data/studypop.csv"))
 
 ## center/scale continous covariates and create indicators for categorical covariates
 nhanes$age_z = scale(nhanes$age_cent) ## center and scale age
@@ -77,6 +80,9 @@ knots100     <- fields::cover.design(lnmixture_z, nd = 100)$design
 ### Group VS Fit with all Exposures using GPP and 100 Knots 
 
 ```{r model}
+#Need two periods to knit: "../"
+#Need one period to run in console: "./"
+#Or change file path to match your computer
 ### Group VS fit with all exposures using GPP and 100 knots 
 load("../BKMR/NHANES_knots100.RData")
 
@@ -98,6 +104,9 @@ temp <-  kmbayes(y=lnLTL_z, Z=lnmixture_z, X=covariates, iter=100, verbose=TRUE,
 ##    our fit based on 100 samples. Rather we will load in the results from 100,000. 
 
 #save(fit_gvs_knots100,file="bkmr_NHANES_gvs_knots100.RData")
+#Need two periods to knit: "../"
+#Need one period to run in console: "./"
+#Or change file path to match your computer
 load("../BKMR/bkmr_NHANES_gvs_knots100.RData")
 summary(fit_gvs_knots100)
 ```
@@ -112,6 +121,9 @@ ExtractPIPs(fit_gvs_knots100)
 ## Data Visualization
 
 ```{r load}
+#Need two periods to knit: "../"
+#Need one period to run in console: "./"
+#Or change file path to match your computer
 load("../BKMR/bkmr_NHANES_gvs_knots100.RData")
 ```
 
@@ -174,6 +186,9 @@ risks.int <- SingVarIntSummaries(fit = modeltoplot, qs.diff = c(0.25, 0.75), qs.
 #save(pred.resp.univar, pred.resp.bivar, pred.resp.bivar.levels, risks.overall, risks.singvar, risks.int, file=paste0(modeltoplot.name,"_plots.RData"))
 
 # Load in the results, which were computed previously and saved using the command just above this
+#Need two periods to knit: "../"
+#Need one period to run in console: "./"
+#Or change file path to match your computer
 load(paste0("../BKMR/", modeltoplot.name,"_plots.RData"))
 ```
 

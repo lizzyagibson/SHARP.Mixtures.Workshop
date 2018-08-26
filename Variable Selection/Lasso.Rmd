@@ -27,6 +27,9 @@ library(glmnet)
 First, load the dataset; clean up names as needed; and convert factors to, well, factors. 
 
 ```{r}
+#Need two periods to knit: "../"
+#Need one period to run in console: "./"
+#Or change file path to match your computer
 study_pop = read_csv("../Data/studypop.csv") %>% 
   clean_names(case = c("old_janitor")) %>% 
   mutate(bmi_cat3 = as.factor(bmi_cat3),
@@ -312,6 +315,7 @@ ols_beta =
 ols_v_lasso = left_join(lasso_beta, ols_beta)
 ols_v_lasso
 
-ggplot(ols_v_lasso, aes(x = lasso, y = ols)) + geom_point()
+ggplot(ols_v_lasso, aes(x = lasso, y = ols)) + geom_point() + theme_bw() +
+  labs(x = "Lasso Penalty", y = "OLS")
 ```
 

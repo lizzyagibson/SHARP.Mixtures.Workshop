@@ -33,6 +33,9 @@ library(knitr)
 # Data Import and Cleaning
 
 ```{r data preping}
+#Need two periods to knit: "../"
+#Need one period to run in console: "./"
+#Or change file path to match your computer
 studypop <- read_csv("../Data/studypop.csv") %>% 
   clean_names() %>% 
   na.omit() %>%
@@ -144,6 +147,9 @@ Combine PC scores with original data outcome and covariants
 ```{r}
 x <- pca.ln$x #principal components for each chemical
 
+#Need two periods to knit: "../"
+#Need one period to run in console: "./"
+#Or change file path to match your computer
 pop <- read_csv("../Data/studypop.csv") %>% 
   clean_names() %>% 
   na.omit() %>%
