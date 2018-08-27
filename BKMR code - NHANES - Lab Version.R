@@ -65,9 +65,11 @@ covariates <- with(nhanes, cbind(age_z, agez_sq, male, bmicat2, bmicat3, educat1
 
 
 ### create knots matrix for Gaussian predictive process (to speed up BKMR with large datasets)
-set.seed(10)
-knots100     <- fields::cover.design(lnmixture_z, nd = 100)$design
-save(knots100, file="NHANES_knots100.RData")
+set.seed(10) #if you want exact reproducibility, you need to also set a seed for selecting the knots because this also
+##happens at random. 
+knots100     <- fields::cover.design(lnmixture_z, nd = 100)$design ### we have a 18 dimensional space and this code line
+#generates 100 vectors describing this dimensional space. 
+save(knots100, file="NHANES_knots100.RData") 
 
 
 
@@ -89,6 +91,9 @@ set.seed(1000)
 #fit_gvs_knots100 <-  kmbayes(y=lnLTL_z, Z=lnmixture_z, X=covariates, iter=100000, verbose=TRUE, varsel=TRUE, 
 #                             groups=c(rep(1,times=9),rep(2,times=2),rep(3,times=3),rep(4,times=4)), knots=knots100)
 
+###What groups does? is requesting the variables to be group because they are highly correlated and we don't group them,
+#it is very difficult to select among them. 
+
 temp <-  kmbayes(y=lnLTL_z, Z=lnmixture_z, X=covariates, iter=100, verbose=TRUE, varsel=TRUE, 
                              groups=c(rep(1,times=9),rep(2,times=2),rep(3,times=3),rep(4,times=4)), knots=knots100)
 
@@ -98,7 +103,8 @@ temp <-  kmbayes(y=lnLTL_z, Z=lnmixture_z, X=covariates, iter=100, verbose=TRUE,
 #save(fit_gvs_knots100,file="bkmr_NHANES_gvs_knots100.RData")
 load("bkmr_NHANES_gvs_knots100.RData")
 summary(fit_gvs_knots100)
-
+###PIP -> refers to the probability of inclusion for the given variable, as you see all variables within the same group have the same 
+#probability of been included. 
 
 ## obtain posterior inclusion probabilities (PIPs)
 ExtractPIPs(fit_gvs_knots100)
@@ -141,7 +147,7 @@ TracePlot(fit = modeltoplot, par = "r", comp = 2, sel=sel)
 TracePlot(fit = modeltoplot, par = "r", comp = 3, sel=sel)
 TracePlot(fit = modeltoplot, par = "r", comp = 4, sel=sel)
 par(mfrow=c(1,1))
-
+##These weight parameter need to be positive. 
 
 #### create dataframes for ggplot (this takes a little while to run)
 
@@ -187,6 +193,7 @@ ggplot(pred.resp.bivar.levels, aes(z1, est)) +
   ggtitle("h(expos1 | quantiles of expos2)") +
   xlab("expos1")
 dev.off()
+#in this plot we can see that most of the relationships between the PCBs are linear
 
 pdf(file=paste0("overallrisks_",plot.name,".pdf"), width=10, height=10)
 ggplot(risks.overall, aes(quantile, est, ymin = est - 1.96*sd, ymax = est + 1.96*sd)) +  geom_hline(yintercept=00, linetype="dashed", color="gray")+ 
