@@ -63,7 +63,7 @@ covariates <- with(nhanes, cbind(age_z, agez_sq, male, bmicat2, bmicat3, educat1
 set.seed(10)
 knots100     <- fields::cover.design(lnmixture_z, nd = 100)$design
 knots100.PCB <- fields::cover.design(lnPCB_z, nd = 100)$design
-save(knots100, knots100.PCB, file="NHANES_knots100.RData")
+save(knots100, knots100.PCB, file="./BKMR/NHANES_knots100.RData")
 
 
 
@@ -72,7 +72,7 @@ save(knots100, knots100.PCB, file="NHANES_knots100.RData")
 ###         Fit Models                       ###
 ################################################
 
-load("../BKMR/NHANES_knots100.RData")
+load("./BKMR/NHANES_knots100.RData")
 
 ##### fit BKMR models WITH Gaussian predictive process using 100 knots
 
@@ -81,14 +81,14 @@ set.seed(1000)
 fit_gvs_knots100 <-  kmbayes(y=lnLTL_z, Z=lnmixture_z, X=covariates, iter=100000, verbose=TRUE, varsel=TRUE, 
                              groups=c(rep(1,times=9),rep(2,times=2),rep(3,times=3),rep(4,times=4)), knots=knots100)
 summary(fit_gvs_knots100)
-save(fit_gvs_knots100,file="bkmr_NHANES_gvs_knots100.RData")
+save(fit_gvs_knots100,file="./BKMR/bkmr_NHANES_gvs_knots100.RData")
 
 ### Group VS fit with PCBs only 
 set.seed(1000)
 fit_gvs_knots100_PCB <-  kmbayes(y=lnLTL_z, Z=lnPCB_z, X=covariates, iter=100000, verbose=TRUE, varsel=TRUE, 
                                  groups=c(rep(1,times=9),rep(2,times=2)), knots=knots100.PCB)
 summary(fit_gvs_knots100_PCB)
-save(fit_gvs_knots100_PCB,file="bkmr_NHANES_gvs_knots100_PCB.RData")
+save(fit_gvs_knots100_PCB,file="./BKMR/bkmr_NHANES_gvs_knots100_PCB.RData")
 
 
 ## obtain posterior inclusion probabilities (PIPs)
@@ -102,14 +102,14 @@ ExtractPIPs(fit_gvs_knots100_PCB)
 ##############################################
 
 
-load("../BKMR/bkmr_NHANES_gvs_knots100.RData")
-load("../BKMR/bkmr_NHANES_gvs_knots100_PCB.RData")
+load("./BKMR/bkmr_NHANES_gvs_knots100.RData")
+load("./BKMR/bkmr_NHANES_gvs_knots100_PCB.RData")
 
 
 ### correlation matrix
 cor.Z <- cor(lnmixture_z, use="complete.obs")
 
-pdf(file="cor_nhanes.pdf", width=12, height=12)
+pdf(file="./BKMR/cor_nhanes.pdf", width=12, height=12)
 corrplot.mixed(cor.Z, upper = "ellipse", lower.col="black")
 dev.off()
 
@@ -151,16 +151,16 @@ save(pred.resp.univar, pred.resp.bivar, pred.resp.bivar.levels, risks.overall, r
 
 
 
-load(paste0("../BKMR/", modeltoplot.name,"_plots.RData"))
+load(paste0("./BKMR/", modeltoplot.name,"_plots.RData"))
 
 ### run and save ggplots for each bkmr model
-pdf(file=paste0("univar_",plot.name,".pdf"), width=15, height=15)
+pdf(file=paste0("./BKMR/univar_",plot.name,".pdf"), width=15, height=15)
 ggplot(pred.resp.univar, aes(z, est, ymin = est - 1.96*se, ymax = est + 1.96*se)) + 
   geom_smooth(stat = "identity") + ylab("h(z)") + facet_wrap(~ variable) 
 dev.off()
 
 
-pdf(file=paste0("bivar_",plot.name,".pdf"), width=30, height=30)
+pdf(file=paste0("./BKMR/bivar_",plot.name,".pdf"), width=30, height=30)
 ggplot(pred.resp.bivar, aes(z1, z2, fill = est)) + 
   geom_raster() + 
   facet_grid(variable2 ~ variable1) +
@@ -170,7 +170,7 @@ ggplot(pred.resp.bivar, aes(z1, z2, fill = est)) +
   ggtitle("h(expos1, expos2)")
 dev.off()
 
-pdf(file=paste0("bivar_levels_",plot.name,".pdf"), width=30, height=30)
+pdf(file=paste0("./BKMR/bivar_levels_",plot.name,".pdf"), width=30, height=30)
 ggplot(pred.resp.bivar.levels, aes(z1, est)) + 
   geom_smooth(aes(col = quantile), stat = "identity") + 
   facet_grid(variable2 ~ variable1) +
@@ -179,13 +179,13 @@ ggplot(pred.resp.bivar.levels, aes(z1, est)) +
 dev.off()
 
 
-pdf(file=paste0("overallrisks_",plot.name,".pdf"), width=10, height=10)
+pdf(file=paste0("./BKMR/overallrisks_",plot.name,".pdf"), width=10, height=10)
 ggplot(risks.overall, aes(quantile, est, ymin = est - 1.96*sd, ymax = est + 1.96*sd)) +  geom_hline(yintercept=00, linetype="dashed", color="gray")+ 
   geom_pointrange() + scale_y_continuous(name="estimate") 
 dev.off()
 
 
-pdf(file=paste0("singvar_",plot.name,".pdf"), width=5, height=10)
+pdf(file=paste0("./BKMR/singvar_",plot.name,".pdf"), width=5, height=10)
 ggplot(risks.singvar, aes(variable, est, ymin = est - 1.96*sd,  ymax = est + 1.96*sd, col = q.fixed)) +  geom_hline(aes(yintercept=0), linetype="dashed", color="gray")+ 
   geom_pointrange(position = position_dodge(width = 0.75)) +  coord_flip() +  theme(legend.position="none")
   scale_x_discrete(name="")+ scale_y_continuous(name="estimate") 
