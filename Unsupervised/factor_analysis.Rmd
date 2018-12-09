@@ -147,7 +147,7 @@ fit %>% knitr::kable()
 
 ## Parameters
 
-Choose Promax 5 factor model based on fit statistics and interpretability.
+Choose Promax 4 factor model based on fit statistics and interpretability.
 
 ```{r}
 loadings <- as.tibble(cbind(rownames(fa_4_p$loadings[]), fa_4_p$loadings[])) %>% 
@@ -177,6 +177,12 @@ scores %>% filter(Max == "MR2") %>% count()
 scores %>% filter(Max == "MR3") %>% count()
 scores %>% filter(Max == "MR4") %>% count()
 
+```
+
+## Factor Correlation
+
+```{r}
+scores %>% dplyr::select(-Max) %>% corr.test()
 ```
 
 ## Data Visualization
@@ -232,6 +238,11 @@ plot_loadings %>%
 scores %>% ggplot(aes(x = Max, fill = Max)) + geom_bar() +
   labs(x = "Factors", y = "Number of Individuals", title = "Number with Highest Scores per Factor") +
   theme_bw() + theme(legend.position = "none")
+
+scores %>% group_by(Max) %>% summarise(n())
+
+scores %>% gather(key = "factor", value = "score", MR1:MR4) %>% dplyr::select(-Max) %>% 
+  ggplot(aes(x = score)) + geom_density() + facet_grid(factor~.)
 ```
 
 ## Health Models
