@@ -175,7 +175,8 @@ length(coef_lasso[coef_lasso != 0]) # 23 non-zero estimates including the interc
 dimnames(coef_lasso)[[1]][which(coef_lasso != 0)]
 
 # Find the MSE
-lasso_mse = cv.lasso$lambda.1se
+lasso.pred <-  predict(lasso.mod, newx = x)
+lasso_mse <- mean((lasso.pred - y)^2)
 lasso_mse
 ```
 
@@ -256,7 +257,8 @@ length(coef_elnet[coef_elnet != 0]) # 24 non-zero estimates including the interc
 dimnames(coef_elnet)[[1]][which(coef_elnet != 0)]
 
 # Find the MSE
-elnet_mse = cv.elnet$lambda.1se
+elnet.pred <-  predict(elnet.mod, newx = x)
+elnet_mse <- mean((elnet.pred - y)^2)
 elnet_mse
 ```
 

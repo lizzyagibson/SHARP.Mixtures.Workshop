@@ -178,6 +178,11 @@ fit_lasso_3 <- grpreg(x, y, group3, penalty = "grLasso", lambda = best_lasso_3)
 
 #Look at coefficients from model with best lambda
 fit_lasso_3$beta
+
+##prediction and MSE using train dataset
+grlasso.pred <-  predict(fit_lasso_3, x)
+grlasso_MSE <-  mean((grlasso.pred - y)^2)
+grlasso_MSE
 ```
 
 For completeness, we can repeat this with four groups. 
