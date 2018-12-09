@@ -209,7 +209,7 @@ summary.km <- matrix(c(km1$totss, km2$totss, km3$totss, km5$totss, km10$totss, k
 colnames(summary.km) <- c("Total SS", "Total within cluster SS", "Between cluster SS")
 rownames(summary.km) <- c("km-1", "km-2", "km-3", "km-5", "km-10", "km-100")
 summary.km <- round(as.table(summary.km), 2) 
-summary.km <- kable(summary.km)
+summary.km <- knitr::kable(summary.km)
 summary.km
 ```
 
@@ -354,14 +354,16 @@ Combine clusters grouping with original data outcome and covariants for K-means 
 ```{r}
 clu.group3 <- km3$cluster #cluster group
 
-pop_clus3 <- as.tibble((cbind(pop, clu.group3)))
+pop_clus3 <- as.tibble((cbind(pop, clu.group3))) %>% 
+  mutate(clu.group3 = as.factor(clu.group3)) %>% 
+  mutate(clu.group3 = fct_relevel(clu.group3, ref = "3"))
 table(pop_clus3$clu.group3)
 ```
 
 Put 3 clusters (categorical) into a linear regression w/ covariates to estimate association with LTL.
 
 ```{r}
-health_model_kmeans3 <- lm(logtelomean ~ as.factor(clu.group3) + age_cent + age_sq +
+health_model_kmeans3 <- lm(logtelomean ~ clu.group3 + age_cent + age_sq +
      lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct +
      as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = pop_clus3)
 
@@ -378,8 +380,8 @@ health_model_kmeans3 %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
 
 ```{r}
 health_model_kmeans3 %>% broom::tidy() %>% as.tibble() %>% filter(grepl("clu.group", term)) %>% 
-  mutate(term = ifelse(term == "as.factor(clu.group3)2", "Cluster 2", "Cluster 3")) %>% 
-      rbind(., c("Cluster 1", 0, 0, 0, 0)) %>% 
+  mutate(term = ifelse(term == "clu.group32", "Cluster 2", "Cluster 1")) %>% 
+      rbind(., c("Cluster 3", 0, 0, 0, 0)) %>% 
   mutate(estimate = as.numeric(estimate),
          std.error = as.numeric(std.error)) %>% 
   ggplot(aes(x = term, y = estimate, color = term,
@@ -469,14 +471,17 @@ Combine clusters grouping with original data outcome and covariants for clusters
 
 ```{r}
 hc.clusters.3 = cutree(hc.complete, 3)
-hc_health_3 <- as.tibble(cbind(pop, hc.clusters.3))
-table(hc.clusters.3)
+hc_health_3 <- as.tibble(cbind(pop, hc.clusters.3)) %>% 
+  mutate(hc.clusters.3 = as.factor(hc.clusters.3)) %>% 
+  mutate(hc.clusters.3 = fct_relevel(hc.clusters.3, ref = "3"))
+
+table(hc_health_3$hc.clusters.3)
 ```
 
 Put 3 clusters (categorical) into a linear regression w/ covariates to estimate association with LTL.
 
 ```{r}
-health_model_hc3 <- lm(logtelomean ~ as.factor(hc.clusters.3) +
+health_model_hc3 <- lm(logtelomean ~ hc.clusters.3 +
      lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct + age_cent + age_sq +
      as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = hc_health_3)
 
@@ -496,8 +501,8 @@ Health model
 
 ```{r}
 health_model_hc3 %>% broom::tidy() %>% as.tibble() %>% filter(grepl("cluster", term)) %>% 
-  mutate(term = ifelse(term == "as.factor(hc.clusters.3)2", "Cluster 2", "Cluster 3")) %>%
-      rbind(., c("Cluster 1", 0, 0, 0, 0)) %>% 
+  mutate(term = ifelse(term == "hc.clusters.32", "Cluster 2", "Cluster 1")) %>%
+      rbind(., c("Cluster 3", 0, 0, 0, 0)) %>% 
   mutate(estimate = as.numeric(estimate),
          std.error = as.numeric(std.error)) %>% 
 
@@ -510,12 +515,12 @@ health_model_hc3 %>% broom::tidy() %>% as.tibble() %>% filter(grepl("cluster", t
   labs(y = "Estimate", x = "Cluster Membership", title = "Association between Clusters and LTL")
 ```
 
-Visualization of Hierarchical clustering N=3 
+Visualization of Hierarchical clustering N = 3 
 
 ```{r}
 hc3.cl <- aggregate(as.matrix(log.x) ~ as.factor(hc.clusters.3), data = hc_health_3, FUN = mean)[,-1]
  
-hc3.cl              <- as.data.frame.matrix(t(hc3.cl))
+hc3.cl <- as.data.frame.matrix(t(hc3.cl))
 hc3.cl$chem <- row.names(hc3.cl)
  
 means_hc3 <- hc3.cl %>%
@@ -526,6 +531,7 @@ means_hc3 <- hc3.cl %>%
                                              ifelse(grepl("lbxh", chem), "Non-Ortho PCB", "TEQ"))))))
  
 plot_means_hc3 <- means_hc3 %>%
+  rename("Cluster 3" = V1, "Cluster 2" = V2, "Cluster 1" = V3) %>% 
   gather(key = "Cluster", value = "mean", -chem, -Group) %>% as.tibble()
  
 plot_chem_means %>% as.tibble() %>% rename(pop_mean = `colMeans(log.x)`) %>%
@@ -538,5 +544,4 @@ plot_chem_means %>% as.tibble() %>% rename(pop_mean = `colMeans(log.x)`) %>%
   geom_hline(yintercept = 0, size = 0.2) +
   labs(title = "Cluster means, N = 3", x = "Chemicals",
        y = "Mean", caption = "*Points indicate population means")
- 
 ```
