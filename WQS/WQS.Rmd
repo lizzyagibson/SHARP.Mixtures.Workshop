@@ -15,6 +15,8 @@ knitr::opts_chunk$set(echo = TRUE)
 #devtools::package_deps("gWQS") can use this to see which package dependencies you already have
 library(gWQS)
 library(tidyverse)
+
+options(scipen = 999)
 ```
 
 ## Data Import and Cleaning
@@ -125,3 +127,9 @@ result4 = gwqs(log_TELOMEAN ~ LBXWBCSI + LBXLYPCT + LBXMOPCT + LBXEOPCT + LBXBAP
 summary(result4$fit)
 result4$final_weights %>% knitr::kable()
 ```
+
+```{r}
+as.tibble(cbind(y_adj = result4$y_adj, wqs = result4$wqs)) %>% 
+  ggplot(aes(y = y_adj, x = wqs)) +geom_point() + geom_smooth(se = F ) + theme_bw()
+```
+
