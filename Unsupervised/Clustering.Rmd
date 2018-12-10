@@ -76,7 +76,58 @@ summary(log.x)
 cormat <- round(cor(log.x, use = "pairwise.complete.obs", method = c("pearson")),2)
 melted_cormat <- melt(cormat) %>% rename(Correlation = value)
 
-ggplot(melted_cormat, aes(Var1, Var2, fill = Correlation)) +
+melted_cormat <- melted_cormat %>% 
+  mutate(group3.1 = case_when(Var1 == "lbx118la.l2" ~ "TEQ",
+                           grepl("lbxf|d", Var1) == TRUE ~ "TEQ",
+                           grepl("lbx1|0", Var1) == TRUE ~ "Non-Dioxin-like PCB",
+                           grepl("lbxh|p", Var1) == TRUE ~ "Non-Ortho PCB")) %>% 
+  mutate(group3.2 = case_when(Var2 == "lbx118la.l2" ~ "TEQ",
+                           grepl("lbxf|d", Var2) == TRUE ~ "TEQ",
+                           grepl("lbx1|0", Var2) == TRUE ~ "Non-Dioxin-like PCB",
+                           grepl("lbxh|p", Var2) == TRUE ~ "Non-Ortho PCB")) %>% 
+  mutate(Var1 = fct_recode(Var1, "PCB 74" = "lbx074la.l2",
+                                "PCB 99" = "lbx099la.l2",
+                                "PCB 118" = "lbx118la.l2",
+                                "PCB 138" = "lbx138la.l2",
+                                "PCB 153" = "lbx153la.l2",
+                                "PCB 170" = "lbx170la.l2",
+                                "PCB 180" = "lbx180la.l2",
+                                "PCB 187" = "lbx187la.l2",
+                                "PCB 194" = "lbx194la.l2",
+                                "1,2,3,6,7,8-hxcdd" = "lbxd03la.l2",
+                                "1,2,3,4,6,7,8-hpcdd" = "lbxd05la.l2",
+                               "1,2,3,4,6,7,8,9-ocdd" =  "lbxd07la.l2",
+                               "2,3,4,7,8-pncdf" =  "lbxf03la.l2",
+                               "1,2,3,4,7,8-hxcdf" =  "lbxf04la.l2",
+                               "1,2,3,6,7,8-hxcdf" =  "lbxf05la.l2",
+                               "1,2,3,4,6,7,8-hxcdf" =  "lbxf08la.l2",
+                               "PCB 169" =  "lbxhxcla.l2",
+                                "PCB 126" = "lbxpcbla.l2"),
+         Var2 = fct_recode(Var2, "PCB 74" = "lbx074la.l2",
+                                "PCB 99" = "lbx099la.l2",
+                                "PCB 118" = "lbx118la.l2",
+                                "PCB 138" = "lbx138la.l2",
+                                "PCB 153" = "lbx153la.l2",
+                                "PCB 170" = "lbx170la.l2",
+                                "PCB 180" = "lbx180la.l2",
+                                "PCB 187" = "lbx187la.l2",
+                                "PCB 194" = "lbx194la.l2",
+                                "1,2,3,6,7,8-hxcdd" = "lbxd03la.l2",
+                                "1,2,3,4,6,7,8-hpcdd" = "lbxd05la.l2",
+                               "1,2,3,4,6,7,8,9-ocdd" =  "lbxd07la.l2",
+                               "2,3,4,7,8-pncdf" =  "lbxf03la.l2",
+                               "1,2,3,4,7,8-hxcdf" =  "lbxf04la.l2",
+                               "1,2,3,6,7,8-hxcdf" =  "lbxf05la.l2",
+                               "1,2,3,4,6,7,8-hxcdf" =  "lbxf08la.l2",
+                               "PCB 169" =  "lbxhxcla.l2",
+                                "PCB 126" = "lbxpcbla.l2"))
+
+melted_cormat %>% 
+  mutate(Var1 = fct_relevel(Var1, "PCB 194", after = 8),
+         Var2 = fct_relevel(Var2, "PCB 194", after = 8),
+         Var1 = fct_relevel(Var1, "PCB 118", after = 8),
+         Var2 = fct_relevel(Var2, "PCB 118", after = 8)) %>% 
+ggplot(aes(Var1, Var2, fill = Correlation)) +
  geom_tile(color = "white") +
  scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
                       midpoint = 0, limit = c(0,1), space = "Lab", 
@@ -87,6 +138,28 @@ ggplot(melted_cormat, aes(Var1, Var2, fill = Correlation)) +
         axis.title.x = element_text(size = 15),
         axis.title.y = element_text(size = 15)) +
   coord_fixed() + labs(x = "", y = "", title = "Correlation Heat Map of Pollutants")
+```
+
+```{r}
+melted_cormat %>% 
+ mutate(group3.1 = fct_relevel(group3.1, c("TEQ", "Non-Ortho PCB", "Non-Dioxin-like PCB"))) %>% 
+ ggplot(aes(Var1, Var2, fill = Correlation)) +
+ geom_tile(color = "white") +
+ scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
+                      midpoint = 0, limit = c(0,1), space = "Lab", 
+                      name = "Pearson\nCorrelation ") +
+  scale_x_discrete(expand = c(0, 0)) + 
+  scale_y_discrete(expand = c(0, 0)) + theme_test() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1),
+        panel.spacing = unit(0, "lines"),
+        panel.border = element_rect(colour = "black", size=0.4),
+        strip.placement = "outside", 
+        legend.position = "bottom",
+        strip.background = element_rect(fill = "white")) +
+  labs(x = "", y = "", title = "Correlation Heat Map of POPs") +
+  facet_grid(group3.2 ~ group3.1, scales = "free", space = "free",
+             labeller = labeller(group3.1 = label_wrap_gen(5),
+                                 group3.2 = label_wrap_gen(5)))
 ```
 
 ## K-Means Clustering
