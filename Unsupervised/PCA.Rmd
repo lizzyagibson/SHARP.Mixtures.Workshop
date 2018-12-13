@@ -121,11 +121,16 @@ plot_loadings_pca <- loadings_pca %>%
 
 plot_loadings_pca %>% 
   filter(PC %in% c("PC1", "PC2", "PC3")) %>% 
+  mutate(PC = as.factor(PC),
+         PC = fct_recode(PC, "PC 1" = "PC1",
+         "PC 2" = "PC2",
+         "PC 3" = "PC3")) %>% 
   ggplot(aes(x = chem, y = Loading, fill = Group)) + geom_col() +
   facet_wrap(~ PC) + theme_bw() + 
-  theme(legend.position = "bottom", axis.text.x = element_text(angle = 90, hjust = 1)) +
+  theme(legend.position = "bottom", axis.text.x = element_text(angle = 90, hjust = 1),
+        strip.background = element_rect(fill = "white")) +
   geom_hline(yintercept = 0, size = 0.2) +
-  labs(title = "Loadings for First 3 Principle Components", x = "Chemicals",
+  labs(x = "Chemicals",
        y = "Loadings")
 ```
 

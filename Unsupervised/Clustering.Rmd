@@ -132,12 +132,12 @@ ggplot(aes(Var1, Var2, fill = Correlation)) +
  scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
                       midpoint = 0, limit = c(0,1), space = "Lab", 
                       name = "Pearson\nCorrelation") +
-  theme_minimal() + # minimal theme
+  theme_minimal(base_size = 15) + # minimal theme
   theme(axis.text.x = element_text(angle = 90, vjust = 1, size = 12, hjust = 1),
         axis.text.y = element_text(vjust = 1, size = 12, hjust = 1),
         axis.title.x = element_text(size = 15),
         axis.title.y = element_text(size = 15)) +
-  coord_fixed() + labs(x = "", y = "", title = "Correlation Heat Map of Pollutants")
+  coord_fixed() + labs(x = "", y = "")
 ```
 
 ```{r}
@@ -149,14 +149,14 @@ melted_cormat %>%
                       midpoint = 0, limit = c(0,1), space = "Lab", 
                       name = "Pearson\nCorrelation ") +
   scale_x_discrete(expand = c(0, 0)) + 
-  scale_y_discrete(expand = c(0, 0)) + theme_test() +
+  scale_y_discrete(expand = c(0, 0)) + theme_bw() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1),
         panel.spacing = unit(0, "lines"),
-        panel.border = element_rect(colour = "black", size=0.4),
+        panel.border = element_rect(colour = "black", size=0.7),
         strip.placement = "outside", 
         legend.position = "bottom",
         strip.background = element_rect(fill = "white")) +
-  labs(x = "", y = "", title = "Correlation Heat Map of POPs") +
+  labs(x = "", y = "") +
   facet_grid(group3.2 ~ group3.1, scales = "free", space = "free",
              labeller = labeller(group3.1 = label_wrap_gen(5),
                                  group3.2 = label_wrap_gen(5)))
@@ -334,20 +334,23 @@ Plots of cluster means for K-means N=3 and N=5
 
 ```{r}
  #K-means N=3
-
 plot_chem_means %>% as.tibble() %>% rename(pop_mean = `colMeans(log.x)`) %>% 
   right_join(., plot_means_km3, by = c("Group", "chem")) %>% 
+  mutate(Cluster = as.factor(Cluster),
+         Cluster = fct_recode(Cluster, "Cluster 1" = "1",
+         "Cluster 2" = "2",
+         "Cluster 3" = "3")) %>% 
   ggplot(aes(x = chem, y = mean, fill = Group)) + geom_col() +
   geom_point(aes(y = pop_mean), size = 1) +
   facet_wrap(~ Cluster) + theme_bw() + 
   theme(legend.position = "bottom", axis.text.x = element_text(angle = 90, hjust = 1),
-        plot.caption = element_text(size = 11, hjust = 0)) +
+        plot.caption = element_text(size = 11, hjust = 0),
+        strip.background = element_rect(fill = "white")) +
   geom_hline(yintercept = 0, size = 0.2) +
-  labs(title = "Cluster means, N = 3", x = "Chemicals",
+  labs(x = "Chemicals",
        y = "Mean", caption = "*Points indicate population means")
 
 #k-means N=5
-
 plot_chem_means %>% as.tibble() %>% rename(pop_mean = `colMeans(log.x)`) %>% 
   right_join(., plot_means_km5, by = c("Group", "chem")) %>% 
   ggplot(aes(x = chem, y = mean, fill = Group)) + geom_col() +

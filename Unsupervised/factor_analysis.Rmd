@@ -220,11 +220,16 @@ plot_loadings <- loadings %>%
   gather(key = "Factor", value = "Loading", -Variable, -Group)
 
 plot_loadings %>% 
+  mutate(Factor = as.factor(Factor),
+         Factor = fct_recode(Factor, "Factor 1" = "MR1",
+         "Factor 2" = "MR2",
+         "Factor 3" = "MR3",
+         "Factor 4" = "MR4")) %>% 
   ggplot(aes(x = Variable, y = Loading, fill = Group)) + geom_col() +
   facet_wrap(~ Factor) + theme_bw() + 
-  theme(legend.position = "bottom", axis.text.x = element_text(angle = 90, hjust = 1)) +
-  coord_flip() + geom_hline(yintercept = 0, size = 0.2) +
-  labs(title = "Variable Loadings on All Factors")
+  theme(legend.position = "bottom", axis.text.x = element_text(angle = 90, hjust = 1),
+        strip.background = element_rect(fill = "white")) +
+  coord_flip() + geom_hline(yintercept = 0, size = 0.2)
 
 plot_loadings %>% 
   ggplot(aes(x = Factor, y = Loading, fill = Factor)) + geom_col(position = "dodge") +
