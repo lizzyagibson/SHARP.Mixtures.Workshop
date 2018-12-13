@@ -39,8 +39,6 @@ plot_all %>%
        color = "Method")
 ```
 
-### For Workshop Paper
-
 ```{r}
 plot_all <- plot_all %>%
   filter(method %in% c("Lasso", "Grouped Lasso", "Elastic Net")) %>%   
@@ -75,7 +73,7 @@ table(plot_all$variable, plot_all$group3)
 
 plot_all %>% 
   mutate(variable = as.factor(variable),
-         group = as.factor(group),
+         group = as.factor(group3),
          method = as.factor(method)) %>% 
   mutate(method = fct_relevel(method, c("Lasso", "Elastic Net", "Grouped Lasso"))) %>% 
   group_by(group) %>% 
@@ -93,13 +91,12 @@ plot_all %>%
 ```{r}
 plot_all %>% 
   ggplot(aes(x = variable, y = beta)) + geom_point(aes(color = group3)) +
-  geom_hline(yintercept = 0, color = "red", linetype = "dashed") + theme_test() +
+  geom_hline(yintercept = 0, color = "red", linetype = "dashed") + theme_bw() +
   facet_grid(group3 ~ method, scales="free_y", space = "free_y",
              labeller = labeller(group3 = label_wrap_gen(5))) + coord_flip() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "bottom",
         strip.background = element_rect(fill = "white")) +
-  labs(title = "Variable Selection Coefficients", 
-       y = "Beta Coefficients",
+  labs(y = "Beta Coefficients",
        x = "Variables", 
        color = "POP Group")
 ```
