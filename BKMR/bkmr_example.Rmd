@@ -19,6 +19,7 @@ library(corrplot)
 #install.packages("corrplot")
 library(ggplot2)
 #install.packages("ggplot2")
+library(tidyverse)
 ```
 
 ## Data Manipulation 
@@ -95,10 +96,10 @@ set.seed(1000)
 ##   for what the program outputs.  
 
 #fit_gvs_knots100 <-  kmbayes(y=lnLTL_z, Z=lnmixture_z, X=covariates, iter=100000, verbose=TRUE, varsel=TRUE, 
-#                             groups=c(rep(1,times=9),rep(2,times=2),rep(3,times=3),rep(4,times=4)), knots=knots100)
+#                             groups=c(rep(1,times=2), 2, rep(1,times=6), rep(3,times=2),rep(2,times=7)), knots=knots100)
 
 temp <-  kmbayes(y=lnLTL_z, Z=lnmixture_z, X=covariates, iter=100, verbose=TRUE, varsel=TRUE, 
-                             groups=c(rep(1,times=9),rep(2,times=2),rep(3,times=3),rep(4,times=4)), knots=knots100)
+                             groups=c(rep(1,times=2), 2, rep(1,times=6), rep(3,times=2),rep(2,times=7)), knots=knots100)
 
 ## The following statement saved the model fits using 100,000 MCMC samples. We won't save
 ##    our fit based on 100 samples. Rather we will load in the results from 100,000. 
@@ -136,9 +137,9 @@ cor.Z = cor(lnmixture_z, use = "complete.obs")
 #Need two periods to knit: "../"
 #Need one period to run in console: "./"
 #Or change file path to match your computer
-pdf(file= "../BKMR/cor_nhanes.pdf", width=12, height=12)
+#pdf(file= "../BKMR/cor_nhanes.pdf", width=12, height=12)
 corrplot.mixed(cor.Z, upper = "ellipse", lower.col = "black")
-dev.off()
+#dev.off()
 ```
 
 ### Model
@@ -177,14 +178,14 @@ par(mfrow=c(1,1))
 ## the exposure-response function. Instead we will read in the previously generated results 
 ## just to save a little time. 
 
-pred.resp.univar <- PredictorResponseUnivar(fit = modeltoplot, sel=sel, method="approx")
-pred.resp.bivar  <- PredictorResponseBivar(fit = modeltoplot,  min.plot.dist = 1, sel=sel, method="approx")
-pred.resp.bivar.levels <- PredictorResponseBivarLevels(pred.resp.df = pred.resp.bivar, Z = Z,
-                                                          both_pairs = TRUE, qs = c(0.25, 0.5, 0.75))
-risks.overall <- OverallRiskSummaries(fit = modeltoplot, qs = seq(0.25, 0.75, by = 0.05), q.fixed = 0.5, method = "approx",sel=sel)
-risks.singvar <- SingVarRiskSummaries(fit = modeltoplot, qs.diff = c(0.25, 0.75),
-                                        q.fixed = c(0.25, 0.50, 0.75), method = "approx")
-risks.int <- SingVarIntSummaries(fit = modeltoplot, qs.diff = c(0.25, 0.75), qs.fixed = c(0.25, 0.75))
+#pred.resp.univar <- PredictorResponseUnivar(fit = modeltoplot, sel=sel, method="approx")
+#pred.resp.bivar  <- PredictorResponseBivar(fit = modeltoplot,  min.plot.dist = 1, sel=sel, method="approx")
+#pred.resp.bivar.levels <- PredictorResponseBivarLevels(pred.resp.df = pred.resp.bivar, Z = Z,
+#                                                          both_pairs = TRUE, qs = c(0.25, 0.5, 0.75))
+#risks.overall <- OverallRiskSummaries(fit = modeltoplot, qs = seq(0.25, 0.75, by = 0.05), q.fixed = 0.5, method = "approx",sel=sel)
+#risks.singvar <- SingVarRiskSummaries(fit = modeltoplot, qs.diff = c(0.25, 0.75),
+#                                        q.fixed = c(0.25, 0.50, 0.75), method = "approx")
+#risks.int <- SingVarIntSummaries(fit = modeltoplot, qs.diff = c(0.25, 0.75), qs.fixed = c(0.25, 0.75))
 
 #Save the data need to plot the summaries of interest generated 
 #save(pred.resp.univar, pred.resp.bivar, pred.resp.bivar.levels, risks.overall, risks.singvar, risks.int, file=paste0(modeltoplot.name,"_plots.RData"))
@@ -193,6 +194,7 @@ risks.int <- SingVarIntSummaries(fit = modeltoplot, qs.diff = c(0.25, 0.75), qs.
 #Need two periods to knit: "../"
 #Need one period to run in console: "./"
 #Or change file path to match your computer
+
 load(paste0("../BKMR/", modeltoplot.name,"_plots.RData"))
 ```
 
@@ -201,10 +203,10 @@ load(paste0("../BKMR/", modeltoplot.name,"_plots.RData"))
 #Need two periods to knit: "../"
 #Need one period to run in console: "./"
 #Or change file path to match your computer
-pdf(file=paste0("../BKMR/", "univar_ex_" ,plot.name,".pdf"), width=15, height=15)
+#pdf(file=paste0("../BKMR/", "univar_ex_" ,plot.name,".pdf"), width=15, height=15)
 ggplot(pred.resp.univar, aes(z, est, ymin = est - 1.96*se, ymax = est + 1.96*se)) + 
   geom_smooth(stat = "identity") + ylab("h(z)") + facet_wrap(~ variable) 
-dev.off()
+#dev.off()
 ```
 
 #### Bivariable Exposure-Response Functions
@@ -213,7 +215,7 @@ dev.off()
 #Need two periods to knit: "../"
 #Need one period to run in console: "./"
 #Or change file path to match your computer
-pdf(file=paste0("../BKMR/", "bivar_ex_",plot.name,".pdf"), width=30, height=30)
+#pdf(file=paste0("../BKMR/", "bivar_ex_",plot.name,".pdf"), width=30, height=30)
 ggplot(pred.resp.bivar, aes(z1, z2, fill = est)) + 
   geom_raster() + 
   facet_grid(variable2 ~ variable1) +
@@ -221,20 +223,20 @@ ggplot(pred.resp.bivar, aes(z1, z2, fill = est)) +
   xlab("expos1") +
   ylab("expos2") +
   ggtitle("h(expos1, expos2)")
-dev.off()
+#dev.off()
 ```
 
 ```{r save3}
 #Need two periods to knit: "../"
 #Need one period to run in console: "./"
 #Or change file path to match your computer
-pdf(file=paste0("../BKMR/", "bivar_levels_ex_",plot.name,".pdf"), width=30, height=30)
+#pdf(file=paste0("../BKMR/", "bivar_levels_ex_",plot.name,".pdf"), width=30, height=30)
 ggplot(pred.resp.bivar.levels, aes(z1, est)) + 
   geom_smooth(aes(col = quantile), stat = "identity") + 
   facet_grid(variable2 ~ variable1) +
   ggtitle("h(expos1 | quantiles of expos2)") +
   xlab("expos1")
-dev.off()
+#dev.off()
 ```
 
 #### Overall Mixture Effect
@@ -243,11 +245,11 @@ dev.off()
 #Need two periods to knit: "../"
 #Need one period to run in console: "./"
 #Or change file path to match your computer
-pdf(file=paste0("../BKMR/", "overallrisks_ex_",plot.name,".pdf"), width=10, height=10)
+#pdf(file=paste0("../BKMR/", "overallrisks_ex_",plot.name,".pdf"), width=10, height=10)
 ggplot(risks.overall, aes(quantile, est, ymin = est - 1.96*sd, ymax = est + 1.96*sd)) +  
   geom_hline(yintercept=00, linetype="dashed", color="gray") + 
   geom_pointrange() + scale_y_continuous(name="estimate") 
-dev.off()
+#dev.off()
 ```
 
 ### Single Variable
@@ -256,12 +258,12 @@ dev.off()
 #Need two periods to knit: "../"
 #Need one period to run in console: "./"
 #Or change file path to match your computer
-pdf(file=paste0("../BKMR/", "singvar_ex_",plot.name,".pdf"), width=5, height=10)
+#pdf(file=paste0("../BKMR/", "singvar_ex_",plot.name,".pdf"), width=5, height=10)
 ggplot(risks.singvar, aes(variable, est, ymin = est - 1.96*sd,  ymax = est + 1.96*sd, col = q.fixed)) + 
   geom_hline(aes(yintercept=0), linetype="dashed", color="gray") +  
   geom_pointrange(position = position_dodge(width = 0.75)) +  coord_flip() + 
   theme(legend.position="none")+scale_x_discrete(name="") + scale_y_continuous(name="estimate") 
-dev.off()
+#dev.off()
 ```
 
 #### Single Variable Interaction Terms
@@ -270,10 +272,10 @@ dev.off()
 #Need two periods to knit: "../"
 #Need one period to run in console: "./"
 #Or change file path to match your computer
-pdf(file=paste0("../BKMR/", "interactplot_ex_",plot.name,".pdf"), width=5, height=10)
+#pdf(file=paste0("../BKMR/", "interactplot_ex_",plot.name,".pdf"), width=5, height=10)
 ggplot(risks.int, aes(variable, est, ymin = est - 1.96*sd, ymax = est + 1.96*sd)) + 
   geom_pointrange(position = position_dodge(width = 0.75)) + 
   geom_hline(yintercept = 0, lty = 2, col = "brown") + coord_flip()
-dev.off()
+#dev.off()
 ```
 

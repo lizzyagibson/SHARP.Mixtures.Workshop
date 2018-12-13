@@ -1,7 +1,8 @@
 ################################################
 ###  BMKR code for CU mixtures workshop      ###
 ###  developed by Katrina Devick             ### 
-###  last updated: 8/10/18                   ###
+###  last updated: 12/10/18                  ###
+###  Changed POP groups                      ###
 ################################################
 
 
@@ -78,15 +79,19 @@ load("./BKMR/NHANES_knots100.RData")
 
 ### Group VS fit with all exposures using GPP and 100 knots 
 set.seed(1000)
+#fit_gvs_knots100 <-  kmbayes(y=lnLTL_z, Z=lnmixture_z, X=covariates, iter=100000, verbose=TRUE, varsel=TRUE, 
+#                             groups=c(rep(1,times=9),rep(2,times=2),rep(3,times=3),rep(4,times=4)), knots=knots100)
+
 fit_gvs_knots100 <-  kmbayes(y=lnLTL_z, Z=lnmixture_z, X=covariates, iter=100000, verbose=TRUE, varsel=TRUE, 
-                             groups=c(rep(1,times=9),rep(2,times=2),rep(3,times=3),rep(4,times=4)), knots=knots100)
+                             groups=c(rep(1,times=2), 2, rep(1,times=6), rep(3,times=2),rep(2,times=7)), knots=knots100)
+
 summary(fit_gvs_knots100)
 save(fit_gvs_knots100,file="./BKMR/bkmr_NHANES_gvs_knots100.RData")
 
 ### Group VS fit with PCBs only 
 set.seed(1000)
 fit_gvs_knots100_PCB <-  kmbayes(y=lnLTL_z, Z=lnPCB_z, X=covariates, iter=100000, verbose=TRUE, varsel=TRUE, 
-                                 groups=c(rep(1,times=9),rep(2,times=2)), knots=knots100.PCB)
+                                 groups=c(rep(1,times=2), 2, rep(1, times=6),rep(2,times=2)), knots=knots100.PCB)
 summary(fit_gvs_knots100_PCB)
 save(fit_gvs_knots100_PCB,file="./BKMR/bkmr_NHANES_gvs_knots100_PCB.RData")
 
@@ -147,9 +152,10 @@ pred.resp.bivar.levels <- PredictorResponseBivarLevels(pred.resp.df = pred.resp.
 risks.overall <- OverallRiskSummaries(fit = modeltoplot, qs = seq(0.25, 0.75, by = 0.05), q.fixed = 0.5, method = "approx",sel=sel)
 risks.singvar <- SingVarRiskSummaries(fit = modeltoplot, qs.diff = c(0.25, 0.75),
                                         q.fixed = c(0.25, 0.50, 0.75), method = "approx")
-save(pred.resp.univar, pred.resp.bivar, pred.resp.bivar.levels, risks.overall, risks.singvar, file=paste0(modeltoplot.name,"_plots.RData"))
+risks.int <- SingVarIntSummaries(fit = modeltoplot, qs.diff = c(0.25, 0.75), qs.fixed = c(0.25, 0.75))
 
-
+save(pred.resp.univar, pred.resp.bivar, pred.resp.bivar.levels, risks.overall, risks.singvar, risks.int, 
+     file=paste0("./BKMR/", modeltoplot.name,"_plots.RData"))
 
 load(paste0("./BKMR/", modeltoplot.name,"_plots.RData"))
 
@@ -187,9 +193,13 @@ dev.off()
 
 pdf(file=paste0("./BKMR/singvar_",plot.name,".pdf"), width=5, height=10)
 ggplot(risks.singvar, aes(variable, est, ymin = est - 1.96*sd,  ymax = est + 1.96*sd, col = q.fixed)) +  geom_hline(aes(yintercept=0), linetype="dashed", color="gray")+ 
-  geom_pointrange(position = position_dodge(width = 0.75)) +  coord_flip() +  theme(legend.position="none")
+  geom_pointrange(position = position_dodge(width = 0.75)) +  coord_flip() +  theme(legend.position="none") +
   scale_x_discrete(name="")+ scale_y_continuous(name="estimate") 
 dev.off()
 
-
+pdf(file=paste0("./BKMR/", "interactplot_ex_",plot.name,".pdf"), width=5, height=10)
+ggplot(risks.int, aes(variable, est, ymin = est - 1.96*sd, ymax = est + 1.96*sd)) + 
+  geom_pointrange(position = position_dodge(width = 0.75)) + 
+  geom_hline(yintercept = 0, lty = 2, col = "brown") + coord_flip()
+dev.off()
 
