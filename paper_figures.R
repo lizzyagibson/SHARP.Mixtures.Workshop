@@ -39,6 +39,24 @@ pca_plot <- plot_loadings_pca %>%
          PC = fct_recode(PC, "PC 1" = "PC1",
                          "PC 2" = "PC2",
                          "PC 3" = "PC3")) %>% 
+  mutate(chem = fct_recode(chem, "PCB 74" = "lbx074la.l2",
+                           "PCB 99" = "lbx099la.l2",
+                           "PCB 118" = "lbx118la.l2",
+                           "PCB 138" = "lbx138la.l2",
+                           "PCB 153" = "lbx153la.l2",
+                           "PCB 170" = "lbx170la.l2",
+                           "PCB 180" = "lbx180la.l2",
+                           "PCB 187" = "lbx187la.l2",
+                           "PCB 194" = "lbx194la.l2",
+                           "1,2,3,6,7,8-hxcdd" = "lbxd03la.l2",
+                           "1,2,3,4,6,7,8-hpcdd" = "lbxd05la.l2",
+                           "1,2,3,4,6,7,8,9-ocdd" =  "lbxd07la.l2",
+                           "2,3,4,7,8-pncdf" =  "lbxf03la.l2",
+                           "1,2,3,4,7,8-hxcdf" =  "lbxf04la.l2",
+                           "1,2,3,6,7,8-hxcdf" =  "lbxf05la.l2",
+                           "1,2,3,4,6,7,8-hxcdf" =  "lbxf08la.l2",
+                           "PCB 169" =  "lbxhxcla.l2",
+                           "PCB 126" = "lbxpcbla.l2")) %>% 
   ggplot(aes(x = chem, y = Loading, fill = Group)) + geom_col() +
   facet_wrap(~ PC) + theme_bw(base_size = 20) + 
   theme(legend.position = "bottom", axis.text.x = element_text(angle = 90, hjust = 1),
@@ -59,6 +77,24 @@ plot3 <- plot_chem_means %>% as.tibble() %>% rename(pop_mean = `colMeans(log.x)`
          Cluster = fct_recode(Cluster, "Cluster 1" = "1",
                               "Cluster 2" = "2",
                               "Cluster 3" = "3")) %>% 
+  mutate(chem = fct_recode(chem, "PCB 74" = "lbx074la.l2",
+                           "PCB 99" = "lbx099la.l2",
+                           "PCB 118" = "lbx118la.l2",
+                           "PCB 138" = "lbx138la.l2",
+                           "PCB 153" = "lbx153la.l2",
+                           "PCB 170" = "lbx170la.l2",
+                           "PCB 180" = "lbx180la.l2",
+                           "PCB 187" = "lbx187la.l2",
+                           "PCB 194" = "lbx194la.l2",
+                           "1,2,3,6,7,8-hxcdd" = "lbxd03la.l2",
+                           "1,2,3,4,6,7,8-hpcdd" = "lbxd05la.l2",
+                           "1,2,3,4,6,7,8,9-ocdd" =  "lbxd07la.l2",
+                           "2,3,4,7,8-pncdf" =  "lbxf03la.l2",
+                           "1,2,3,4,7,8-hxcdf" =  "lbxf04la.l2",
+                           "1,2,3,6,7,8-hxcdf" =  "lbxf05la.l2",
+                           "1,2,3,4,6,7,8-hxcdf" =  "lbxf08la.l2",
+                           "PCB 169" =  "lbxhxcla.l2",
+                           "PCB 126" = "lbxpcbla.l2")) %>% 
   ggplot(aes(x = chem, y = mean, fill = Group)) + geom_col() +
   geom_point(aes(y = pop_mean), size = 1) +
   facet_wrap(~ Cluster) + theme_bw(base_size = 20) + 
@@ -67,7 +103,7 @@ plot3 <- plot_chem_means %>% as.tibble() %>% rename(pop_mean = `colMeans(log.x)`
         strip.background = element_rect(fill = "white")) +
   geom_hline(yintercept = 0, size = 0.2) +
   labs(x = "Chemicals",
-       y = "Mean", caption = "*Points indicate population means")
+       y = "Mean")
 
 png("./Unsupervised/clusters.png", width = 1100, height = 800)
 plot3
@@ -89,13 +125,31 @@ efa_plot <- plot_loadings %>%
                              "Factor 2" = "MR2",
                              "Factor 3" = "MR3",
                              "Factor 4" = "MR4")) %>% 
+  mutate(Variable = fct_recode(Variable, "PCB 74" = "lbx074la",
+                               "PCB 99" = "lbx099la",
+                               "PCB 118" = "lbx118la",
+                               "PCB 138" = "lbx138la",
+                               "PCB 153" = "lbx153la",
+                               "PCB 170" = "lbx170la",
+                               "PCB 180" = "lbx180la",
+                               "PCB 187" = "lbx187la",
+                               "PCB 194" = "lbx194la",
+                               "1,2,3,6,7,8-hxcdd" = "lbxd03la",
+                               "1,2,3,4,6,7,8-hpcdd" = "lbxd05la",
+                               "1,2,3,4,6,7,8,9-ocdd" =  "lbxd07la",
+                               "2,3,4,7,8-pncdf" =  "lbxf03la",
+                               "1,2,3,4,7,8-hxcdf" =  "lbxf04la",
+                               "1,2,3,6,7,8-hxcdf" =  "lbxf05la",
+                               "1,2,3,4,6,7,8-hxcdf" =  "lbxf08la",
+                               "PCB 169" =  "lbxhxcla",
+                               "PCB 126" = "lbxpcbla")) %>% 
   ggplot(aes(x = Variable, y = Loading, fill = Group)) + geom_col() +
   facet_wrap(~ Factor) + theme_bw(base_size = 25) + 
   theme(legend.position = "bottom", axis.text.x = element_text(angle = 90, hjust = 1),
         strip.background = element_rect(fill = "white")) +
   coord_flip() + geom_hline(yintercept = 0, size = 0.2)
 
-png("./Unsupervised/efa_plot.png", width = 1000, height = 800)
+png("./Unsupervised/efa_plot.png", width = 1000, height = 1000)
 efa_plot
 dev.off()
 
@@ -309,8 +363,37 @@ risks.int %>% mutate(variable = fct_recode(variable, "PCB 74" = "PCB74",
   labs(x = "", y = "Estimate")
 dev.off()
 
+## WQS
 
-
+png("./WQS/wqs_weights.png", width = 1000, height = 1000)
+result2$final_weights %>% 
+  mutate(mix_name = tolower(mix_name),
+         mix_name = fct_recode(mix_name, "PCB 74" = "lbx074la",
+                               "PCB 99" = "lbx099la",
+                               "PCB 118" = "lbx118la",
+                               "PCB 138" = "lbx138la",
+                               "PCB 153" = "lbx153la",
+                               "PCB 170" = "lbx170la",
+                               "PCB 180" = "lbx180la",
+                               "PCB 187" = "lbx187la",
+                               "PCB 194" = "lbx194la",
+                               "1,2,3,6,7,8-hxcdd" = "lbxd03la",
+                               "1,2,3,4,6,7,8-hpcdd" = "lbxd05la",
+                               "1,2,3,4,6,7,8,9-ocdd" =  "lbxd07la",
+                               "2,3,4,7,8-pncdf" =  "lbxf03la",
+                               "1,2,3,4,7,8-hxcdf" =  "lbxf04la",
+                               "1,2,3,6,7,8-hxcdf" =  "lbxf05la",
+                               "1,2,3,4,6,7,8-hxcdf" =  "lbxf08la",
+                               "PCB 169" =  "lbxhxcla",
+                               "PCB 126" = "lbxpcbla"),
+         mix_name = fct_reorder(mix_name, mean_weight)) %>% 
+  ggplot(aes(x = mix_name, y = mean_weight, fill = mix_name)) +
+  geom_bar(stat = "identity", color = "black") + theme_bw(base_size = 25) +
+  theme(axis.ticks = element_blank(),
+        axis.title = element_blank(),
+        axis.text.x = element_text(color='black'),
+        legend.position = "none") + coord_flip()
+dev.off()
 
 
 
