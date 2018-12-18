@@ -56,7 +56,6 @@ my.x <- names(studypop)[grep("la", names(studypop))]
 #create a new data frame with my.x and convert values for the predictor variables to its natural log.
 log.x <- data.frame(apply(studypop[,my.x], 2, FUN = function(x) log(x))) %>%
   setNames(paste(my.x, "l2", sep = ".")) #add suffix 12 to the predictors' name
- 
 
 #check dimensions of dataset
 dim(log.x)
@@ -83,7 +82,6 @@ colum_ln <- c("Principal Component", "Eigenvalues", "Percent Variance")
 eigenvalues_ln <- kable(eigenvalues_ln, col.names = colum_ln)
 eigenvalues_ln 
 
-
 ```
 
 ## Proportion of Variance Plots
@@ -94,12 +92,10 @@ The first two components explained 73% of the variance
 
 pve.ln <- pca.ln$sdev^2/sum(pca.ln$sdev^2) #proportion of variance explain by each component
  
-
 #log-transformed data
 fviz_eig(pca.ln, main = "Log - Transformed data",
          xlab = "Principal component",
          ylim = c(0,70)) 
-
 
 ```
 
@@ -125,6 +121,24 @@ plot_loadings_pca %>%
          PC = fct_recode(PC, "PC 1" = "PC1",
          "PC 2" = "PC2",
          "PC 3" = "PC3")) %>% 
+   mutate(chem = fct_recode(chem, "PCB 74" = "lbx074la.l2",
+                                "PCB 99" = "lbx099la.l2",
+                                "PCB 118" = "lbx118la.l2",
+                                "PCB 138" = "lbx138la.l2",
+                                "PCB 153" = "lbx153la.l2",
+                                "PCB 170" = "lbx170la.l2",
+                                "PCB 180" = "lbx180la.l2",
+                                "PCB 187" = "lbx187la.l2",
+                                "PCB 194" = "lbx194la.l2",
+                                "1,2,3,6,7,8-hxcdd" = "lbxd03la.l2",
+                                "1,2,3,4,6,7,8-hpcdd" = "lbxd05la.l2",
+                               "1,2,3,4,6,7,8,9-ocdd" =  "lbxd07la.l2",
+                               "2,3,4,7,8-pncdf" =  "lbxf03la.l2",
+                               "1,2,3,4,7,8-hxcdf" =  "lbxf04la.l2",
+                               "1,2,3,6,7,8-hxcdf" =  "lbxf05la.l2",
+                               "1,2,3,4,6,7,8-hxcdf" =  "lbxf08la.l2",
+                               "PCB 169" =  "lbxhxcla.l2",
+                                "PCB 126" = "lbxpcbla.l2")) %>% 
   ggplot(aes(x = chem, y = Loading, fill = Group)) + geom_col() +
   facet_wrap(~ PC) + theme_bw() + 
   theme(legend.position = "bottom", axis.text.x = element_text(angle = 90, hjust = 1),

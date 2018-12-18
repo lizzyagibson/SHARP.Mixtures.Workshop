@@ -73,7 +73,7 @@ summary(log.x)
 ## Heat Map
 
 ```{r}
-cormat <- round(cor(log.x, use = "pairwise.complete.obs", method = c("pearson")),2)
+cormat <- round(cor(log.x, use = "pairwise.complete.obs", method = c("spearman")),2)
 melted_cormat <- melt(cormat) %>% rename(Correlation = value)
 
 melted_cormat <- melted_cormat %>% 
@@ -131,7 +131,7 @@ ggplot(aes(Var1, Var2, fill = Correlation)) +
  geom_tile(color = "white") +
  scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
                       midpoint = 0, limit = c(0,1), space = "Lab", 
-                      name = "Pearson\nCorrelation") +
+                      name = "Spearman\nCorrelation") +
   theme_minimal(base_size = 15) + # minimal theme
   theme(axis.text.x = element_text(angle = 90, vjust = 1, size = 12, hjust = 1),
         axis.text.y = element_text(vjust = 1, size = 12, hjust = 1),
@@ -147,7 +147,7 @@ melted_cormat %>%
  geom_tile(color = "white") +
  scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
                       midpoint = 0, limit = c(0,1), space = "Lab", 
-                      name = "Pearson\nCorrelation ") +
+                      name = "Spearman\nCorrelation ") +
   scale_x_discrete(expand = c(0, 0)) + 
   scale_y_discrete(expand = c(0, 0)) + theme_bw() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1),
@@ -339,7 +339,25 @@ plot_chem_means %>% as.tibble() %>% rename(pop_mean = `colMeans(log.x)`) %>%
   mutate(Cluster = as.factor(Cluster),
          Cluster = fct_recode(Cluster, "Cluster 1" = "1",
          "Cluster 2" = "2",
-         "Cluster 3" = "3")) %>% 
+         "Cluster 3" = "3")) %>%
+  mutate(chem = fct_recode(chem, "PCB 74" = "lbx074la.l2",
+                                "PCB 99" = "lbx099la.l2",
+                                "PCB 118" = "lbx118la.l2",
+                                "PCB 138" = "lbx138la.l2",
+                                "PCB 153" = "lbx153la.l2",
+                                "PCB 170" = "lbx170la.l2",
+                                "PCB 180" = "lbx180la.l2",
+                                "PCB 187" = "lbx187la.l2",
+                                "PCB 194" = "lbx194la.l2",
+                                "1,2,3,6,7,8-hxcdd" = "lbxd03la.l2",
+                                "1,2,3,4,6,7,8-hpcdd" = "lbxd05la.l2",
+                               "1,2,3,4,6,7,8,9-ocdd" =  "lbxd07la.l2",
+                               "2,3,4,7,8-pncdf" =  "lbxf03la.l2",
+                               "1,2,3,4,7,8-hxcdf" =  "lbxf04la.l2",
+                               "1,2,3,6,7,8-hxcdf" =  "lbxf05la.l2",
+                               "1,2,3,4,6,7,8-hxcdf" =  "lbxf08la.l2",
+                               "PCB 169" =  "lbxhxcla.l2",
+                                "PCB 126" = "lbxpcbla.l2")) %>% 
   ggplot(aes(x = chem, y = mean, fill = Group)) + geom_col() +
   geom_point(aes(y = pop_mean), size = 1) +
   facet_wrap(~ Cluster) + theme_bw() + 
