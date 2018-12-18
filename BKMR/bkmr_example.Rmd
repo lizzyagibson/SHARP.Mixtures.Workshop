@@ -220,7 +220,8 @@ pred.resp.univar %>%
                                "PCB 169" =  "PCB169",
                                 "PCB 126" = "PCB126")) %>% 
   ggplot(aes(z, est, ymin = est - 1.96*se, ymax = est + 1.96*se)) + 
-  geom_smooth(stat = "identity") + labs(y = "h(Exposure)", x = "Exposure") + facet_wrap(~ variable) + theme_bw() +
+  geom_smooth(stat = "identity") + labs(y = "Estimate", x = "Exposure") + 
+  facet_wrap(~ variable) + theme_bw() +
   theme(strip.background = element_rect(fill = "white"))
 ```
 
