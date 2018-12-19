@@ -147,7 +147,7 @@ efa_plot <- plot_loadings %>%
   facet_wrap(~ Factor) + theme_bw(base_size = 25) + 
   theme(legend.position = "bottom", axis.text.x = element_text(angle = 90, hjust = 1),
         strip.background = element_rect(fill = "white")) +
-  coord_flip() + geom_hline(yintercept = 0, size = 0.2)
+  geom_hline(yintercept = 0, size = 0.2)
 
 png("./Unsupervised/efa_plot.png", width = 1000, height = 1000)
 efa_plot
@@ -156,8 +156,8 @@ dev.off()
 ## Variable Selection
 
 vs_plot <- plot_all %>% 
-  ggplot(aes(x = variable, y = beta)) + geom_point(aes(color = group3)) +
-  geom_hline(yintercept = 0, color = "red", linetype = "dashed") + theme_bw(base_size = 18) +
+  ggplot(aes(x = variable, y = beta)) + geom_point(aes(color = group3), size = 2.5) +
+  geom_hline(yintercept = 0, color = "grey", linetype = "dashed") + theme_bw(base_size = 18) +
   facet_grid(group3 ~ method, scales="free_y", space = "free_y",
              labeller = labeller(group3 = label_wrap_gen(5))) + coord_flip() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "bottom",
@@ -166,7 +166,7 @@ vs_plot <- plot_all %>%
        x = "Variables", 
        color = "POP Group")
 
-png("./Variable Selection/vs_plot.png", width = 900, height = 1000)
+png("./Variable Selection/vs_plot.png", width = 900, height = 1000, res = 90)
 vs_plot
 dev.off()
 
@@ -174,8 +174,13 @@ dev.off()
 
 ### Univariable
 
-png("./BKMR/bkmr_univar.png", width = 1300, height = 1300)
+png("./BKMR/bkmr_univar.png", width = 1300, height = 1300, res = 80)
 pred.resp.univar %>% 
+  mutate(Group = ifelse(variable == "PCB118", "TEQ", 
+                  ifelse(grepl("Dioxin", variable), "TEQ",
+                   ifelse(grepl("Furan", variable), "TEQ",
+                    ifelse(variable == "PCB126", "Non-Ortho PCB",
+                     ifelse(variable == "PCB169", "Non-Ortho PCB", "Non-Dioxin-like PCBs")))))) %>% 
   mutate(variable = fct_recode(variable, "PCB 74" = "PCB74",
                                "PCB 99" = "PCB99",
                                "PCB 118" = "PCB118",
@@ -195,8 +200,12 @@ pred.resp.univar %>%
                                "PCB 169" =  "PCB169",
                                "PCB 126" = "PCB126")) %>% 
   ggplot(aes(z, est, ymin = est - 1.96*se, ymax = est + 1.96*se)) + 
-  geom_smooth(stat = "identity") + ylab("h(z)") + facet_wrap(~ variable) + theme_bw(base_size = 25) +
-  theme(strip.background = element_rect(fill = "white"))
+  geom_smooth(aes(color = Group), stat = "identity") + ylab("h(z)") + 
+  facet_wrap(~ variable) + theme_bw(base_size = 25) +
+  theme(strip.background = element_rect(fill = "white"),
+        legend.position = "bottom",
+        axis.title = element_text(size = 30)) +
+  labs(x = "Exposure", y = "Estimate")
 dev.off()
 
 ### Bivariable 1 & 2
@@ -365,8 +374,13 @@ dev.off()
 
 ## WQS
 
-png("./WQS/wqs_weights.png", width = 1000, height = 1000)
+png("./WQS/wqs_weights.png", width = 1000, height = 1000, res = 80)
 result2$final_weights %>% 
+  mutate(Group = ifelse(mix_name == "LBX118LA", "TEQ", 
+                  ifelse(grepl("LBX1", mix_name), "Non-Dioxin-like PCB",
+                   ifelse(grepl("LBX0", mix_name), "Non-Dioxin-like PCB",
+                    ifelse(grepl("LBXP", mix_name), "Non-Ortho PCB",
+                     ifelse(grepl("LBXH", mix_name), "Non-Ortho PCB", "TEQ")))))) %>% 
   mutate(mix_name = tolower(mix_name),
          mix_name = fct_recode(mix_name, "PCB 74" = "lbx074la",
                                "PCB 99" = "lbx099la",
@@ -387,12 +401,12 @@ result2$final_weights %>%
                                "PCB 169" =  "lbxhxcla",
                                "PCB 126" = "lbxpcbla"),
          mix_name = fct_reorder(mix_name, mean_weight)) %>% 
-  ggplot(aes(x = mix_name, y = mean_weight, fill = mix_name)) +
+  ggplot(aes(x = mix_name, y = mean_weight, fill = Group)) +
   geom_bar(stat = "identity", color = "black") + theme_bw(base_size = 25) +
   theme(axis.ticks = element_blank(),
-        axis.title = element_blank(),
         axis.text.x = element_text(color='black'),
-        legend.position = "none") + coord_flip()
+        legend.position = "bottom") + coord_flip() + 
+  labs(y = "Weights", x = "")
 dev.off()
 
 
