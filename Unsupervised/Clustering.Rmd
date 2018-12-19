@@ -55,7 +55,7 @@ dim(studypop)
 #summary statistics on dataset
 summary(studypop)
 
-#extract Non-dioxin-like PCB variables from the studypop data frame
+#extract POP variables from the studypop data frame
 my.x <- names(studypop)[grep("la", names(studypop))] 
 
 #create a new data frame with my.x and convert values for the predictor variables to its natural log.
@@ -170,6 +170,11 @@ Percent_bt_k100 = paste(round(100*(km100$betweenss/km100$totss),1), "%", sep = "
 ```{r loop, cache = TRUE}
 # create an empty data frame
 km.res <- data.frame(matrix(NA, (dim(log.x)[1] - 1), 3))
+library(factoextra)
+fviz_nbclust(log.x, kmeans, method = "wss") ###the loop below can quickly be perform using this function. Result is the same.
+
+fviz_nbclust(log.x, kmeans, method = "silhouette")
+
 
 # use a loop to run k-means for 0 - 30 clusters and generate variance values
 for (k in 1:(dim(log.x)[1] - 1)) {
@@ -304,24 +309,20 @@ clu.group <- km5$cluster #cluster group
 pop <- read_csv("../Data/studypop.csv") %>% 
   clean_names() %>% 
   na.omit() %>%
-  dplyr::select(-(3:10), -(17:26)) %>% 
+  select(-(3:10), -(17:26)) %>% 
   mutate(logtelomean = log(telomean))
 
-pop_clus <- as.tibble((cbind(studypop, clu.group)))
+pop_clus <- as.tibble((cbind(pop, clu.group)))
 table(pop_clus$clu.group)
 ```
 
 Put 5 clusters (categorical) into a linear regression w/ covariates to estimate association with LTL.
 
 ```{r}
-<<<<<<< HEAD
-health_model_kmeans5 <- lm(I(log(telomean)) ~ as.factor(clu.group) +
-     lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct +
-=======
+
 health_model_kmeans5 <- lm(logtelomean ~ as.factor(clu.group) +
      lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct + age_cent + age_sq +
->>>>>>> b727a89dd990c31c1456e3a269c31a4248b03b8e
-     as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = pop_clus)
+as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = pop_clus)
 
 health_model_kmeans5 %>% broom::tidy() %>% mutate(
   estimate = round(estimate, 4),
@@ -369,6 +370,8 @@ Put 3 clusters (categorical) into a linear regression w/ covariates to estimate 
 health_model_kmeans3 <- lm(logtelomean ~ as.factor(clu.group3) + age_cent + age_sq +
      lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct +
      as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = pop_clus3)
+
+summary(health_model_kmeans3)
 
 health_model_kmeans3 %>% broom::tidy() %>% mutate(
   estimate = round(estimate, 4),
@@ -474,7 +477,7 @@ Combine clusters grouping with original data outcome and covariants for clusters
 
 ```{r}
 hc.clusters.3 = cutree(hc.complete, 3)
-hc_health_3 <- as.tibble(cbind(studypop, hc.clusters.3))
+hc_health_3 <- as.tibble(cbind(pop, hc.clusters.3))
 table(hc.clusters.3)
 ```
 
@@ -485,6 +488,7 @@ health_model_hc3 <- lm(logtelomean ~ as.factor(hc.clusters.3) +
      lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct + age_cent + age_sq +
      as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = hc_health_3)
 
+summary(health_model_hc3)
 health_model_hc3 %>% broom::tidy() %>% mutate(
   estimate = round(estimate, 4),
   std.error = round(std.error, 4),

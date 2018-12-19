@@ -50,7 +50,7 @@ dim(studypop)
 #summary statistics on dataset
 summary(studypop)
 
-#extract Non-dioxin-like PCB variables from the studypop data frame
+#extract POP variables from the studypop data frame
 my.x <- names(studypop)[grep("la", names(studypop))] 
 
 #create a new data frame with my.x and convert values for the predictor variables to its natural log.
@@ -104,10 +104,10 @@ fviz_eig(pca.ln, main = "Log - Transformed data",
 ```
 
 ## Data Visualization of eigenvectors w/ Log-Transformed PCA Results
-Loadings are the weights that each chemical contribute to the component. Scores are the sum of: loadings multiple by concentration of each chemical for each person. So you get a score for each person but you have a loading for each chemical
+Loadings are the weights that each chemical contribute to the component. Scores are the sum of: loadings multiply by concentration of each chemical for each person. So you get a loading for each chemical and also a total loading for each principal component (which is the sum of the chemical's loadings). You also get a score for each person (each observation) which is the sum of the scores of each chemical (loading*chemical concentration). So for each person (observation) you have a score for each principal component. Each principal component also has a score which is the sum of the scores within the principal component. 
 
 ```{r}
-pca.ln.ld <- as.data.frame.matrix(pca.ln$rotation)
+pca.ln.ld <- as.data.frame.matrix(pca.ln$rotation) ## rotation is the loadings variable within the pca output.
 pca.ln.ld$chem <- row.names(pca.ln.ld)
 
 loadings_pca <- pca.ln.ld %>% 
@@ -145,7 +145,7 @@ autoplot(pca.ln, data = log.x, size = 0.8, colour = 'blue', alpha = 0.5,
 Combine PC scores with original data outcome and covariants
 
 ```{r}
-x <- pca.ln$x #principal components for each chemical
+x <- pca.ln$x #principal component scores for each chemical
 
 #Need two periods to knit: "../"
 #Need one period to run in console: "./"
@@ -166,6 +166,8 @@ Put 2 components (continuous) into a linear regression w/ covariates to estimate
 health_model_pca <- lm(logtelomean ~PC1  + PC2 + PC3 +   
      lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct + age_cent + age_sq +
      as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = pop_pca)
+summary(health_model_pca)
+
 
 
 health_model_pca %>% broom::tidy() %>% mutate(
