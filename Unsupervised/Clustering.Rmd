@@ -73,20 +73,93 @@ summary(log.x)
 ## Heat Map
 
 ```{r}
-cormat <- round(cor(log.x, use = "pairwise.complete.obs", method = c("pearson")),2)
+cormat <- round(cor(log.x, use = "pairwise.complete.obs", method = c("spearman")),2)
 melted_cormat <- melt(cormat) %>% rename(Correlation = value)
 
-ggplot(melted_cormat, aes(Var1, Var2, fill = Correlation)) +
+melted_cormat <- melted_cormat %>% 
+  mutate(group3.1 = case_when(Var1 == "lbx118la.l2" ~ "TEQ",
+                           grepl("lbxf|d", Var1) == TRUE ~ "TEQ",
+                           grepl("lbx1|0", Var1) == TRUE ~ "Non-Dioxin-like PCB",
+                           grepl("lbxh|p", Var1) == TRUE ~ "Non-Ortho PCB")) %>% 
+  mutate(group3.2 = case_when(Var2 == "lbx118la.l2" ~ "TEQ",
+                           grepl("lbxf|d", Var2) == TRUE ~ "TEQ",
+                           grepl("lbx1|0", Var2) == TRUE ~ "Non-Dioxin-like PCB",
+                           grepl("lbxh|p", Var2) == TRUE ~ "Non-Ortho PCB")) %>% 
+  mutate(Var1 = fct_recode(Var1, "PCB 74" = "lbx074la.l2",
+                                "PCB 99" = "lbx099la.l2",
+                                "PCB 118" = "lbx118la.l2",
+                                "PCB 138" = "lbx138la.l2",
+                                "PCB 153" = "lbx153la.l2",
+                                "PCB 170" = "lbx170la.l2",
+                                "PCB 180" = "lbx180la.l2",
+                                "PCB 187" = "lbx187la.l2",
+                                "PCB 194" = "lbx194la.l2",
+                                "1,2,3,6,7,8-hxcdd" = "lbxd03la.l2",
+                                "1,2,3,4,6,7,8-hpcdd" = "lbxd05la.l2",
+                               "1,2,3,4,6,7,8,9-ocdd" =  "lbxd07la.l2",
+                               "2,3,4,7,8-pncdf" =  "lbxf03la.l2",
+                               "1,2,3,4,7,8-hxcdf" =  "lbxf04la.l2",
+                               "1,2,3,6,7,8-hxcdf" =  "lbxf05la.l2",
+                               "1,2,3,4,6,7,8-hxcdf" =  "lbxf08la.l2",
+                               "PCB 169" =  "lbxhxcla.l2",
+                                "PCB 126" = "lbxpcbla.l2"),
+         Var2 = fct_recode(Var2, "PCB 74" = "lbx074la.l2",
+                                "PCB 99" = "lbx099la.l2",
+                                "PCB 118" = "lbx118la.l2",
+                                "PCB 138" = "lbx138la.l2",
+                                "PCB 153" = "lbx153la.l2",
+                                "PCB 170" = "lbx170la.l2",
+                                "PCB 180" = "lbx180la.l2",
+                                "PCB 187" = "lbx187la.l2",
+                                "PCB 194" = "lbx194la.l2",
+                                "1,2,3,6,7,8-hxcdd" = "lbxd03la.l2",
+                                "1,2,3,4,6,7,8-hpcdd" = "lbxd05la.l2",
+                               "1,2,3,4,6,7,8,9-ocdd" =  "lbxd07la.l2",
+                               "2,3,4,7,8-pncdf" =  "lbxf03la.l2",
+                               "1,2,3,4,7,8-hxcdf" =  "lbxf04la.l2",
+                               "1,2,3,6,7,8-hxcdf" =  "lbxf05la.l2",
+                               "1,2,3,4,6,7,8-hxcdf" =  "lbxf08la.l2",
+                               "PCB 169" =  "lbxhxcla.l2",
+                                "PCB 126" = "lbxpcbla.l2"))
+
+melted_cormat %>% 
+  mutate(Var1 = fct_relevel(Var1, "PCB 194", after = 8),
+         Var2 = fct_relevel(Var2, "PCB 194", after = 8),
+         Var1 = fct_relevel(Var1, "PCB 118", after = 8),
+         Var2 = fct_relevel(Var2, "PCB 118", after = 8)) %>% 
+ggplot(aes(Var1, Var2, fill = Correlation)) +
  geom_tile(color = "white") +
  scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
                       midpoint = 0, limit = c(0,1), space = "Lab", 
-                      name = "Pearson\nCorrelation") +
-  theme_minimal() + # minimal theme
+                      name = "Spearman\nCorrelation") +
+  theme_minimal(base_size = 15) + # minimal theme
   theme(axis.text.x = element_text(angle = 90, vjust = 1, size = 12, hjust = 1),
         axis.text.y = element_text(vjust = 1, size = 12, hjust = 1),
         axis.title.x = element_text(size = 15),
         axis.title.y = element_text(size = 15)) +
-  coord_fixed() + labs(x = "", y = "", title = "Correlation Heat Map of Pollutants")
+  coord_fixed() + labs(x = "", y = "")
+```
+
+```{r}
+melted_cormat %>% 
+ mutate(group3.1 = fct_relevel(group3.1, c("TEQ", "Non-Ortho PCB", "Non-Dioxin-like PCB"))) %>% 
+ ggplot(aes(Var1, Var2, fill = Correlation)) +
+ geom_tile(color = "white") +
+ scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
+                      midpoint = 0, limit = c(0,1), space = "Lab", 
+                      name = "Spearman\nCorrelation ") +
+  scale_x_discrete(expand = c(0, 0)) + 
+  scale_y_discrete(expand = c(0, 0)) + theme_bw() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1),
+        panel.spacing = unit(0, "lines"),
+        panel.border = element_rect(colour = "black", size=0.7),
+        strip.placement = "outside", 
+        legend.position = "bottom",
+        strip.background = element_rect(fill = "white")) +
+  labs(x = "", y = "") +
+  facet_grid(group3.2 ~ group3.1, scales = "free", space = "free",
+             labeller = labeller(group3.1 = label_wrap_gen(5),
+                                 group3.2 = label_wrap_gen(5)))
 ```
 
 ## K-Means Clustering
@@ -214,7 +287,7 @@ summary.km <- matrix(c(km1$totss, km2$totss, km3$totss, km5$totss, km10$totss, k
 colnames(summary.km) <- c("Total SS", "Total within cluster SS", "Between cluster SS")
 rownames(summary.km) <- c("km-1", "km-2", "km-3", "km-5", "km-10", "km-100")
 summary.km <- round(as.table(summary.km), 2) 
-summary.km <- kable(summary.km)
+summary.km <- knitr::kable(summary.km)
 summary.km
 ```
 
@@ -266,20 +339,41 @@ Plots of cluster means for K-means N=3 and N=5
 
 ```{r}
  #K-means N=3
-
 plot_chem_means %>% as.tibble() %>% rename(pop_mean = `colMeans(log.x)`) %>% 
   right_join(., plot_means_km3, by = c("Group", "chem")) %>% 
+  mutate(Cluster = as.factor(Cluster),
+         Cluster = fct_recode(Cluster, "Cluster 1" = "1",
+         "Cluster 2" = "2",
+         "Cluster 3" = "3")) %>%
+  mutate(chem = fct_recode(chem, "PCB 74" = "lbx074la.l2",
+                                "PCB 99" = "lbx099la.l2",
+                                "PCB 118" = "lbx118la.l2",
+                                "PCB 138" = "lbx138la.l2",
+                                "PCB 153" = "lbx153la.l2",
+                                "PCB 170" = "lbx170la.l2",
+                                "PCB 180" = "lbx180la.l2",
+                                "PCB 187" = "lbx187la.l2",
+                                "PCB 194" = "lbx194la.l2",
+                                "1,2,3,6,7,8-hxcdd" = "lbxd03la.l2",
+                                "1,2,3,4,6,7,8-hpcdd" = "lbxd05la.l2",
+                               "1,2,3,4,6,7,8,9-ocdd" =  "lbxd07la.l2",
+                               "2,3,4,7,8-pncdf" =  "lbxf03la.l2",
+                               "1,2,3,4,7,8-hxcdf" =  "lbxf04la.l2",
+                               "1,2,3,6,7,8-hxcdf" =  "lbxf05la.l2",
+                               "1,2,3,4,6,7,8-hxcdf" =  "lbxf08la.l2",
+                               "PCB 169" =  "lbxhxcla.l2",
+                                "PCB 126" = "lbxpcbla.l2")) %>% 
   ggplot(aes(x = chem, y = mean, fill = Group)) + geom_col() +
   geom_point(aes(y = pop_mean), size = 1) +
   facet_wrap(~ Cluster) + theme_bw() + 
   theme(legend.position = "bottom", axis.text.x = element_text(angle = 90, hjust = 1),
-        plot.caption = element_text(size = 11, hjust = 0)) +
+        plot.caption = element_text(size = 11, hjust = 0),
+        strip.background = element_rect(fill = "white")) +
   geom_hline(yintercept = 0, size = 0.2) +
-  labs(title = "Cluster means, N = 3", x = "Chemicals",
+  labs(x = "Chemicals",
        y = "Mean", caption = "*Points indicate population means")
 
 #k-means N=5
-
 plot_chem_means %>% as.tibble() %>% rename(pop_mean = `colMeans(log.x)`) %>% 
   right_join(., plot_means_km5, by = c("Group", "chem")) %>% 
   ggplot(aes(x = chem, y = mean, fill = Group)) + geom_col() +
@@ -360,14 +454,16 @@ Combine clusters grouping with original data outcome and covariants for K-means 
 ```{r}
 clu.group3 <- km3$cluster #cluster group
 
-pop_clus3 <- as.tibble((cbind(pop, clu.group3)))
+pop_clus3 <- as.tibble((cbind(pop, clu.group3))) %>% 
+  mutate(clu.group3 = as.factor(clu.group3)) %>% 
+  mutate(clu.group3 = fct_relevel(clu.group3, ref = "3"))
 table(pop_clus3$clu.group3)
 ```
 
 Put 3 clusters (categorical) into a linear regression w/ covariates to estimate association with LTL.
 
 ```{r}
-health_model_kmeans3 <- lm(logtelomean ~ as.factor(clu.group3) + age_cent + age_sq +
+health_model_kmeans3 <- lm(logtelomean ~ clu.group3 + age_cent + age_sq +
      lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct +
      as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = pop_clus3)
 
@@ -386,8 +482,8 @@ health_model_kmeans3 %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
 
 ```{r}
 health_model_kmeans3 %>% broom::tidy() %>% as.tibble() %>% filter(grepl("clu.group", term)) %>% 
-  mutate(term = ifelse(term == "as.factor(clu.group3)2", "Cluster 2", "Cluster 3")) %>% 
-      rbind(., c("Cluster 1", 0, 0, 0, 0)) %>% 
+  mutate(term = ifelse(term == "clu.group32", "Cluster 2", "Cluster 1")) %>% 
+      rbind(., c("Cluster 3", 0, 0, 0, 0)) %>% 
   mutate(estimate = as.numeric(estimate),
          std.error = as.numeric(std.error)) %>% 
   ggplot(aes(x = term, y = estimate, color = term,
@@ -477,14 +573,17 @@ Combine clusters grouping with original data outcome and covariants for clusters
 
 ```{r}
 hc.clusters.3 = cutree(hc.complete, 3)
-hc_health_3 <- as.tibble(cbind(pop, hc.clusters.3))
-table(hc.clusters.3)
+hc_health_3 <- as.tibble(cbind(pop, hc.clusters.3)) %>% 
+  mutate(hc.clusters.3 = as.factor(hc.clusters.3)) %>% 
+  mutate(hc.clusters.3 = fct_relevel(hc.clusters.3, ref = "3"))
+
+table(hc_health_3$hc.clusters.3)
 ```
 
 Put 3 clusters (categorical) into a linear regression w/ covariates to estimate association with LTL.
 
 ```{r}
-health_model_hc3 <- lm(logtelomean ~ as.factor(hc.clusters.3) +
+health_model_hc3 <- lm(logtelomean ~ hc.clusters.3 +
      lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct + age_cent + age_sq +
      as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = hc_health_3)
 
@@ -505,8 +604,8 @@ Health model
 
 ```{r}
 health_model_hc3 %>% broom::tidy() %>% as.tibble() %>% filter(grepl("cluster", term)) %>% 
-  mutate(term = ifelse(term == "as.factor(hc.clusters.3)2", "Cluster 2", "Cluster 3")) %>%
-      rbind(., c("Cluster 1", 0, 0, 0, 0)) %>% 
+  mutate(term = ifelse(term == "hc.clusters.32", "Cluster 2", "Cluster 1")) %>%
+      rbind(., c("Cluster 3", 0, 0, 0, 0)) %>% 
   mutate(estimate = as.numeric(estimate),
          std.error = as.numeric(std.error)) %>% 
 
@@ -519,7 +618,7 @@ health_model_hc3 %>% broom::tidy() %>% as.tibble() %>% filter(grepl("cluster", t
   labs(y = "Estimate", x = "Cluster Membership", title = "Association between Clusters and LTL")
 ```
 
-Visualization of Hierarchical clustering N=3 
+Visualization of Hierarchical clustering N = 3 
 
 Means of the pollutants in each cluster compare to the mean of the chemicals in the entired population to identified in which clusters individuals 
 are located based on exposure. We see that in cluster 1, we find individuals that have means of chemical higher than the chemical mean in the entire population. In the case of cluster 2, most of the observations within this cluster very similar chemical concentrations to the mean of the chemical in the entire popullation. In the third cluster, we see that most of the individuals within this cluster have chemical means below the chemical means of the entire population.  
@@ -527,7 +626,7 @@ are located based on exposure. We see that in cluster 1, we find individuals tha
 ```{r}
 hc3.cl <- aggregate(as.matrix(log.x) ~ as.factor(hc.clusters.3), data = hc_health_3, FUN = mean)[,-1]
  
-hc3.cl              <- as.data.frame.matrix(t(hc3.cl))
+hc3.cl <- as.data.frame.matrix(t(hc3.cl))
 hc3.cl$chem <- row.names(hc3.cl)
  
 means_hc3 <- hc3.cl %>%
@@ -538,6 +637,7 @@ means_hc3 <- hc3.cl %>%
                                              ifelse(grepl("lbxh", chem), "Non-Ortho PCB", "TEQ"))))))
  
 plot_means_hc3 <- means_hc3 %>%
+  rename("Cluster 3" = V1, "Cluster 2" = V2, "Cluster 1" = V3) %>% 
   gather(key = "Cluster", value = "mean", -chem, -Group) %>% as.tibble()
  
 plot_chem_means %>% as.tibble() %>% rename(pop_mean = `colMeans(log.x)`) %>%
@@ -550,5 +650,4 @@ plot_chem_means %>% as.tibble() %>% rename(pop_mean = `colMeans(log.x)`) %>%
   geom_hline(yintercept = 0, size = 0.2) +
   labs(title = "Cluster means, N = 3", x = "Chemicals",
        y = "Mean", caption = "*Points indicate population means")
- 
 ```

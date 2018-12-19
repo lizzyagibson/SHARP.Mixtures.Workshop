@@ -150,7 +150,7 @@ fit %>% knitr::kable()
 
 ## Parameters
 
-Choose Promax 5 factor model based on fit statistics and interpretability.
+Choose Promax 4 factor model based on fit statistics and interpretability.
 
 ```{r}
 loadings <- as.tibble(cbind(rownames(fa_4_p$loadings[]), fa_4_p$loadings[])) %>% 
@@ -180,6 +180,12 @@ scores %>% filter(Max == "MR2") %>% count()
 scores %>% filter(Max == "MR3") %>% count()
 scores %>% filter(Max == "MR4") %>% count()
 
+```
+
+## Factor Correlation
+
+```{r}
+scores %>% dplyr::select(-Max) %>% corr.test()
 ```
 
 ## Data Visualization
@@ -217,11 +223,34 @@ plot_loadings <- loadings %>%
   gather(key = "Factor", value = "Loading", -Variable, -Group)
 
 plot_loadings %>% 
+  mutate(Factor = as.factor(Factor),
+         Factor = fct_recode(Factor, "Factor 1" = "MR1",
+         "Factor 2" = "MR2",
+         "Factor 3" = "MR3",
+         "Factor 4" = "MR4")) %>% 
+  mutate(Variable = fct_recode(Variable, "PCB 74" = "lbx074la",
+                                "PCB 99" = "lbx099la",
+                                "PCB 118" = "lbx118la",
+                                "PCB 138" = "lbx138la",
+                                "PCB 153" = "lbx153la",
+                                "PCB 170" = "lbx170la",
+                                "PCB 180" = "lbx180la",
+                                "PCB 187" = "lbx187la",
+                                "PCB 194" = "lbx194la",
+                                "1,2,3,6,7,8-hxcdd" = "lbxd03la",
+                                "1,2,3,4,6,7,8-hpcdd" = "lbxd05la",
+                               "1,2,3,4,6,7,8,9-ocdd" =  "lbxd07la",
+                               "2,3,4,7,8-pncdf" =  "lbxf03la",
+                               "1,2,3,4,7,8-hxcdf" =  "lbxf04la",
+                               "1,2,3,6,7,8-hxcdf" =  "lbxf05la",
+                               "1,2,3,4,6,7,8-hxcdf" =  "lbxf08la",
+                               "PCB 169" =  "lbxhxcla",
+                                "PCB 126" = "lbxpcbla")) %>% 
   ggplot(aes(x = Variable, y = Loading, fill = Group)) + geom_col() +
   facet_wrap(~ Factor) + theme_bw() + 
-  theme(legend.position = "bottom", axis.text.x = element_text(angle = 90, hjust = 1)) +
-  coord_flip() + geom_hline(yintercept = 0, size = 0.2) +
-  labs(title = "Variable Loadings on All Factors")
+  theme(legend.position = "bottom", axis.text.x = element_text(angle = 90, hjust = 1),
+        strip.background = element_rect(fill = "white")) +
+  coord_flip() + geom_hline(yintercept = 0, size = 0.2)
 
 plot_loadings %>% 
   ggplot(aes(x = Factor, y = Loading, fill = Factor)) + geom_col(position = "dodge") +
@@ -235,6 +264,11 @@ plot_loadings %>%
 scores %>% ggplot(aes(x = Max, fill = Max)) + geom_bar() +
   labs(x = "Factors", y = "Number of Individuals", title = "Number with Highest Scores per Factor") +
   theme_bw() + theme(legend.position = "none")
+
+scores %>% group_by(Max) %>% summarise(n())
+
+scores %>% gather(key = "factor", value = "score", MR1:MR4) %>% dplyr::select(-Max) %>% 
+  ggplot(aes(x = score)) + geom_density() + facet_grid(factor~.)
 ```
 
 ## Health Models

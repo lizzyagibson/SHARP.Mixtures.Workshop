@@ -469,9 +469,10 @@ dimnames(coef_lasso)[[1]][which(coef_lasso != 0)]</code></pre>
 ## [16] &quot;edu_cat4&quot;    &quot;race_cat2&quot;   &quot;race_cat3&quot;   &quot;race_cat4&quot;   &quot;male1&quot;      
 ## [21] &quot;ln_lbxcot&quot;   &quot;age_cent&quot;    &quot;age_sq&quot;</code></pre>
 <pre class="r"><code># Find the MSE
-lasso_mse = cv.lasso$lambda.1se
+lasso.pred &lt;-  predict(lasso.mod, newx = x)
+lasso_mse &lt;- mean((lasso.pred - y)^2)
 lasso_mse</code></pre>
-<pre><code>## [1] 0.01142263</code></pre>
+<pre><code>## [1] 0.03937969</code></pre>
 <p>The final code chunk saves the best lasso coefficients for later use.</p>
 <pre class="r"><code>lasso_beta = cbind(rownames(coef_lasso), as.vector(coef_lasso)) %&gt;% 
   as.tibble() %&gt;% 
@@ -584,9 +585,10 @@ dimnames(coef_elnet)[[1]][which(coef_elnet != 0)]</code></pre>
 ## [16] &quot;edu_cat3&quot;    &quot;edu_cat4&quot;    &quot;race_cat2&quot;   &quot;race_cat3&quot;   &quot;race_cat4&quot;  
 ## [21] &quot;male1&quot;       &quot;ln_lbxcot&quot;   &quot;age_cent&quot;    &quot;age_sq&quot;</code></pre>
 <pre class="r"><code># Find the MSE
-elnet_mse = cv.elnet$lambda.1se
+elnet.pred &lt;-  predict(elnet.mod, newx = x)
+elnet_mse &lt;- mean((elnet.pred - y)^2)
 elnet_mse</code></pre>
-<pre><code>## [1] 0.01427828</code></pre>
+<pre><code>## [1] 0.03936027</code></pre>
 <p>The final code chunk saves the best lasso coefficients for later use.</p>
 <pre class="r"><code>enet_beta &lt;- cbind(rownames(coef_elnet), as.vector(coef_elnet)) %&gt;% 
   as.tibble() %&gt;% 
@@ -616,9 +618,9 @@ knitr::kable(compare, align = &quot;c&quot;)</code></pre>
 <tbody>
 <tr class="odd">
 <td align="center">0.0034081</td>
-<td align="center">0.0114226</td>
+<td align="center">0.0393797</td>
 <td align="center">0.0038817</td>
-<td align="center">0.0142783</td>
+<td align="center">0.0393603</td>
 </tr>
 </tbody>
 </table>
