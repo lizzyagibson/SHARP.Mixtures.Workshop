@@ -13,21 +13,20 @@ heatmap <- melted_cormat %>%
   geom_tile(color = "white") +
   scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
                        midpoint = 0, limit = c(0,1), space = "Lab", 
-                       name = "Pearson\nCorrelation ") +
+                       name = "Correlation ") +
   scale_x_discrete(expand = c(0, 0)) + 
-  scale_y_discrete(expand = c(0, 0)) + theme_bw(base_size = 19) +
+  scale_y_discrete(expand = c(0, 0)) + theme_bw(base_size = 20) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1),
         panel.spacing = unit(0, "lines"),
         panel.border = element_rect(colour = "black", size=0.7),
         strip.placement = "outside", 
-        legend.position = "bottom",
         strip.background = element_rect(fill = "white")) +
   labs(x = "", y = "") +
   facet_grid(group3.2 ~ group3.1, scales = "free", space = "free",
              labeller = labeller(group3.1 = label_wrap_gen(5),
                                  group3.2 = label_wrap_gen(5)))
 
-png("./Unsupervised/heatmap.png", width = 1000, height = 1000)
+png("./Unsupervised/heatmap.png", width = 1400, height = 1300, res = 90)
 heatmap
 dev.off()
 
@@ -409,6 +408,13 @@ result2$final_weights %>%
   labs(y = "Weights", x = "")
 dev.off()
 
+### Heatmap
 
+melted_cormat %>% as.tibble() %>% 
+  arrange(desc(Correlation)) %>%
+  filter(group3.1 == "Non-Dioxin-like PCB" & group3.2 == "Non-Dioxin-like PCB") %>% 
+  View()
 
+library(Hmisc)
+rcorr(corrtest, type = "spearman")
 
