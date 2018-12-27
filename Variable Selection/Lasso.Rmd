@@ -58,6 +58,7 @@ data_lasso = study_pop %>%
 names(data_lasso)
 
 dim(data_lasso)
+
 ```
 
 Model fitting methods aren't "tidy-compliant" yet, so we'll focus on creating the relevant matrices and vectors. 
@@ -126,6 +127,7 @@ coef(lasso.mod)[,10]
 Some built-in functions will conduct a cross-validation analysis and identify the "best" tuning parameter.
 
 ```{r}
+set.seed(2)
 # n-folds is set to a default of 10 for cv.glmnet
 cv.out = cv.glmnet(x, y, alpha = 1)
 
