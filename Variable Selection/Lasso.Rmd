@@ -43,7 +43,6 @@ Quick data descriptions; because of the length of the output, we don't execute t
 ```{r, eval = FALSE}
 
 describe(study_pop)
-
 ```
 
 Next we remove missing values and reorder predictors (environmental variables first, confounders second). In keeping with standard practice, we'll ln-transform the environmental exposures and the outcome. This is the dataset we'll use to illustrate variable selection methods. 
@@ -58,7 +57,6 @@ data_lasso = study_pop %>%
 names(data_lasso)
 
 dim(data_lasso)
-
 ```
 
 Model fitting methods aren't "tidy-compliant" yet, so we'll focus on creating the relevant matrices and vectors. 
@@ -136,7 +134,6 @@ coef(cv.out)
 
 best_lambda = cv.out$lambda.min
 best_lambda
-
 ```
 
 Optional arguments to `glmnet` can be useful -- in particular, `weights` can be used in the context of the adaptive lasso and `penalty.factor` can separate penalized variables from confounders. 
