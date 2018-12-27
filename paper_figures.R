@@ -26,7 +26,7 @@ heatmap <- melted_cormat %>%
              labeller = labeller(group3.1 = label_wrap_gen(5),
                                  group3.2 = label_wrap_gen(5)))
 
-png("./Unsupervised/heatmap.png", width = 1400, height = 1300, res = 90)
+png("./Figures/heatmap.png", width = 1400, height = 1300, res = 90)
 heatmap
 dev.off()
 
@@ -64,7 +64,7 @@ pca_plot <- plot_loadings_pca %>%
   labs(x = "Chemicals",
        y = "Loadings")
 
-png("./Unsupervised/pca_plot.png", width = 1100, height = 800)
+png("./Figures/pca_plot.png", width = 1100, height = 800)
 pca_plot
 dev.off()
 
@@ -95,22 +95,21 @@ plot3 <- plot_chem_means %>% as.tibble() %>% rename(pop_mean = `colMeans(log.x)`
                            "PCB 169" =  "lbxhxcla.l2",
                            "PCB 126" = "lbxpcbla.l2")) %>% 
   ggplot(aes(x = chem, y = mean, fill = Group)) + geom_col() +
-  geom_point(aes(y = pop_mean), size = 1) +
+  geom_point(aes(y = pop_mean), size = 2) +
   facet_wrap(~ Cluster) + theme_bw(base_size = 20) + 
   theme(legend.position = "bottom", axis.text.x = element_text(angle = 90, hjust = 1),
-        plot.caption = element_text(size = 11, hjust = 0),
         strip.background = element_rect(fill = "white")) +
   geom_hline(yintercept = 0, size = 0.2) +
   labs(x = "Chemicals",
        y = "Mean")
 
-png("./Unsupervised/clusters.png", width = 1100, height = 800)
+png("./Figures/clusters.png", width = 1300, height = 800, res = 100)
 plot3
 dev.off()
 
 ### Hierarchical Clustering
 
-png("./Unsupervised/hier_branches.png", width = 900, height = 800)
+png("./Figures/hier_branches.png", width = 900, height = 800)
 dendro.complete %>% color_branches(k = 3) %>% 
   plot(main = "Complete Linkage", ylab = "Height", leaflab = "none")
 abline(h = 11.25, lty = 3)
@@ -148,7 +147,7 @@ efa_plot <- plot_loadings %>%
         strip.background = element_rect(fill = "white")) +
   geom_hline(yintercept = 0, size = 0.2)
 
-png("./Unsupervised/efa_plot.png", width = 1000, height = 1000)
+png("./Figures/efa_plot.png", width = 1000, height = 1000)
 efa_plot
 dev.off()
 
@@ -165,7 +164,7 @@ vs_plot <- plot_all %>%
        x = "Variables", 
        color = "POP Group")
 
-png("./Variable Selection/vs_plot.png", width = 900, height = 1000, res = 90)
+png("./Figures/vs_plot.png", width = 900, height = 1000, res = 90)
 vs_plot
 dev.off()
 
@@ -173,7 +172,7 @@ dev.off()
 
 ### Univariable
 
-png("./BKMR/bkmr_univar.png", width = 1300, height = 1300, res = 80)
+png("./Figures/bkmr_univar.png", width = 1300, height = 1300, res = 80)
 pred.resp.univar %>% 
   mutate(Group = ifelse(variable == "PCB118", "TEQ", 
                   ifelse(grepl("Dioxin", variable), "TEQ",
@@ -209,7 +208,7 @@ dev.off()
 
 ### Bivariable 1 & 2
 
-png("./BKMR/bkmr_bivar.png", width = 2000, height = 2000)
+png("./Figures/bkmr_bivar.png", width = 2000, height = 2000)
 pred.resp.bivar %>% 
   mutate(variable1 = fct_recode(variable1, "PCB 74" = "PCB74",
                                 "PCB 99" = "PCB99",
@@ -260,7 +259,7 @@ pred.resp.bivar %>%
         panel.spacing = unit(0.05, "lines"))
 dev.off()
 
-png("./BKMR/bkmr_bivar2.png", width = 2000, height = 2000)
+png("./Figures/bkmr_bivar2.png", width = 2000, height = 2000)
 pred.resp.bivar.levels %>% 
   mutate(variable1 = fct_recode(variable1, "PCB 74" = "PCB74",
                                 "PCB 99" = "PCB99",
@@ -311,7 +310,7 @@ dev.off()
 
 ### Overall
 
-png("./BKMR/bkmr_overall.png", width = 1000, height = 1000)
+png("./Figures/bkmr_overall.png", width = 1000, height = 1000)
 ggplot(risks.overall, aes(quantile, est, ymin = est - 1.96*sd, ymax = est + 1.96*sd)) +  
   geom_hline(yintercept=00, linetype="dashed", color="gray") + 
   geom_pointrange() + theme_bw(base_size = 25) +
@@ -320,7 +319,7 @@ dev.off()
 
 ### Interaction 1 & 2
 
-png("./BKMR/bkmr_int.png", width = 900, height = 1200)
+png("./Figures/bkmr_int.png", width = 900, height = 1200)
 risks.singvar %>% mutate(variable = fct_recode(variable, "PCB 74" = "PCB74",
                                                "PCB 99" = "PCB99",
                                                "PCB 118" = "PCB118",
@@ -346,7 +345,7 @@ risks.singvar %>% mutate(variable = fct_recode(variable, "PCB 74" = "PCB74",
   labs(x = "", y = "Estimate", col = "Fixed Quantile")
 dev.off()
 
-png("./BKMR/bkmr_int2.png", width = 900, height = 1200)
+png("./Figures/bkmr_int2.png", width = 900, height = 1200)
 risks.int %>% mutate(variable = fct_recode(variable, "PCB 74" = "PCB74",
                                            "PCB 99" = "PCB99",
                                            "PCB 118" = "PCB118",
@@ -373,7 +372,7 @@ dev.off()
 
 ## WQS
 
-png("./WQS/wqs_weights.png", width = 1000, height = 1000, res = 80)
+png("./Figures/wqs_weights.png", width = 1000, height = 1000, res = 80)
 result2$final_weights %>% 
   mutate(Group = ifelse(mix_name == "LBX118LA", "TEQ", 
                   ifelse(grepl("LBX1", mix_name), "Non-Dioxin-like PCB",
