@@ -28,6 +28,8 @@ library(factoextra)
 library(dplyr)
 #install.packages("knitr")
 library(knitr)
+
+options(scipen = 999)
 ```
 
 # Data Import and Cleaning
@@ -194,6 +196,8 @@ health_model_pca %>% broom::tidy() %>% mutate(
   p.value = round(p.value, 4))
 
 health_model_pca %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
+
+confint(health_model_pca)
 ```
 
 ### Plot Model

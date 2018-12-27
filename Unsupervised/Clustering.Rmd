@@ -33,6 +33,9 @@ library(dendextend)
 library(pryr)
 #install.packages("reshape2")
 library(reshape2)
+
+#This turns off scientific notation
+options(scipen = 999)
 ```
 
 ## Data Import and Cleaning
@@ -43,7 +46,7 @@ library(reshape2)
 #Or change file path to match your computer
 studypop <- read_csv("../Data/studypop.csv") %>% 
   clean_names() %>% 
-  na.omit()%>%
+  na.omit() %>%
   mutate(bmi_cat3 = as.factor(bmi_cat3),
   edu_cat = as.factor(edu_cat),
   race_cat = as.factor(race_cat),
@@ -419,6 +422,8 @@ health_model_kmeans5 %>% broom::tidy() %>% mutate(
   p.value = round(p.value, 4))
 
 health_model_kmeans5 %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
+
+confint(health_model_kmeans5)
 ```
 
 ##### Plot
@@ -468,6 +473,8 @@ health_model_kmeans3 %>% broom::tidy() %>% mutate(
   p.value = round(p.value, 4))
 
 health_model_kmeans3 %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
+
+confint(health_model_kmeans3)
 ```
 
 ##### Plot
@@ -586,6 +593,8 @@ health_model_hc3 %>% broom::tidy() %>% mutate(
   p.value = round(p.value, 4))
 
 health_model_hc3 %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
+
+confint(health_model_hc3)
 ```
 
 
