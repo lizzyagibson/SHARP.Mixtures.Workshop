@@ -61,10 +61,10 @@ pca_plot <- plot_loadings_pca %>%
   theme(legend.position = "bottom", axis.text.x = element_text(angle = 90, hjust = 1),
         strip.background = element_rect(fill = "white")) +
   geom_hline(yintercept = 0, size = 0.2) +
-  labs(x = "Chemicals",
+  labs(x = "Congeners",
        y = "Loadings")
 
-png("./Figures/pca_plot.png", width = 1100, height = 800)
+png("./Figures/pca_plot.png", width = 1200, height = 1000, res = 100)
 pca_plot
 dev.off()
 
@@ -100,10 +100,10 @@ plot3 <- plot_chem_means %>% as.tibble() %>% rename(pop_mean = `colMeans(log.x)`
   theme(legend.position = "bottom", axis.text.x = element_text(angle = 90, hjust = 1),
         strip.background = element_rect(fill = "white")) +
   geom_hline(yintercept = 0, size = 0.2) +
-  labs(x = "Chemicals",
+  labs(x = "Congeners",
        y = "Mean")
 
-png("./Figures/clusters.png", width = 1300, height = 800, res = 100)
+png("./Figures/clusters.png", width = 1300, height = 900, res = 100)
 plot3
 dev.off()
 
@@ -145,9 +145,10 @@ efa_plot <- plot_loadings %>%
   facet_wrap(~ Factor) + theme_bw(base_size = 25) + 
   theme(legend.position = "bottom", axis.text.x = element_text(angle = 90, hjust = 1),
         strip.background = element_rect(fill = "white")) +
+  labs(y = "Loadings", x = "Congeners") +
   geom_hline(yintercept = 0, size = 0.2)
 
-png("./Figures/efa_plot.png", width = 1000, height = 1000)
+png("./Figures/efa_plot.png", width = 1000, height = 1200, res = 100)
 efa_plot
 dev.off()
 
@@ -161,10 +162,10 @@ vs_plot <- plot_all %>%
   theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "bottom",
         strip.background = element_rect(fill = "white")) +
   labs(y = "Beta Coefficients",
-       x = "Variables", 
+       x = "Congeners", 
        color = "POP Group")
 
-png("./Figures/vs_plot.png", width = 900, height = 1000, res = 90)
+png("./Figures/vs_plot.png", width = 1000, height = 1100, res = 100)
 vs_plot
 dev.off()
 
@@ -172,7 +173,7 @@ dev.off()
 
 ### Univariable
 
-png("./Figures/bkmr_univar.png", width = 1300, height = 1300, res = 80)
+png("./Figures/bkmr_univar.png", width = 1500, height = 1600, res = 100)
 pred.resp.univar %>% 
   mutate(Group = ifelse(variable == "PCB118", "TEQ", 
                   ifelse(grepl("Dioxin", variable), "TEQ",
@@ -202,8 +203,8 @@ pred.resp.univar %>%
   facet_wrap(~ variable) + theme_bw(base_size = 25) +
   theme(strip.background = element_rect(fill = "white"),
         legend.position = "bottom",
-        axis.title = element_text(size = 30)) +
-  labs(x = "Exposure", y = "Estimate")
+        axis.title = element_text(size = 45)) +
+  labs(x = "Congeners", y = "Estimates")
 dev.off()
 
 ### Bivariable 1 & 2
@@ -310,11 +311,11 @@ dev.off()
 
 ### Overall
 
-png("./Figures/bkmr_overall.png", width = 1000, height = 1000)
+png("./Figures/bkmr_overall.png", width = 1000, height = 1000, res = 100)
 ggplot(risks.overall, aes(quantile, est, ymin = est - 1.96*sd, ymax = est + 1.96*sd)) +  
   geom_hline(yintercept=00, linetype="dashed", color="gray") + 
   geom_pointrange() + theme_bw(base_size = 25) +
-  labs(x = "Quantile", y = "Estimate")
+  labs(x = "Quantile", y = "Estimates")
 dev.off()
 
 ### Interaction 1 & 2
@@ -404,16 +405,7 @@ result2$final_weights %>%
   theme(axis.ticks = element_blank(),
         axis.text.x = element_text(color='black'),
         legend.position = "bottom") + coord_flip() + 
-  labs(y = "Weights", x = "")
+  labs(y = "Weights", x = "Congeners")
 dev.off()
 
-### Heatmap
-
-melted_cormat %>% as.tibble() %>% 
-  arrange(desc(Correlation)) %>%
-  filter(group3.1 == "Non-Dioxin-like PCB" & group3.2 == "Non-Dioxin-like PCB") %>% 
-  View()
-
-library(Hmisc)
-rcorr(corrtest, type = "spearman")
 
