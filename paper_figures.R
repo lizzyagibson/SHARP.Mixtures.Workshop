@@ -8,6 +8,42 @@
 ### Heatmap
 
 heatmap <- melted_cormat %>% 
+  mutate(Var1 = fct_relevel(Var1, c("PCB 194",
+                                    "PCB 187",
+                                    "PCB 180",
+                                    "PCB 170",
+                                    "PCB 153",
+                                    "PCB 138",
+                                    "PCB 99",
+                                    "PCB 74",
+                                    "PCB 169",
+                                    "PCB 126",
+                                    "1,2,3,4,6,7,8-hxcdf",
+                                    "1,2,3,6,7,8-hxcdf",
+                                    "1,2,3,4,7,8-hxcdf",
+                                    "2,3,4,7,8-pncdf",
+                                    "1,2,3,4,6,7,8,9-ocdd",
+                                    "1,2,3,4,6,7,8-hpcdd",
+                                    "1,2,3,6,7,8-hxcdd",
+                                    "PCB 118")),
+         Var2 = fct_relevel(Var2, c("PCB 194",
+                                    "PCB 187",
+                                    "PCB 180",
+                                    "PCB 170",
+                                    "PCB 153",
+                                    "PCB 138",
+                                    "PCB 99",
+                                    "PCB 74",
+                                    "PCB 169",
+                                    "PCB 126",
+                                    "1,2,3,4,6,7,8-hxcdf",
+                                    "1,2,3,6,7,8-hxcdf",
+                                    "1,2,3,4,7,8-hxcdf",
+                                    "2,3,4,7,8-pncdf",
+                                    "1,2,3,4,6,7,8,9-ocdd",
+                                    "1,2,3,4,6,7,8-hpcdd",
+                                    "1,2,3,6,7,8-hxcdd",
+                                    "PCB 118"))) %>% 
   mutate(group3.1 = fct_relevel(group3.1, c("TEQ", "Non-Ortho PCB", "Non-Dioxin-like PCB"))) %>% 
   ggplot(aes(Var1, Var2, fill = Correlation)) +
   geom_tile(color = "white") +
@@ -56,6 +92,24 @@ pca_plot <- plot_loadings_pca %>%
                            "1,2,3,4,6,7,8-hxcdf" =  "lbxf08la.l2",
                            "PCB 169" =  "lbxhxcla.l2",
                            "PCB 126" = "lbxpcbla.l2")) %>% 
+  mutate(chem = fct_relevel(chem, c("PCB 74",
+                                    "PCB 99",
+                                    "PCB 138",
+                                    "PCB 153",
+                                    "PCB 170",
+                                    "PCB 180",
+                                    "PCB 187",
+                                    "PCB 194",
+                                    "PCB 126",
+                                    "PCB 169",
+                                    "PCB 118",
+                                    "1,2,3,6,7,8-hxcdd",
+                                    "1,2,3,4,6,7,8-hpcdd",
+                                    "1,2,3,4,6,7,8,9-ocdd",
+                                    "2,3,4,7,8-pncdf",
+                                    "1,2,3,4,7,8-hxcdf",
+                                    "1,2,3,6,7,8-hxcdf",
+                                    "1,2,3,4,6,7,8-hxcdf"))) %>% 
   ggplot(aes(x = chem, y = Loading, fill = Group)) + geom_col() +
   facet_wrap(~ PC) + theme_bw(base_size = 20) + 
   theme(legend.position = "bottom", axis.text.x = element_text(angle = 90, hjust = 1),
@@ -94,6 +148,24 @@ plot3 <- plot_chem_means %>% as.tibble() %>% rename(pop_mean = `colMeans(log.x)`
                            "1,2,3,4,6,7,8-hxcdf" =  "lbxf08la.l2",
                            "PCB 169" =  "lbxhxcla.l2",
                            "PCB 126" = "lbxpcbla.l2")) %>% 
+  mutate(chem = fct_relevel(chem, c("PCB 74",
+                                             "PCB 99",
+                                             "PCB 138",
+                                             "PCB 153",
+                                             "PCB 170",
+                                             "PCB 180",
+                                             "PCB 187",
+                                             "PCB 194",
+                                             "PCB 126",
+                                             "PCB 169",
+                                             "PCB 118",
+                                             "1,2,3,6,7,8-hxcdd",
+                                             "1,2,3,4,6,7,8-hpcdd",
+                                             "1,2,3,4,6,7,8,9-ocdd",
+                                             "2,3,4,7,8-pncdf",
+                                             "1,2,3,4,7,8-hxcdf",
+                                             "1,2,3,6,7,8-hxcdf",
+                                             "1,2,3,4,6,7,8-hxcdf"))) %>% 
   ggplot(aes(x = chem, y = mean, fill = Group)) + geom_col() +
   geom_point(aes(y = pop_mean), size = 2) +
   facet_wrap(~ Cluster) + theme_bw(base_size = 20) + 
@@ -141,6 +213,24 @@ efa_plot <- plot_loadings %>%
                                "1,2,3,4,6,7,8-hxcdf" =  "lbxf08la",
                                "PCB 169" =  "lbxhxcla",
                                "PCB 126" = "lbxpcbla")) %>% 
+  mutate(Variable = fct_relevel(Variable, c("PCB 74",
+                                    "PCB 99",
+                                    "PCB 138",
+                                    "PCB 153",
+                                    "PCB 170",
+                                    "PCB 180",
+                                    "PCB 187",
+                                    "PCB 194",
+                                    "PCB 126", 
+                                    "PCB 169",
+                                    "PCB 118",
+                                    "1,2,3,6,7,8-hxcdd",
+                                    "1,2,3,4,6,7,8-hpcdd",
+                                    "1,2,3,4,6,7,8,9-ocdd",
+                                    "2,3,4,7,8-pncdf",
+                                    "1,2,3,4,7,8-hxcdf",
+                                    "1,2,3,6,7,8-hxcdf",
+                                    "1,2,3,4,6,7,8-hxcdf"))) %>% 
   ggplot(aes(x = Variable, y = Loading, fill = Group)) + geom_col() +
   facet_wrap(~ Factor) + theme_bw(base_size = 25) + 
   theme(legend.position = "bottom", axis.text.x = element_text(angle = 90, hjust = 1),
@@ -155,6 +245,24 @@ dev.off()
 ## Variable Selection
 
 vs_plot <- plot_all %>% 
+  mutate(variable = fct_relevel(variable, c("PCB 194",
+                                            "PCB 187",
+                                            "PCB 180",
+                                            "PCB 170",
+                                            "PCB 153",
+                                            "PCB 138",
+                                            "PCB 99",
+                                            "PCB 74",
+                                            "PCB 169",
+                                            "PCB 126",
+                                            "1,2,3,4,6,7,8-hxcdf",
+                                            "1,2,3,6,7,8-hxcdf",
+                                            "1,2,3,4,7,8-hxcdf",
+                                            "2,3,4,7,8-pncdf",
+                                            "1,2,3,4,6,7,8,9-ocdd",
+                                            "1,2,3,4,6,7,8-hpcdd",
+                                            "1,2,3,6,7,8-hxcdd",
+                                            "PCB 118"))) %>% 
   ggplot(aes(x = variable, y = beta)) + geom_point(aes(color = group3), size = 2.5) +
   geom_hline(yintercept = 0, color = "grey", linetype = "dashed") + theme_bw(base_size = 18) +
   facet_grid(group3 ~ method, scales="free_y", space = "free_y",
@@ -198,6 +306,24 @@ pred.resp.univar %>%
                                "1,2,3,4,6,7,8-hxcdf" =  "Furan4",
                                "PCB 169" =  "PCB169",
                                "PCB 126" = "PCB126")) %>% 
+  mutate(variable = fct_relevel(variable, c("PCB 74",
+                                    "PCB 99",
+                                    "PCB 138",
+                                    "PCB 153",
+                                    "PCB 170",
+                                    "PCB 180",
+                                    "PCB 187",
+                                    "PCB 194",
+                                    "PCB 126", 
+                                    "PCB 169",
+                                    "PCB 118",
+                                    "1,2,3,6,7,8-hxcdd",
+                                    "1,2,3,4,6,7,8-hpcdd",
+                                    "1,2,3,4,6,7,8,9-ocdd",
+                                    "2,3,4,7,8-pncdf",
+                                    "1,2,3,4,7,8-hxcdf",
+                                    "1,2,3,6,7,8-hxcdf",
+                                    "1,2,3,4,6,7,8-hxcdf"))) %>% 
   ggplot(aes(z, est, ymin = est - 1.96*se, ymax = est + 1.96*se)) + 
   geom_smooth(aes(color = Group), stat = "identity") + ylab("h(z)") + 
   facet_wrap(~ variable) + theme_bw(base_size = 25) +
@@ -247,6 +373,42 @@ pred.resp.bivar %>%
                                 "1,2,3,4,6,7,8- hxcdf" =  "Furan4",
                                 "PCB 169" =  "PCB169",
                                 "PCB 126" = "PCB126")) %>% 
+  mutate(variable1 = fct_relevel(variable1, c("PCB 74",
+                                              "PCB 99",
+                                              "PCB 138",
+                                              "PCB 153",
+                                              "PCB 170",
+                                              "PCB 180",
+                                              "PCB 187",
+                                              "PCB 194",
+                                              "PCB 126", 
+                                              "PCB 169",
+                                              "PCB 118",
+                                              "1,2,3,6,7,8- hxcdd",
+                                              "1,2,3,4,6,7,8- hpcdd",
+                                              "1,2,3,4,6,7,8,9- ocdd",
+                                              "2,3,4,7,8- pncdf",
+                                              "1,2,3,4,7,8- hxcdf",
+                                              "1,2,3,6,7,8- hxcdf",
+                                              "1,2,3,4,6,7,8- hxcdf")),
+         variable2 = fct_relevel(variable2, c("PCB 74",
+                                              "PCB 99",
+                                              "PCB 138",
+                                              "PCB 153",
+                                              "PCB 170",
+                                              "PCB 180",
+                                              "PCB 187",
+                                              "PCB 194",
+                                              "PCB 126", 
+                                              "PCB 169",
+                                              "PCB 118",
+                                              "1,2,3,6,7,8- hxcdd",
+                                              "1,2,3,4,6,7,8- hpcdd",
+                                              "1,2,3,4,6,7,8,9- ocdd",
+                                              "2,3,4,7,8- pncdf",
+                                              "1,2,3,4,7,8- hxcdf",
+                                              "1,2,3,6,7,8- hxcdf",
+                                              "1,2,3,4,6,7,8- hxcdf"))) %>% 
   ggplot(aes(z1, z2, fill = est)) + 
   geom_raster() + 
   facet_grid(variable2 ~ variable1, scales = "free", space = "free",
@@ -298,6 +460,42 @@ pred.resp.bivar.levels %>%
                                 "1,2,3,4,6,7,8- hxcdf" =  "Furan4",
                                 "PCB 169" =  "PCB169",
                                 "PCB 126" = "PCB126")) %>% 
+  mutate(variable1 = fct_relevel(variable1, c("PCB 74",
+                                              "PCB 99",
+                                              "PCB 138",
+                                              "PCB 153",
+                                              "PCB 170",
+                                              "PCB 180",
+                                              "PCB 187",
+                                              "PCB 194",
+                                              "PCB 126", 
+                                              "PCB 169",
+                                              "PCB 118",
+                                              "1,2,3,6,7,8- hxcdd",
+                                              "1,2,3,4,6,7,8- hpcdd",
+                                              "1,2,3,4,6,7,8,9- ocdd",
+                                              "2,3,4,7,8- pncdf",
+                                              "1,2,3,4,7,8- hxcdf",
+                                              "1,2,3,6,7,8- hxcdf",
+                                              "1,2,3,4,6,7,8- hxcdf")),
+         variable2 = fct_relevel(variable2, c("PCB 74",
+                                              "PCB 99",
+                                              "PCB 138",
+                                              "PCB 153",
+                                              "PCB 170",
+                                              "PCB 180",
+                                              "PCB 187",
+                                              "PCB 194",
+                                              "PCB 126", 
+                                              "PCB 169",
+                                              "PCB 118",
+                                              "1,2,3,6,7,8- hxcdd",
+                                              "1,2,3,4,6,7,8- hpcdd",
+                                              "1,2,3,4,6,7,8,9- ocdd",
+                                              "2,3,4,7,8- pncdf",
+                                              "1,2,3,4,7,8- hxcdf",
+                                              "1,2,3,6,7,8- hxcdf",
+                                              "1,2,3,4,6,7,8- hxcdf"))) %>% 
   ggplot(aes(z1, est)) + 
   geom_smooth(aes(col = quantile), stat = "identity") + 
   facet_grid(variable2 ~ variable1, scales = "free", space = "free",
@@ -314,7 +512,7 @@ dev.off()
 png("./Figures/bkmr_overall.png", width = 1000, height = 1000, res = 100)
 ggplot(risks.overall, aes(quantile, est, ymin = est - 1.96*sd, ymax = est + 1.96*sd)) +  
   geom_hline(yintercept=00, linetype="dashed", color="gray") + 
-  geom_pointrange() + theme_bw(base_size = 25) +
+  geom_pointrange(size = 1.1) + theme_bw(base_size = 25) +
   labs(x = "Quantile", y = "Estimates")
 dev.off()
 
@@ -339,6 +537,24 @@ risks.singvar %>% mutate(variable = fct_recode(variable, "PCB 74" = "PCB74",
                                                "1,2,3,4,6,7,8-hxcdf" =  "Furan4",
                                                "PCB 169" =  "PCB169",
                                                "PCB 126" = "PCB126")) %>% 
+  mutate(variable = fct_relevel(variable, c("1,2,3,4,6,7,8-hxcdf",
+                                            "1,2,3,6,7,8-hxcdf",
+                                            "1,2,3,4,7,8-hxcdf",
+                                            "2,3,4,7,8-pncdf",
+                                            "1,2,3,4,6,7,8,9-ocdd",
+                                            "1,2,3,4,6,7,8-hpcdd",
+                                            "1,2,3,6,7,8-hxcdd",
+                                            "PCB 118",
+                                            "PCB 169",
+                                            "PCB 126",
+                                            "PCB 194",
+                                            "PCB 187",
+                                            "PCB 180",
+                                            "PCB 170",
+                                            "PCB 153",
+                                            "PCB 138",
+                                            "PCB 99",
+                                            "PCB 74"))) %>% 
   ggplot(aes(variable, est, ymin = est - 1.96*sd,  ymax = est + 1.96*sd, col = q.fixed)) + 
   geom_hline(aes(yintercept=0), linetype="dashed", color="gray") +  
   geom_pointrange(position = position_dodge(width = 0.75)) +  coord_flip() + 
@@ -346,7 +562,7 @@ risks.singvar %>% mutate(variable = fct_recode(variable, "PCB 74" = "PCB74",
   labs(x = "", y = "Estimate", col = "Fixed Quantile")
 dev.off()
 
-png("./Figures/bkmr_int2.png", width = 900, height = 1200)
+png("./Figures/bkmr_int2.png", width = 900, height = 1200, res = 100)
 risks.int %>% mutate(variable = fct_recode(variable, "PCB 74" = "PCB74",
                                            "PCB 99" = "PCB99",
                                            "PCB 118" = "PCB118",
@@ -365,10 +581,34 @@ risks.int %>% mutate(variable = fct_recode(variable, "PCB 74" = "PCB74",
                                            "1,2,3,4,6,7,8-hxcdf" =  "Furan4",
                                            "PCB 169" =  "PCB169",
                                            "PCB 126" = "PCB126")) %>% 
+  mutate(variable = fct_relevel(variable, c("1,2,3,4,6,7,8-hxcdf",
+                                            "1,2,3,6,7,8-hxcdf",
+                                            "1,2,3,4,7,8-hxcdf",
+                                            "2,3,4,7,8-pncdf",
+                                            "1,2,3,4,6,7,8,9-ocdd",
+                                            "1,2,3,4,6,7,8-hpcdd",
+                                            "1,2,3,6,7,8-hxcdd",
+                                            "PCB 118",
+                                            "PCB 169",
+                                            "PCB 126",
+                                            "PCB 194",
+                                            "PCB 187",
+                                            "PCB 180",
+                                            "PCB 170",
+                                            "PCB 153",
+                                            "PCB 138",
+                                            "PCB 99",
+                                            "PCB 74"))) %>% 
+  mutate(Group = case_when(variable == "PCB 118" ~ "TEQ",
+                           variable == c("PCB 126", "PCB 169") ~ "Non-Ortho PCB", 
+                           grepl("PCB", variable) ~ "Non-Dioxin-like PCB",
+                           grepl(",", variable) ~ "TEQ")) %>% 
   ggplot(aes(variable, est, ymin = est - 1.96*sd, ymax = est + 1.96*sd)) + 
-  geom_pointrange(position = position_dodge(width = 0.75)) + 
+  geom_pointrange(aes(color = Group), position = position_dodge(width = 0.75), size = 1.1) + 
   geom_hline(yintercept = 0, lty = 2, col = "gray") + coord_flip() + theme_bw(base_size = 25) +
-  labs(x = "", y = "Estimate")
+  labs(x = "", y = "Estimate") + theme(legend.position = "bottom", 
+                                       legend.text = element_text(size = 15),
+                                       legend.title = element_text(size = 17))
 dev.off()
 
 ## WQS
@@ -401,11 +641,67 @@ result2$final_weights %>%
                                "PCB 126" = "lbxpcbla"),
          mix_name = fct_reorder(mix_name, mean_weight)) %>% 
   ggplot(aes(x = mix_name, y = mean_weight, fill = Group)) +
+  geom_hline(yintercept = 0.06, color = "grey", linetype = "dashed") +
   geom_bar(stat = "identity", color = "black") + theme_bw(base_size = 25) +
   theme(axis.ticks = element_blank(),
         axis.text.x = element_text(color='black'),
         legend.position = "bottom") + coord_flip() + 
   labs(y = "Weights", x = "Congeners")
+dev.off()
+
+## WQS reordered
+
+png("./Figures/wqs_weights_reorder.png", width = 1000, height = 1000, res = 80)
+result2$final_weights %>% 
+  mutate(Group = ifelse(mix_name == "LBX118LA", "TEQ", 
+                   ifelse(grepl("LBX1", mix_name), "Non-Dioxin-like PCB",
+                     ifelse(grepl("LBX0", mix_name), "Non-Dioxin-like PCB",
+                       ifelse(grepl("LBXP", mix_name), "Non-Ortho PCB",
+                         ifelse(grepl("LBXH", mix_name), "Non-Ortho PCB", "TEQ")))))) %>% 
+  mutate(mix_name = tolower(mix_name),
+         mix_name = fct_recode(mix_name, "PCB 74" = "lbx074la",
+                               "PCB 99" = "lbx099la",
+                               "PCB 118" = "lbx118la",
+                               "PCB 138" = "lbx138la",
+                               "PCB 153" = "lbx153la",
+                               "PCB 170" = "lbx170la",
+                               "PCB 180" = "lbx180la",
+                               "PCB 187" = "lbx187la",
+                               "PCB 194" = "lbx194la",
+                               "1,2,3,6,7,8-hxcdd" = "lbxd03la",
+                               "1,2,3,4,6,7,8-hpcdd" = "lbxd05la",
+                               "1,2,3,4,6,7,8,9-ocdd" =  "lbxd07la",
+                               "2,3,4,7,8-pncdf" =  "lbxf03la",
+                               "1,2,3,4,7,8-hxcdf" =  "lbxf04la",
+                               "1,2,3,6,7,8-hxcdf" =  "lbxf05la",
+                               "1,2,3,4,6,7,8-hxcdf" =  "lbxf08la",
+                               "PCB 169" =  "lbxhxcla",
+                               "PCB 126" = "lbxpcbla")) %>%
+  mutate(mix_name = fct_relevel(mix_name, c("1,2,3,4,6,7,8-hxcdf",
+                                            "1,2,3,6,7,8-hxcdf",
+                                            "1,2,3,4,7,8-hxcdf",
+                                            "2,3,4,7,8-pncdf",
+                                            "1,2,3,4,6,7,8,9-ocdd",
+                                            "1,2,3,4,6,7,8-hpcdd",
+                                            "1,2,3,6,7,8-hxcdd",
+                                            "PCB 118",
+                                            "PCB 169",
+                                            "PCB 126",
+                                            "PCB 194",
+                                            "PCB 187",
+                                            "PCB 180",
+                                            "PCB 170",
+                                            "PCB 153",
+                                            "PCB 138",
+                                            "PCB 99",
+                                            "PCB 74"))) %>% 
+  ggplot(aes(x = mix_name, y = mean_weight, fill = Group)) +
+  geom_hline(yintercept = 0.06, color = "grey", linetype = "dashed") +
+  geom_bar(stat = "identity", color = "black") + theme_bw(base_size = 25) +
+  theme(axis.ticks = element_blank(),
+        axis.text.x = element_text(color='black'),
+        legend.position = "bottom") + coord_flip() + 
+  labs(y = "Weights", x = "Congeners") 
 dev.off()
 
 
