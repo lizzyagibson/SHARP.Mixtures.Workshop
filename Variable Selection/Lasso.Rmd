@@ -43,7 +43,6 @@ Quick data descriptions; because of the length of the output, we don't execute t
 ```{r, eval = FALSE}
 
 describe(study_pop)
-
 ```
 
 Next we remove missing values and reorder predictors (environmental variables first, confounders second). In keeping with standard practice, we'll ln-transform the environmental exposures and the outcome. This is the dataset we'll use to illustrate variable selection methods. 
@@ -108,19 +107,17 @@ featurePlot(x = x[,19:36],
 
 We'll begin by looking at the lasso applied to the complete design matrix. In the following, we'll use CV to identify tuning parameters; this is a random process, so we'll set the seed to ensure reproducibility. First we'll use a specified grid of tuning parameter values and fit the lasso model for each.
 
-How to get a good lambda value? 
-
 ```{r lasso}
 set.seed(2)
 
-lam_grid <- .5 ^ (-20:20) ###tuning parameters pre-specified grid.
+lam_grid <- .5 ^ (-20:20)
 lasso.mod = glmnet(x, y, alpha = 1, lambda = lam_grid)
 ```
 
 We can explore the results using a coefficient path plot or numerically.
 
 ```{r}
-plot(lasso.mod, label = TRUE)
+plot(lasso.mod)
 
 coef(lasso.mod)[,10]
 ```
@@ -128,21 +125,21 @@ coef(lasso.mod)[,10]
 Some built-in functions will conduct a cross-validation analysis and identify the "best" tuning parameter.
 
 ```{r}
+set.seed(2)
 # n-folds is set to a default of 10 for cv.glmnet
-cv.out = cv.glmnet(x, y, alpha = 1) ##implements the cross-validation prediction 10-fold. 
+cv.out = cv.glmnet(x, y, alpha = 1)
 
 plot(cv.out)
 coef(cv.out)
 
 best_lambda = cv.out$lambda.min
-best_lambda # we choose a lambda between the dashes lines. 
-
+best_lambda
 ```
 
 Optional arguments to `glmnet` can be useful -- in particular, `weights` can be used in the context of the adaptive lasso and `penalty.factor` can separate penalized variables from confounders. 
 
-```{r}
-is_penalized = c(rep(1, ncol(x[,1:18])), rep(0, ncol(x[,19:36]))) ##assign a value of zero to those variables you would like to keep all the time. Those variables won't be penalized during the lasso process so they will stay in the model. In this case we want to penalize only the POP variables, so we give them a value of 0. 
+```{r]}
+is_penalized = c(rep(1, ncol(x[,1:18])), rep(0, ncol(x[,19:36])))
 
 lasso = glmnet(x, y, 
                penalty.factor = is_penalized,
@@ -180,8 +177,6 @@ dimnames(coef_lasso)[[1]][which(coef_lasso != 0)]
 lasso.pred <-  predict(lasso.mod, newx = x)
 lasso_mse <- mean((lasso.pred - y)^2)
 lasso_mse
-
-
 ```
 
 The final code chunk saves the best lasso coefficients for later use. 
@@ -198,9 +193,7 @@ lasso_beta = cbind(rownames(coef_lasso), as.vector(coef_lasso)) %>%
 
 # Elastic Net w/ CV
 
-`glmnet` implements the elastic net -- we've set `alpha` to 1 to focus on lasso regression, but could choose `alpha` between 0 and 1. In the following, we can tune alpha and lambda simultaneously. (or set alpha equals to 0 to look into ridge regression)
-
-See plot below, for a fix alpha there is a U-shape curve that gives you what the ultimate value for lambda would be. 
+`glmnet` implements the elastic net -- we've set `alpha` to 1 to focus on lasso regression, but could choose `alpha` between 0 and 1. In the following, we can tune alpha and lambda simultaneously.
 
 ```{r enalpha, results = "hide"}
 # For reproducibility, set a seed
@@ -212,7 +205,7 @@ egrid <- expand.grid(alpha = (1:10) * 0.1,
                      lambda = .5^(3:20))
 
 ## Create a tuning control for cv
-control <- trainControl(method = "repeatedcv", ##trainControl is a function in the carrot package. 
+control <- trainControl(method = "repeatedcv", 
                         repeats = 3, 
                         verboseIter = TRUE)
 
@@ -223,8 +216,6 @@ elnetFit <- train(x = x,
             penalty.factor = is_penalized,
             tuneGrid = egrid,
             trControl = control)
-
-
 plot(elnetFit)
 
 best_alpha = elnetFit$bestTune$alpha
@@ -235,7 +226,7 @@ For the optimal `alpha` value, we identify a best lambda and explore the results
 ```{r elnet}
 elnet = glmnet(x, y, 
                penalty.factor = is_penalized,
-               alpha = best_alpha) ## instead of setting alpha = 1, we set it to whatever value yield the best value for lambda. In this case 0.8.
+               alpha = best_alpha)
 plot(elnet)
 
 

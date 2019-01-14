@@ -100,8 +100,6 @@ demo_table <- demo %>%
   gather(variable, value, age_cat, bmi_cat3, edu_cat, race_cat,  male, cotinine_cat) %>% 
   group_by(variable, value) %>% 
   summarise (n = n()) %>%
-  mutate(percent = 100 * (n / sum(n)),
-         per = paste("(",round(percent, 1),")")) %>% 
-  select(-percent)
+  mutate(percent = 100 * (n / sum(n)))
 
 stargazer(demo_table, summary = F, rownames = F)

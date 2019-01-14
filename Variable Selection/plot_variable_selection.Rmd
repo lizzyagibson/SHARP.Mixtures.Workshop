@@ -90,7 +90,7 @@ plot_all %>%
 
 ```{r}
 plot_all %>% 
-  ggplot(aes(x = variable, y = beta)) + geom_point(aes(color = group3)) +
+  ggplot(aes(x = variable, y = beta)) + geom_point(aes(color = group3), shape = 19) +
   geom_hline(yintercept = 0, color = "red", linetype = "dashed") + theme_bw() +
   facet_grid(group3 ~ method, scales="free_y", space = "free_y",
              labeller = labeller(group3 = label_wrap_gen(5))) + coord_flip() +
