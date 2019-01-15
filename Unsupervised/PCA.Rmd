@@ -187,7 +187,9 @@ Put 3 components (continuous) into a linear regression w/ covariates to estimate
 health_model_pca <- lm(logtelomean ~ PC1  + PC2 + PC3 +   
      lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct + age_cent + age_sq +
      as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = pop_pca)
+
 summary(health_model_pca)
+confint(health_model_pca) ##confidence intervals
 
 health_model_pca %>% broom::tidy() %>% mutate(
   estimate = round(estimate, 4),
@@ -197,13 +199,17 @@ health_model_pca %>% broom::tidy() %>% mutate(
 
 health_model_pca %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
 
-confint(health_model_pca)
 
 
-PCA_betas_confint <- as.data.frame(c(health_model_pca$coefficients["PC1"], health_model_hc3$coefficients["PC2"], health_model_hc3$coefficients["PC3"])) %>% rownames_to_column() %>% rename("variable" = 1) %>% rename("beta_value" = 2) %>% mutate('95%_CI' = c("0.007-0.101", "-0.002-0.069"),
-                                    'P-value' = c((summary(health_model_hc3)$coefficients[2,4]),
-                                                  summary(health_model_hc3)$coefficients[3,4]))
 
+
+PCA_betas_confint <- as.data.frame(c(health_model_pca$coefficients["PC1"], health_model_pca$coefficients["PC2"], health_model_pca$coefficients["PC3"])) %>% rownames_to_column() %>% rename("variable" = 1) %>% rename("beta" = 2) %>% mutate('95%CI' = c("-0.018, -0.005", "-0.009, 0.011","-0.012, 0.017" ),
+                                    'P-value' = c((summary(health_model_pca)$coefficients[2,4]),
+                                                  (summary(health_model_pca)$coefficients[3,4]),
+                                                  (summary(health_model_pca)$coefficients[4,4])))
+PCA_betas_confint
+
+save(PCA_betas_confint, file = "PCA_betas_confint.csv")
 
 ```
 

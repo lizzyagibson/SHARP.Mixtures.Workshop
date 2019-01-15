@@ -103,3 +103,18 @@ demo_table <- demo %>%
   mutate(percent = 100 * (n / sum(n)))
 
 stargazer(demo_table, summary = F, rownames = F)
+
+##########
+
+##PCA, FCA, and cluster summary table 
+
+summary_kmeans_hc <- read_csv("./Unsupervised/summary_kmeans_hc.csv")
+summary_FA <- read_csv("./Unsupervised/FA_betas_confint.csv")
+summary_PCA <- read_csv("./Unsupervised/PCA_betas_confint.csv")
+
+
+bind_rows(summary_kmeans_hc, summary_FA, summary_PCA)
+
+
+
+

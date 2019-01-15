@@ -469,6 +469,7 @@ health_model_kmeans3 <- lm(logtelomean ~ clu.group3 + age_cent + age_sq +
      as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = pop_clus3)
 
 summary(health_model_kmeans3)
+confint(health_model_kmeans3)
 
 health_model_kmeans3 %>% broom::tidy() %>% mutate(
   estimate = round(estimate, 4),
@@ -478,13 +479,15 @@ health_model_kmeans3 %>% broom::tidy() %>% mutate(
 
 health_model_kmeans3 %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
 
-confint(health_model_kmeans3)
- 
 #summary table of the betas and confidence intervals for the cluster variables. 
 
-Kmeans3_betas_confint <- as.data.frame(c(health_model_kmeans3$coefficients["clu.group31"], health_model_kmeans3$coefficients["clu.group32"])) %>% rownames_to_column() %>% rename("variable" = 1) %>% rename("beta" = 2)%>% mutate('95%CI' = c("0.033, 0.132", "0.016, 0.091"),
-                                  'P-value' =c((summary(health_model_kmeans3)$coefficients[2,4]),
-                                                  summary(health_model_kmeans3)$coefficients[3,4]))
+Kmeans3_betas_confint <- as.data.frame(c(health_model_kmeans3$coefficients["clu.group31"], health_model_kmeans3$coefficients["clu.group32"])) %>% 
+  rownames_to_column() %>% 
+  rename("variable" = 1) %>% 
+  rename("beta" = 2) %>% 
+  mutate('95%CI' = c("0.033, 0.132", "0.016, 0.091"),
+       'P-value' = c((summary(health_model_kmeans3)$coefficients[2,4]),
+                      summary(health_model_kmeans3)$coefficients[3,4]))
 
 Kmeans3_betas_confint 
 ```
@@ -611,9 +614,13 @@ confint(health_model_hc3)
 
 #summary table of betas and confidence intervals for the cluster variables. 
 
-hc3_betas_confint <- as.data.frame(c(health_model_hc3$coefficients["hc.clusters.31"], health_model_hc3$coefficients["hc.clusters.32"])) %>% rownames_to_column() %>% rename("variable" = 1) %>% rename("beta" = 2) %>% mutate('95%CI' = c("0.007, 0.101", "-0.002, 0.069"),
-                                    'P-value' = c((summary(health_model_hc3)$coefficients[2,4]),
-                                                  summary(health_model_hc3)$coefficients[3,4]))
+hc3_betas_confint <- as.data.frame(c(health_model_hc3$coefficients["hc.clusters.31"], health_model_hc3$coefficients["hc.clusters.32"])) %>% 
+  rownames_to_column() %>% 
+  rename("variable" = 1) %>% 
+  rename("beta" = 2) %>% 
+  mutate('95%CI' = c("0.007, 0.101", "-0.002, 0.069"),
+       'P-value' = c((summary(health_model_hc3)$coefficients[2,4]),
+                      summary(health_model_hc3)$coefficients[3,4]))
 
 hc3_betas_confint
 
