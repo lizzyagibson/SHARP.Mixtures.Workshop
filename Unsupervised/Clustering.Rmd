@@ -479,6 +479,10 @@ health_model_kmeans3 %>% broom::tidy() %>% mutate(
 health_model_kmeans3 %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
 
 confint(health_model_kmeans3)
+ 
+Kmeans3_betas_confint <- as.data.frame(c(health_model_kmeans3$coefficients["clu.group31"], health_model_kmeans3$coefficients["clu.group32"])) %>% add_rownames() %>% rename("variable" = 1) %>% rename("beta_value" = 2)%>% mutate('95%_CI' = c("0.033-0.132", "0.0162-0.091"))
+
+
 ```
 
 ##### Plot
