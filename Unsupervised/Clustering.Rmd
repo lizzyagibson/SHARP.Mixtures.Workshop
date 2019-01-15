@@ -482,11 +482,11 @@ confint(health_model_kmeans3)
  
 #summary table of the betas and confidence intervals for the cluster variables. 
 
-Kmeans3_betas_confint <- as.data.frame(c(health_model_kmeans3$coefficients["clu.group31"], health_model_kmeans3$coefficients["clu.group32"])) %>% rownames_to_column() %>% rename("variable" = 1) %>% rename("beta_value" = 2)%>% mutate('95%_CI' = c("0.033-0.132", "0.0162-0.091"),
+Kmeans3_betas_confint <- as.data.frame(c(health_model_kmeans3$coefficients["clu.group31"], health_model_kmeans3$coefficients["clu.group32"])) %>% rownames_to_column() %>% rename("variable" = 1) %>% rename("beta" = 2)%>% mutate('95%CI' = c("0.033, 0.132", "0.016, 0.091"),
                                   'P-value' =c((summary(health_model_kmeans3)$coefficients[2,4]),
                                                   summary(health_model_kmeans3)$coefficients[3,4]))
 
-
+Kmeans3_betas_confint 
 ```
 
 ##### Plot
@@ -611,11 +611,11 @@ confint(health_model_hc3)
 
 #summary table of betas and confidence intervals for the cluster variables. 
 
-hc3_betas_confint <- as.data.frame(c(health_model_hc3$coefficients["hc.clusters.31"], health_model_hc3$coefficients["hc.clusters.32"])) %>% rownames_to_column() %>% rename("variable" = 1) %>% rename("beta_value" = 2) %>% mutate('95%_CI' = c("0.007-0.101", "-0.002-0.069"),
+hc3_betas_confint <- as.data.frame(c(health_model_hc3$coefficients["hc.clusters.31"], health_model_hc3$coefficients["hc.clusters.32"])) %>% rownames_to_column() %>% rename("variable" = 1) %>% rename("beta" = 2) %>% mutate('95%CI' = c("0.007, 0.101", "-0.002, 0.069"),
                                     'P-value' = c((summary(health_model_hc3)$coefficients[2,4]),
                                                   summary(health_model_hc3)$coefficients[3,4]))
 
-
+hc3_betas_confint
 
 ```
 
@@ -674,4 +674,14 @@ plot_chem_means %>% as.tibble() %>% rename(pop_mean = `colMeans(log.x)`) %>%
        y = "Mean", caption = "*Points indicate population means")
 ```
 
+
+```{r}
+##compiled table for beta, CI, and P-values for the cluster coefficients of k-means and hierarchical clustering.
+
+summary_kmeans_hc = as.data.frame(bind_rows(Kmeans3_betas_confint, hc3_betas_confint))
+
+summary_kmeans_hc
+
+save(summary_kmeans_hc, file = "summary_kmeans_hc.csv")
+```
 

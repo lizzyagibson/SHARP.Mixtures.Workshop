@@ -189,8 +189,6 @@ health_model_pca <- lm(logtelomean ~ PC1  + PC2 + PC3 +
      as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = pop_pca)
 summary(health_model_pca)
 
-
-
 health_model_pca %>% broom::tidy() %>% mutate(
   estimate = round(estimate, 4),
   std.error = round(std.error, 4),
@@ -200,6 +198,13 @@ health_model_pca %>% broom::tidy() %>% mutate(
 health_model_pca %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
 
 confint(health_model_pca)
+
+
+PCA_betas_confint <- as.data.frame(c(health_model_pca$coefficients["PC1"], health_model_hc3$coefficients["PC2"], health_model_hc3$coefficients["PC3"])) %>% rownames_to_column() %>% rename("variable" = 1) %>% rename("beta_value" = 2) %>% mutate('95%_CI' = c("0.007-0.101", "-0.002-0.069"),
+                                    'P-value' = c((summary(health_model_hc3)$coefficients[2,4]),
+                                                  summary(health_model_hc3)$coefficients[3,4]))
+
+
 ```
 
 ### Plot Model
