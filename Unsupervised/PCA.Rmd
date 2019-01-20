@@ -200,16 +200,16 @@ health_model_pca %>% broom::tidy() %>% mutate(
 health_model_pca %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
 
 
-
-
-
-PCA_betas_confint <- as.data.frame(c(health_model_pca$coefficients["PC1"], health_model_pca$coefficients["PC2"], health_model_pca$coefficients["PC3"])) %>% rownames_to_column() %>% rename("variable" = 1) %>% rename("beta" = 2) %>% mutate('95%CI' = c("-0.018, -0.005", "-0.009, 0.011","-0.012, 0.017" ),
-                                    'P-value' = c((summary(health_model_pca)$coefficients[2,4]),
-                                                  (summary(health_model_pca)$coefficients[3,4]),
-                                                  (summary(health_model_pca)$coefficients[4,4])))
+PCA_betas_confint <- as.data.frame(c(health_model_pca$coefficients["PC1"], health_model_pca$coefficients["PC2"], health_model_pca$coefficients["PC3"])) %>% rownames_to_column() %>% 
+  rename("variable" = 1) %>% 
+  rename("beta" = 2) %>% 
+  mutate('95%CI' = c("-0.018, -0.005", "-0.009, 0.011","-0.012, 0.017" ),
+       'P-value' = c((summary(health_model_pca)$coefficients[2,4]),
+                     (summary(health_model_pca)$coefficients[3,4]),
+                     (summary(health_model_pca)$coefficients[4,4])))
 PCA_betas_confint
 
-save(PCA_betas_confint, file = "PCA_betas_confint.csv")
+write.csv(PCA_betas_confint, file = "PCA_betas_confint.csv")
 
 ```
 

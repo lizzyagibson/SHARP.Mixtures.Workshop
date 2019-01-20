@@ -290,6 +290,30 @@ summary.km <- knitr::kable(summary.km)
 summary.km
 ```
 
+
+
+k-means N = 3 using standarized data
+
+```{r}
+# for reproducibility, set seed
+set.seed(29)
+
+sd.log.x = scale(log.x)
+
+summary(sd.log.x)
+
+library(factoextra)
+fviz_nbclust(sd.log.x, kmeans, method = "wss") ###the loop below can quickly be perform using this function. Result is the same.
+fviz_nbclust(log.x, kmeans, method = "silhouette")
+
+#K-means with K = 3
+sd_km3 <- kmeans(sd.log.x, 3, nstart = 20)
+
+
+
+```
+
+
 ### Visualization
 
 ```{r}
@@ -333,6 +357,7 @@ means_km5 <- km5_centers %>%
 plot_means_km5 <- means_km5 %>% 
   gather(key = "Cluster", value = "mean", -chem, -Group) %>% as.tibble()
 ```
+
 
 Plots of cluster means for K-means N=3 and N=5
 
@@ -386,6 +411,56 @@ plot_chem_means %>% as.tibble() %>% rename(pop_mean = `colMeans(log.x)`) %>%
 ```
 
 
+Plots of K-means N=3 with standarized data
+```{r}
+
+##creating data fram with cluster means for k-means N=3 standarized
+sd_km3_centers <- as.data.frame.matrix(t(sd_km3$centers)) #centers
+sd_km3_centers$chem <- row.names(sd_km3_centers)
+
+means_sd_km3 <- sd_km3_centers %>% 
+  mutate(Group = ifelse(chem == "lbx118la.l2", "TEQ", 
+                        ifelse(grepl("lbx1", chem), "Non-Dioxin-like PCB",
+                               ifelse(grepl("lbx0", chem), "Non-Dioxin-like PCB",
+                                      ifelse(grepl("lbxp", chem), "Non-Ortho PCB",
+                                             ifelse(grepl("lbxh", chem), "Non-Ortho PCB", "TEQ"))))))
+plot_means_sd_km3 <- means_sd_km3 %>% 
+  gather(key = "Cluster", value = "mean", -chem, -Group) %>% as.tibble()
+
+
+plot_means_sd_km3 %>% 
+  mutate(Cluster = as.factor(Cluster),
+         Cluster = fct_recode(Cluster, "Cluster 1" = "1",
+         "Cluster 2" = "2",
+         "Cluster 3" = "3")) %>%
+  mutate(chem = fct_recode(chem, "PCB 74" = "lbx074la.l2",
+                                "PCB 99" = "lbx099la.l2",
+                                "PCB 118" = "lbx118la.l2",
+                                "PCB 138" = "lbx138la.l2",
+                                "PCB 153" = "lbx153la.l2",
+                                "PCB 170" = "lbx170la.l2",
+                                "PCB 180" = "lbx180la.l2",
+                                "PCB 187" = "lbx187la.l2",
+                                "PCB 194" = "lbx194la.l2",
+                                "1,2,3,6,7,8-hxcdd" = "lbxd03la.l2",
+                                "1,2,3,4,6,7,8-hpcdd" = "lbxd05la.l2",
+                               "1,2,3,4,6,7,8,9-ocdd" =  "lbxd07la.l2",
+                               "2,3,4,7,8-pncdf" =  "lbxf03la.l2",
+                               "1,2,3,4,7,8-hxcdf" =  "lbxf04la.l2",
+                               "1,2,3,6,7,8-hxcdf" =  "lbxf05la.l2",
+                               "1,2,3,4,6,7,8-hxcdf" =  "lbxf08la.l2",
+                               "PCB 169" =  "lbxhxcla.l2",
+                                "PCB 126" = "lbxpcbla.l2")) %>% 
+  ggplot(aes(x = chem, y = mean, fill = Group)) + geom_col() +
+  facet_wrap(~ Cluster) + theme_bw() + 
+  theme(legend.position = "bottom", axis.text.x = element_text(angle = 90, hjust = 1),
+        plot.caption = element_text(size = 11, hjust = 0),
+        strip.background = element_rect(fill = "white")) +
+  geom_hline(yintercept = 0, size = 0.2) +
+  labs(x = "Chemicals",
+       y = "Mean")
+
+```
 
 ### Health model 
 
@@ -689,6 +764,6 @@ summary_kmeans_hc = as.data.frame(bind_rows(Kmeans3_betas_confint, hc3_betas_con
 
 summary_kmeans_hc
 
-save(summary_kmeans_hc, file = "summary_kmeans_hc.csv")
+write.csv(summary_kmeans_hc, file = "summary_kmeans_hc.csv")
 ```
 

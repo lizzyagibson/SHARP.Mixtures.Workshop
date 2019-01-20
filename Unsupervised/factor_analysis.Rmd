@@ -297,6 +297,9 @@ health_model <- lm(logtelomean ~ MR1  + MR2 +  MR3  +  MR4 + age_cent + age_sq +
      lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct +
      as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = pop_fa)
 
+summary(health_model)
+confint(health_model)
+
 health_model %>% broom::tidy() %>% mutate(
   estimate = round(estimate, 4),
   std.error = round(std.error, 4),
@@ -305,7 +308,21 @@ health_model %>% broom::tidy() %>% mutate(
 
 health_model %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
 
-confint(health_model)
+
+#summary table of the betas and confidence intervals for the cluster variables. 
+
+FA_betas_confint <- as.data.frame(c(health_model$coefficients["MR1"], health_model$coefficients["MR2"], health_model$coefficients["MR3"], health_model$coefficients["MR4"])) %>% rownames_to_column() %>% 
+  rename("variable" = 1) %>% 
+  rename("beta" = 2) %>% 
+  mutate('95%CI' = c("-0.031, 0.026", "0.004, 0.050","0.006, 0.050", "-0.041, 0.000"),
+       'P-value' = c((summary(health_model)$coefficients[2,4]),
+                     (summary(health_model)$coefficients[3,4]),
+                     (summary(health_model)$coefficients[4,4]),
+                     (summary(health_model)$coefficients[4,4])))
+
+FA_betas_confint
+
+write.csv(FA_betas_confint, file = "FA_betas_confint.csv")
 ```
 
 ### Categorical
@@ -327,19 +344,6 @@ categorical %>% broom::tidy() %>% mutate(
   p.value = round(p.value, 4))
 
 categorical %>% broom::glance() %>% mutate(p.value = round(p.value, 5))
-
-#summary table of the betas and confidence intervals for the cluster variables. 
-FA_betas_confint <- as.data.frame(c(categorical$coefficients["as.factor(Max)MR2"], categorical$coefficients["as.factor(Max)MR3"], categorical$coefficients["as.factor(Max)MR4"])) %>% rownames_to_column() %>% 
-  rename("variable" = 1) %>% 
-  rename("beta" = 2) %>% 
-  mutate('95%CI' = c("0.014, 0.090", "0.003, 0.080","-0.058, 0.021" ),
-       'P-value' = c((summary(categorical)$coefficients[2,4]),
-                     (summary(categorical)$coefficients[3,4]),
-                     (summary(categorical)$coefficients[4,4])))
-
-FA_betas_confint
-
-write.csv(FA_betas_confint, file = "FA_betas_confint.csv")
 
 ```
 

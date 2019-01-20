@@ -106,15 +106,16 @@ stargazer(demo_table, summary = F, rownames = F)
 
 ##########
 
-##PCA, FCA, and cluster summary table 
+##PCA, FCA, and cluster methods summary table 
 
 summary_kmeans_hc <- read_csv("./Unsupervised/summary_kmeans_hc.csv")
 summary_FA <- read_csv("./Unsupervised/FA_betas_confint.csv")
 summary_PCA <- read_csv("./Unsupervised/PCA_betas_confint.csv")
 
 
-bind_rows(summary_kmeans_hc, summary_FA, summary_PCA)
+unsupervised_table <- bind_rows(summary_kmeans_hc, summary_FA, summary_PCA) %>%
+  as.data.frame() 
 
-
+stargazer(unsupervised_table, summary = F, rownames = F, digits = 3, digits.extra = 3)
 
 
