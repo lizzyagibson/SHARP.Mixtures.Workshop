@@ -192,11 +192,11 @@ scores %>% dplyr::select(-Max) %>% corr.test()
 
 ```{r}
 loadings <- loadings %>% 
-  mutate(Group = ifelse(Variable == "lbx118la", "TEQ", 
-                        ifelse(grepl("lbx1", Variable), "Non-Dioxin-like PCB",
-                               ifelse(grepl("lbx0", Variable), "Non-Dioxin-like PCB",
-                                      ifelse(grepl("lbxp", Variable), "Non-Ortho PCB",
-                                             ifelse(grepl("lbxh", Variable), "Non-Ortho PCB", "TEQ"))))))
+  mutate(Group = ifelse(Variable == "lbx118la", "mPFD", 
+                        ifelse(grepl("lbx1", Variable), "Non-Dioxin-like PCBs",
+                          ifelse(grepl("lbx0", Variable), "Non-Dioxin-like PCBs",
+                            ifelse(grepl("lbxp", Variable), "Non-Ortho PCBs",
+                              ifelse(grepl("lbxh", Variable), "Non-Ortho PCBs", "mPFD"))))))
 
 loadings %>% 
   ggplot(aes(x = MR1, y = MR2, color = Group)) + 

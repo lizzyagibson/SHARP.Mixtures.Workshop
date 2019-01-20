@@ -44,7 +44,15 @@ heatmap <- melted_cormat %>%
                                     "1,2,3,4,6,7,8-hpcdd",
                                     "1,2,3,6,7,8-hxcdd",
                                     "PCB 118"))) %>% 
-  mutate(group3.1 = fct_relevel(group3.1, c("TEQ", "Non-Ortho PCB", "Non-Dioxin-like PCB"))) %>% 
+  mutate(group3.1 = fct_relevel(group3.1, c("mPFD", 
+                                            "Non-Ortho PCBs", "Non-Dioxin-like PCBs"))) %>% 
+  mutate(group3.2 = fct_relevel(group3.2, c("Non-Dioxin-like PCBs", "Non-Ortho PCBs", "mPFD"))) %>% 
+  mutate(group3.1 = fct_recode(group3.1, 
+                               "Mono-Ortho PCB 118,\nFurans and Dioxins" =  "mPFD",
+                               "Non-Ortho\nPCBs" = "Non-Ortho PCBs")) %>% 
+  mutate(group3.2 = fct_recode(group3.2, 
+                               "Mono-Ortho PCB 118,\nFurans and Dioxins" = "mPFD",
+                               "Non-Ortho\nPCBs" = "Non-Ortho PCBs")) %>% 
   ggplot(aes(Var1, Var2, fill = Correlation)) +
   geom_tile(color = "white") +
   scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
@@ -58,9 +66,7 @@ heatmap <- melted_cormat %>%
         strip.placement = "outside", 
         strip.background = element_rect(fill = "white")) +
   labs(x = "", y = "") +
-  facet_grid(group3.2 ~ group3.1, scales = "free", space = "free",
-             labeller = labeller(group3.1 = label_wrap_gen(5),
-                                 group3.2 = label_wrap_gen(5)))
+  facet_grid(group3.2 ~ group3.1, scales = "free", space = "free")
 
 png("./Figures/heatmap.png", width = 1400, height = 1300, res = 90)
 heatmap
@@ -110,6 +116,8 @@ pca_plot <- plot_loadings_pca %>%
                                     "1,2,3,4,7,8-hxcdf",
                                     "1,2,3,6,7,8-hxcdf",
                                     "1,2,3,4,6,7,8-hxcdf"))) %>% 
+  mutate(Group = fct_recode(Group, 
+                            "Mono-Ortho PCB 118,\nFurans and Dioxins" =  "mPFD")) %>% 
   ggplot(aes(x = chem, y = Loading, fill = Group)) + geom_col() +
   facet_wrap(~ PC) + theme_bw(base_size = 20) + 
   theme(legend.position = "bottom", axis.text.x = element_text(angle = 90, hjust = 1),
@@ -166,6 +174,8 @@ plot3 <- plot_chem_means %>% as.tibble() %>% rename(pop_mean = `colMeans(log.x)`
                                              "1,2,3,4,7,8-hxcdf",
                                              "1,2,3,6,7,8-hxcdf",
                                              "1,2,3,4,6,7,8-hxcdf"))) %>% 
+  mutate(Group = fct_recode(Group, 
+                               "Mono-Ortho PCB 118,\nFurans and Dioxins" =  "mPFD")) %>% 
   ggplot(aes(x = chem, y = mean, fill = Group)) + geom_col() +
   geom_point(aes(y = pop_mean), size = 2) +
   facet_wrap(~ Cluster) + theme_bw(base_size = 20) + 
@@ -231,6 +241,8 @@ efa_plot <- plot_loadings %>%
                                     "1,2,3,4,7,8-hxcdf",
                                     "1,2,3,6,7,8-hxcdf",
                                     "1,2,3,4,6,7,8-hxcdf"))) %>% 
+  mutate(Group = fct_recode(Group, "Mono-Ortho PCB 118,\nFurans and Dioxins" =  "mPFD",
+                            "Non-Ortho\nPCBs" = "Non-Ortho PCBs")) %>% 
   ggplot(aes(x = Variable, y = Loading, fill = Group)) + geom_col() +
   facet_wrap(~ Factor) + theme_bw(base_size = 25) + 
   theme(legend.position = "bottom", axis.text.x = element_text(angle = 90, hjust = 1),
@@ -238,7 +250,7 @@ efa_plot <- plot_loadings %>%
   labs(y = "Loadings", x = "Congeners") +
   geom_hline(yintercept = 0, size = 0.2)
 
-png("./Figures/efa_plot.png", width = 1000, height = 1200, res = 100)
+png("./Figures/efa_plot.png", width = 1100, height = 1200, res = 100)
 efa_plot
 dev.off()
 
@@ -262,18 +274,20 @@ vs_plot <- plot_all %>%
                                             "1,2,3,4,6,7,8,9-ocdd",
                                             "1,2,3,4,6,7,8-hpcdd",
                                             "1,2,3,6,7,8-hxcdd",
-                                            "PCB 118"))) %>% 
+                                            "PCB 118"))) %>%
+  mutate(group3 = fct_relevel(group3, c("Non-Dioxin-like PCBs", "Non-Ortho PCBs", "mPFD"))) %>% 
+  mutate(group3 = fct_recode(group3, "Mono-Ortho PCB 118,\nFurans and Dioxins" =  "mPFD",
+                            "Non-Ortho\nPCBs" = "Non-Ortho PCBs")) %>% 
   ggplot(aes(x = variable, y = beta)) + geom_point(aes(color = group3), size = 2.5) +
   geom_hline(yintercept = 0, color = "grey", linetype = "dashed") + theme_bw(base_size = 18) +
-  facet_grid(group3 ~ method, scales="free_y", space = "free_y",
-             labeller = labeller(group3 = label_wrap_gen(5))) + coord_flip() +
+  facet_grid(group3 ~ method, scales="free_y", space = "free_y") + coord_flip() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "bottom",
         strip.background = element_rect(fill = "white")) +
   labs(y = "Beta Coefficients",
        x = "Congeners", 
        color = "POP Group")
 
-png("./Figures/vs_plot.png", width = 1000, height = 1100, res = 100)
+png("./Figures/vs_plot.png", width = 1000, height = 1200, res = 100)
 vs_plot
 dev.off()
 
@@ -283,11 +297,11 @@ dev.off()
 
 png("./Figures/bkmr_univar.png", width = 1500, height = 1600, res = 100)
 pred.resp.univar %>% 
-  mutate(Group = ifelse(variable == "PCB118", "TEQ", 
-                  ifelse(grepl("Dioxin", variable), "TEQ",
-                   ifelse(grepl("Furan", variable), "TEQ",
-                    ifelse(variable == "PCB126", "Non-Ortho PCB",
-                     ifelse(variable == "PCB169", "Non-Ortho PCB", "Non-Dioxin-like PCBs")))))) %>% 
+  mutate(Group = ifelse(variable == "PCB118", "mPFD", 
+                  ifelse(grepl("Dioxin", variable), "mPFD",
+                   ifelse(grepl("Furan", variable), "mPFD",
+                    ifelse(variable == "PCB126", "Non-Ortho PCBs",
+                     ifelse(variable == "PCB169", "Non-Ortho PCBs", "Non-Dioxin-like PCBs")))))) %>% 
   mutate(variable = fct_recode(variable, "PCB 74" = "PCB74",
                                "PCB 99" = "PCB99",
                                "PCB 118" = "PCB118",
@@ -324,12 +338,13 @@ pred.resp.univar %>%
                                     "1,2,3,4,7,8-hxcdf",
                                     "1,2,3,6,7,8-hxcdf",
                                     "1,2,3,4,6,7,8-hxcdf"))) %>% 
+  mutate(Group = fct_recode(Group, "Mono-Ortho PCB 118, Furans and Dioxins" =  "mPFD")) %>% 
   ggplot(aes(z, est, ymin = est - 1.96*se, ymax = est + 1.96*se)) + 
   geom_smooth(aes(color = Group), stat = "identity") + ylab("h(z)") + 
   facet_wrap(~ variable) + theme_bw(base_size = 25) +
   theme(strip.background = element_rect(fill = "white"),
         legend.position = "bottom",
-        axis.title = element_text(size = 45)) +
+        axis.title = element_text(size = 40)) +
   labs(x = "Congeners", y = "Estimates")
 dev.off()
 
@@ -562,7 +577,7 @@ risks.singvar %>% mutate(variable = fct_recode(variable, "PCB 74" = "PCB74",
   labs(x = "", y = "Estimate", col = "Fixed Quantile")
 dev.off()
 
-png("./Figures/bkmr_int2.png", width = 900, height = 1200, res = 100)
+png("./Figures/bkmr_int2.png", width = 1000, height = 1200, res = 100)
 risks.int %>% mutate(variable = fct_recode(variable, "PCB 74" = "PCB74",
                                            "PCB 99" = "PCB99",
                                            "PCB 118" = "PCB118",
@@ -599,10 +614,13 @@ risks.int %>% mutate(variable = fct_recode(variable, "PCB 74" = "PCB74",
                                             "PCB 138",
                                             "PCB 99",
                                             "PCB 74"))) %>% 
-  mutate(Group = case_when(variable == "PCB 118" ~ "TEQ",
-                           variable == c("PCB 126", "PCB 169") ~ "Non-Ortho PCB", 
-                           grepl("PCB", variable) ~ "Non-Dioxin-like PCB",
-                           grepl(",", variable) ~ "TEQ")) %>% 
+  mutate(Group = case_when(variable == "PCB 118" ~ "mPFD",
+                           variable == c("PCB 126", "PCB 169") ~ "Non-Ortho PCBs", 
+                           grepl("PCB", variable) ~ "Non-Dioxin-like PCBs",
+                           grepl(",", variable) ~ "mPFD")) %>% 
+  mutate(Group = fct_recode(Group, "Mono-Ortho PCB 118,\nFurans and Dioxins" =  "mPFD",
+                            "Non-Dioxin-like\nPCBs" = "Non-Dioxin-like PCBs",
+                            "Non-Ortho\nPCBs" = "Non-Ortho PCBs")) %>% 
   ggplot(aes(variable, est, ymin = est - 1.96*sd, ymax = est + 1.96*sd)) + 
   geom_pointrange(aes(color = Group), position = position_dodge(width = 0.75), size = 1.1) + 
   geom_hline(yintercept = 0, lty = 2, col = "gray") + coord_flip() + theme_bw(base_size = 25) +
@@ -615,11 +633,11 @@ dev.off()
 
 png("./Figures/wqs_weights.png", width = 1000, height = 1000, res = 80)
 result2$final_weights %>% 
-  mutate(Group = ifelse(mix_name == "LBX118LA", "TEQ", 
-                  ifelse(grepl("LBX1", mix_name), "Non-Dioxin-like PCB",
-                   ifelse(grepl("LBX0", mix_name), "Non-Dioxin-like PCB",
-                    ifelse(grepl("LBXP", mix_name), "Non-Ortho PCB",
-                     ifelse(grepl("LBXH", mix_name), "Non-Ortho PCB", "TEQ")))))) %>% 
+  mutate(Group = ifelse(mix_name == "LBX118LA", "mPFD", 
+                  ifelse(grepl("LBX1", mix_name), "Non-Dioxin-like PCBs",
+                   ifelse(grepl("LBX0", mix_name), "Non-Dioxin-like PCBs",
+                    ifelse(grepl("LBXP", mix_name), "Non-Ortho PCBs",
+                     ifelse(grepl("LBXH", mix_name), "Non-Ortho PCBs", "mPFD")))))) %>% 
   mutate(mix_name = tolower(mix_name),
          mix_name = fct_recode(mix_name, "PCB 74" = "lbx074la",
                                "PCB 99" = "lbx099la",
@@ -640,6 +658,9 @@ result2$final_weights %>%
                                "PCB 169" =  "lbxhxcla",
                                "PCB 126" = "lbxpcbla"),
          mix_name = fct_reorder(mix_name, mean_weight)) %>% 
+  mutate(Group = fct_recode(Group, "Mono-Ortho PCB 118,\nFurans and Dioxins" =  "mPFD",
+                            "Non-Dioxin-like\nPCBs" = "Non-Dioxin-like PCBs",
+                            "Non-Ortho\nPCBs" = "Non-Ortho PCBs")) %>% 
   ggplot(aes(x = mix_name, y = mean_weight, fill = Group)) +
   geom_hline(yintercept = 0.06, color = "grey", linetype = "dashed") +
   geom_bar(stat = "identity", color = "black") + theme_bw(base_size = 25) +
@@ -653,11 +674,11 @@ dev.off()
 
 png("./Figures/wqs_weights_reorder.png", width = 1000, height = 1000, res = 80)
 result2$final_weights %>% 
-  mutate(Group = ifelse(mix_name == "LBX118LA", "TEQ", 
-                   ifelse(grepl("LBX1", mix_name), "Non-Dioxin-like PCB",
-                     ifelse(grepl("LBX0", mix_name), "Non-Dioxin-like PCB",
-                       ifelse(grepl("LBXP", mix_name), "Non-Ortho PCB",
-                         ifelse(grepl("LBXH", mix_name), "Non-Ortho PCB", "TEQ")))))) %>% 
+  mutate(Group = ifelse(mix_name == "LBX118LA", "mPFD", 
+                   ifelse(grepl("LBX1", mix_name), "Non-Dioxin-like PCBs",
+                     ifelse(grepl("LBX0", mix_name), "Non-Dioxin-like PCBs",
+                       ifelse(grepl("LBXP", mix_name), "Non-Ortho PCBs",
+                         ifelse(grepl("LBXH", mix_name), "Non-Ortho PCBs", "mPFD")))))) %>% 
   mutate(mix_name = tolower(mix_name),
          mix_name = fct_recode(mix_name, "PCB 74" = "lbx074la",
                                "PCB 99" = "lbx099la",
@@ -695,6 +716,9 @@ result2$final_weights %>%
                                             "PCB 138",
                                             "PCB 99",
                                             "PCB 74"))) %>% 
+  mutate(Group = fct_recode(Group, "Mono-Ortho PCB 118,\nFurans and Dioxins" =  "mPFD",
+                            "Non-Dioxin-like\nPCBs" = "Non-Dioxin-like PCBs",
+                            "Non-Ortho\nPCBs" = "Non-Ortho PCBs")) %>% 
   ggplot(aes(x = mix_name, y = mean_weight, fill = Group)) +
   geom_hline(yintercept = 0.06, color = "grey", linetype = "dashed") +
   geom_bar(stat = "identity", color = "black") + theme_bw(base_size = 25) +

@@ -42,10 +42,10 @@ plot_all %>%
 ```{r}
 plot_all <- plot_all %>%
   filter(method %in% c("Lasso", "Grouped Lasso", "Elastic Net")) %>%   
-  mutate(group3 = case_when(variable == "lbx118la" ~ "TEQ",
-                           grepl("lbxf|d", variable) == TRUE ~ "TEQ",
-                           grepl("lbx1|0", variable) == TRUE ~ "Non-Dioxin-like PCB",
-                           grepl("lbxh|p", variable) == TRUE ~ "Non-Ortho PCB")) %>% 
+  mutate(group3 = case_when(variable == "lbx118la" ~ "mPFD",
+                           grepl("lbxf|d", variable) == TRUE ~ "mPFD",
+                           grepl("lbx1|0", variable) == TRUE ~ "Non-Dioxin-like PCBs",
+                           grepl("lbxh|p", variable) == TRUE ~ "Non-Ortho PCBs")) %>% 
   mutate(variable = as.factor(variable),
          group3 = as.factor(group3),
          method = as.factor(method)) %>% 
@@ -90,10 +90,11 @@ plot_all %>%
 
 ```{r}
 plot_all %>% 
+  mutate(group3 = fct_recode(group3, "Mono-Ortho PCB 118,\nFurans and Dioxins" =  "mPFD",
+                            "Non-Ortho\nPCBs" = "Non-Ortho PCBs")) %>% 
   ggplot(aes(x = variable, y = beta)) + geom_point(aes(color = group3), shape = 19) +
   geom_hline(yintercept = 0, color = "red", linetype = "dashed") + theme_bw() +
-  facet_grid(group3 ~ method, scales="free_y", space = "free_y",
-             labeller = labeller(group3 = label_wrap_gen(5))) + coord_flip() +
+  facet_grid(group3 ~ method, scales="free_y", space = "free_y") + coord_flip() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "bottom",
         strip.background = element_rect(fill = "white")) +
   labs(y = "Beta Coefficients",
