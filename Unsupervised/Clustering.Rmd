@@ -292,7 +292,7 @@ summary.km
 
 
 
-k-means N = 3 using standarized data
+k-means N = 3 using standardized data
 
 ```{r}
 # for reproducibility, set seed
@@ -411,7 +411,8 @@ plot_chem_means %>% as.tibble() %>% rename(pop_mean = `colMeans(log.x)`) %>%
 ```
 
 
-Plots of K-means N=3 with standarized data
+Plots of K-means N=3 with standardized data
+
 ```{r}
 
 ##creating data fram with cluster means for k-means N=3 standarized
@@ -534,6 +535,7 @@ pop_clus3 <- as.tibble((cbind(pop, clu.group3))) %>%
   mutate(clu.group3 = as.factor(clu.group3)) %>% 
   mutate(clu.group3 = fct_relevel(clu.group3, ref = "3"))
 table(pop_clus3$clu.group3)
+
 ```
 
 Put 3 clusters (categorical) into a linear regression w/ covariates to estimate association with LTL.
@@ -755,6 +757,60 @@ plot_chem_means %>% as.tibble() %>% rename(pop_mean = `colMeans(log.x)`) %>%
   labs(title = "Cluster means, N = 3", x = "Chemicals",
        y = "Mean", caption = "*Points indicate population means")
 ```
+
+Dendograms for hierarchical clustering using standardized data
+
+```{r}
+sd_hc.complete <- hclust(dist(na.omit(sd.log.x)), method = "complete")
+sd_dend.complete <- dendro_data(sd_hc.complete, type = "rectangle")
+plot.sd_complete <- ggplot(segment(sd_dend.complete)) + 
+  geom_segment(aes(x = x, y = y, xend = xend, yend = yend), alpha = 0.5) +
+  labs(y = "Height", x = "", title = "sd_Complete Linkage") + theme_minimal() +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
+        panel.grid = element_blank())
+
+sd_dendro.complete <- as.dendrogram(sd_hc.complete)
+sd_dendro.complete %>% color_branches(k = 3) %>% 
+    plot(main = "sd_Complete Linkage", ylab = "Height", leaflab = "none")
+  abline(h = 13, lty = 3)
+```
+
+Hierarchical clustering using standardized data
+
+```{r}
+
+sd_hc.clusters.3 = cutree(sd_hc.complete, 3)
+sd_hc_health_3 <- as.tibble(cbind(studypop, sd_hc.clusters.3)) %>% 
+  mutate(sd_hc.clusters.3 = as.factor(sd_hc.clusters.3)) %>% 
+  mutate(sd_hc.clusters.3 = fct_relevel(sd_hc.clusters.3, ref = "3"))
+ 
+sd_hc3.cl <- aggregate(as.matrix(sd.log.x) ~ as.factor(sd_hc.clusters.3), data = sd_hc_health_3, FUN = mean)[,-1]
+ 
+sd_hc3.cl <- as.data.frame.matrix(t(sd_hc3.cl))
+sd_hc3.cl$chem <- row.names(sd_hc3.cl)
+ 
+sd_means_hc3 <- sd_hc3.cl %>%
+  mutate(Group = ifelse(chem == "lbx118la.l2", "TEQ",
+                        ifelse(grepl("lbx1", chem), "Non-Dioxin-like PCB",
+                               ifelse(grepl("lbx0", chem), "Non-Dioxin-like PCB",
+                                      ifelse(grepl("lbxp", chem), "Non-Ortho PCB",
+                                             ifelse(grepl("lbxh", chem), "Non-Ortho PCB", "TEQ"))))))
+ 
+plot_sd_means_hc3 <- sd_means_hc3 %>%
+  rename("Cluster 3" = V1, "Cluster 2" = V2, "Cluster 1" = V3) %>% 
+  gather(key = "Cluster", value = "mean", -chem, -Group) %>% as.tibble()
+ 
+plot_sd_means_hc3 %>%
+  ggplot(aes(x = chem, y = mean, fill = Group)) + geom_col() +
+  facet_wrap(~ Cluster) + theme_bw() +
+  theme(legend.position = "bottom", axis.text.x = element_text(angle = 90, hjust = 1),
+        plot.caption = element_text(size = 11, hjust = 0)) +
+  geom_hline(yintercept = 0, size = 0.2) +
+  labs(title = "Cluster means, N = 3", x = "Chemicals",
+       y = "Mean")
+```
+
+
 
 
 ```{r}
