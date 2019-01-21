@@ -459,7 +459,9 @@ plot_means_sd_km3 %>%
         strip.background = element_rect(fill = "white")) +
   geom_hline(yintercept = 0, size = 0.2) +
   labs(x = "Chemicals",
-       y = "Mean")
+       y = "Mean",
+       title = "Standardized data, K-meand, N=3")
+
 
 ```
 
@@ -679,6 +681,7 @@ health_model_hc3 <- lm(logtelomean ~ hc.clusters.3 +
      as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = hc_health_3)
 
 summary(health_model_hc3)
+
 health_model_hc3 %>% broom::tidy() %>% mutate(
   estimate = round(estimate, 4),
   std.error = round(std.error, 4),
@@ -775,12 +778,12 @@ sd_dendro.complete %>% color_branches(k = 3) %>%
   abline(h = 13, lty = 3)
 ```
 
-Hierarchical clustering using standardized data
+Plots for Hierarchical clustering (3 clusters) using standardized data
 
 ```{r}
 
 sd_hc.clusters.3 = cutree(sd_hc.complete, 3)
-sd_hc_health_3 <- as.tibble(cbind(studypop, sd_hc.clusters.3)) %>% 
+sd_hc_health_3 <- as.tibble(cbind(pop, sd_hc.clusters.3)) %>% 
   mutate(sd_hc.clusters.3 = as.factor(sd_hc.clusters.3)) %>% 
   mutate(sd_hc.clusters.3 = fct_relevel(sd_hc.clusters.3, ref = "3"))
  
@@ -810,6 +813,13 @@ plot_sd_means_hc3 %>%
        y = "Mean")
 ```
 
+```{r}
+health_model_sd_hc3 <- lm(logtelomean ~ hc.clusters.3 +
+     lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct + age_cent + age_sq +
+     as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = sd_hc_health_3)
+
+summary(health_model_sd_hc3)
+```
 
 
 
