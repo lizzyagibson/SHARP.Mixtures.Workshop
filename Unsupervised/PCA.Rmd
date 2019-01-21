@@ -109,11 +109,11 @@ pca.ln.ld <- as.data.frame.matrix(pca.ln$rotation) ## rotation is the loadings v
 pca.ln.ld$chem <- row.names(pca.ln.ld)
 
 loadings_pca <- pca.ln.ld %>% 
-  mutate(Group = ifelse(chem == "lbx118la.l2", "TEQ", 
-                        ifelse(grepl("lbx1", chem), "Non-Dioxin-like PCB",
-                               ifelse(grepl("lbx0", chem), "Non-Dioxin-like PCB",
-                                      ifelse(grepl("lbxp", chem), "Non-Ortho PCB",
-                                             ifelse(grepl("lbxh", chem), "Non-Ortho PCB", "TEQ"))))))
+  mutate(Group = ifelse(chem == "lbx118la.l2", "mPFD", 
+                        ifelse(grepl("lbx1", chem), "Non-Dioxin-like PCBs",
+                               ifelse(grepl("lbx0", chem), "Non-Dioxin-like PCBs",
+                                      ifelse(grepl("lbxp", chem), "Non-Ortho PCBs",
+                                             ifelse(grepl("lbxh", chem), "Non-Ortho PCBs", "mPFD"))))))
 plot_loadings_pca <- loadings_pca %>% 
   gather(key = "PC", value = "Loading", -chem, -Group) %>% as.tibble()
 
