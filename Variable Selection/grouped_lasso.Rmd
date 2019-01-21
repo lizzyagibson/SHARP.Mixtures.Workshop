@@ -128,6 +128,28 @@ group4 <- as.factor(group4)
 cbind(colnames(x), group4)
 ```
 
+Third, 4 groups = 8 non-dioxin-like PCBs, 2 non-ortho PCBs, 1 mono-ortho PCB, and 3 dioxins and 4 furans (FD).
+
+```{r}
+group4b <- vector()
+group4b[grepl("lbx1|0",colnames(x))] <- "Non-Dioxin-like PCB"
+group4b[grepl("lbxd", colnames(x))] <- "FD"
+group4b[grepl("lbxf", colnames(x))] <- "FD"
+group4b[grepl("lbxh|p", colnames(x))] <- "Non-Ortho PCB"
+group4b[grepl("lbx118la", colnames(x))] <- "Mono-Ortho PCB"
+group4b[grepl("pct", colnames(x))] <- "0"
+group4b[grepl("bcsi", colnames(x))] <- "0"
+group4b[grepl("bmi", colnames(x))] <- "0"
+group4b[grepl("edu", colnames(x))] <- "0"
+group4b[grepl("race", colnames(x))] <- "0"
+group4b[grepl("male", colnames(x))] <- "0"
+group4b[grepl("bxcot", colnames(x))] <- "0"
+group4b[grepl("age", colnames(x))] <- "0"
+group4b <- as.factor(group4b)
+
+cbind(colnames(x), group4b) #bind by columns
+```
+
 # Grouped Variable Selection
 
 The code chunk below fits a three-group model using lasso, MCP, and SCAD penalties.
@@ -202,6 +224,21 @@ fit_lasso_4 <- grpreg(x, y, group4, penalty = "grLasso",
 fit_lasso_4$beta
 ```
 
+```{r}
+#4b group model
+cv_lasso_4b <- cv.grpreg(x, y, group4b, penalty = "grLasso", seed = 1988)
+
+#Find the lambda that results in the smallest CV error
+best_lasso_4b <- cv_lasso_4b$lambda.min
+
+#Fit model with cross-validated lambda
+fit_lasso_4b <- grpreg(x, y, group4b, penalty = "grLasso", 
+                      lambda = best_lasso_4b)
+
+#Look at coefficients from model with best lambda
+fit_lasso_4b$beta
+```
+
 ## Data Visualization
 
 ```{r vizlasso}
@@ -237,6 +274,26 @@ lasso_beta_4 %>%
   facet_wrap(~ group4, scales = "free_y") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) + coord_flip() + 
   labs(title = "Lasso Coefficients for 4 Group Model", y = "Beta Coefficient", x = "Variable")
+
+
+
+#### 4b group model 
+lasso_beta_4b <- as_tibble(fit_lasso_4b$beta, rownames = "variable") %>% 
+  rename(beta = `0.0051`) %>% 
+  filter(variable != "(Intercept)") %>% 
+  mutate(group3 = group3,
+         group4b = group4b)
+
+#Filter out covariates
+lasso_beta_4b %>% 
+  filter(group4b %in% c("FD", "Mono-Ortho PCB", "Non-Dioxin-like PCB", "Non-Ortho PCB")) %>% 
+  ggplot(aes(x = variable, y = round(beta, 5))) + 
+  geom_point() + theme_minimal() + geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+  facet_wrap(~ group4b, scales = "free_y") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + coord_flip() + 
+  labs(title = "Lasso Coefficients for 4 (b) Group Model", y = "Beta Coefficient", x = "Variable")
+
+
 ```
 
 # MCP w/ CV
