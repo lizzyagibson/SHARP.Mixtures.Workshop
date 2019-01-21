@@ -76,20 +76,18 @@ summary(log.x)
 ## Heat Map
 
 ```{r}
-cormat <- round(cor(studypop[grep("la", names(studypop))], use = "pairwise.complete.obs", 
-                    method = c("spearman")),2)
-
+cormat <- round(cor(studypop[grep("la", names(studypop))], use = "pairwise.complete.obs", method = c("spearman")),2)
 melted_cormat <- melt(cormat) %>% rename(Correlation = value)
 
 melted_cormat <- melted_cormat %>% 
-  mutate(group3.1 = case_when(Var1 == "lbx118la" ~ "mPFD",
-                           grepl("lbxf|d", Var1) == TRUE ~ "mPFD",
-                           grepl("lbx1|0", Var1) == TRUE ~ "Non-Dioxin-like PCBs",
-                           grepl("lbxh|p", Var1) == TRUE ~ "Non-Ortho PCBs")) %>% 
-  mutate(group3.2 = case_when(Var2 == "lbx118la" ~ "mPFD",
-                           grepl("lbxf|d", Var2) == TRUE ~ "mPFD",
-                           grepl("lbx1|0", Var2) == TRUE ~ "Non-Dioxin-like PCBs",
-                           grepl("lbxh|p", Var2) == TRUE ~ "Non-Ortho PCBs")) %>% 
+  mutate(group3.1 = case_when(Var1 == "lbx118la" ~ "TEQ",
+                           grepl("lbxf|d", Var1) == TRUE ~ "TEQ",
+                           grepl("lbx1|0", Var1) == TRUE ~ "Non-Dioxin-like PCB",
+                           grepl("lbxh|p", Var1) == TRUE ~ "Non-Ortho PCB")) %>% 
+  mutate(group3.2 = case_when(Var2 == "lbx118la" ~ "TEQ",
+                           grepl("lbxf|d", Var2) == TRUE ~ "TEQ",
+                           grepl("lbx1|0", Var2) == TRUE ~ "Non-Dioxin-like PCB",
+                           grepl("lbxh|p", Var2) == TRUE ~ "Non-Ortho PCB")) %>% 
   mutate(Var1 = fct_recode(Var1, "PCB 74" = "lbx074la",
                                 "PCB 99" = "lbx099la",
                                 "PCB 118" = "lbx118la",
@@ -147,15 +145,7 @@ ggplot(aes(Var1, Var2, fill = Correlation)) +
 
 ```{r}
 melted_cormat %>% 
- mutate(group3.1 = fct_relevel(group3.1, c("mPFD", 
-                                           "Non-Ortho PCBs", "Non-Dioxin-like PCBs"))) %>% 
- mutate(group3.2 = fct_relevel(group3.2, c("Non-Dioxin-like PCBs", "Non-Ortho PCBs", "mPFD"))) %>% 
- mutate(group3.1 = fct_recode(group3.1, 
-                              "Mono-Ortho PCB 118,\nFurans and Dioxins" =  "mPFD",
-                              "Non-Ortho\nPCBs" = "Non-Ortho PCBs")) %>% 
- mutate(group3.2 = fct_recode(group3.2, 
-                              "Mono-Ortho PCB 118,\nFurans and Dioxins" = "mPFD",
-                              "Non-Ortho\nPCBs" = "Non-Ortho PCBs")) %>% 
+ mutate(group3.1 = fct_relevel(group3.1, c("TEQ", "Non-Ortho PCB", "Non-Dioxin-like PCB"))) %>% 
  ggplot(aes(Var1, Var2, fill = Correlation)) +
  geom_tile(color = "white") +
  scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
@@ -170,8 +160,9 @@ melted_cormat %>%
         legend.position = "bottom",
         strip.background = element_rect(fill = "white")) +
   labs(x = "", y = "") +
-  facet_grid(group3.2 ~ group3.1, scales = "free", space = "free")
-
+  facet_grid(group3.2 ~ group3.1, scales = "free", space = "free",
+             labeller = labeller(group3.1 = label_wrap_gen(5),
+                                 group3.2 = label_wrap_gen(5)))
 ```
 
 ## K-Means Clustering
@@ -332,11 +323,11 @@ chem_means <- as.data.frame(colMeans(log.x)) #chem means
 chem_means$chem <- row.names(chem_means)
 
 plot_chem_means <- chem_means %>%
-  mutate(Group = ifelse(chem == "lbx118la.l2", "mPFD", 
-                        ifelse(grepl("lbx1", chem), "Non-Dioxin-like PCBs",
-                               ifelse(grepl("lbx0", chem), "Non-Dioxin-like PCBs",
-                                      ifelse(grepl("lbxp", chem), "Non-Ortho PCBs",
-                                             ifelse(grepl("lbxh", chem), "Non-Ortho PCBs", "mPFD"))))))
+  mutate(Group = ifelse(chem == "lbx118la.l2", "TEQ", 
+                        ifelse(grepl("lbx1", chem), "Non-Dioxin-like PCB",
+                               ifelse(grepl("lbx0", chem), "Non-Dioxin-like PCB",
+                                      ifelse(grepl("lbxp", chem), "Non-Ortho PCB",
+                                             ifelse(grepl("lbxh", chem), "Non-Ortho PCB", "TEQ"))))))
 
 
 ##creating data fram with cluster means for k-means N=3
@@ -344,11 +335,11 @@ km3_centers <- as.data.frame.matrix(t(km3$centers)) #centers
 km3_centers$chem <- row.names(km3_centers)
 
 means_km3 <- km3_centers %>% 
-  mutate(Group = ifelse(chem == "lbx118la.l2", "mPFD", 
-                        ifelse(grepl("lbx1", chem), "Non-Dioxin-like PCBs",
-                               ifelse(grepl("lbx0", chem), "Non-Dioxin-like PCBs",
-                                      ifelse(grepl("lbxp", chem), "Non-Ortho PCBs",
-                                             ifelse(grepl("lbxh", chem), "Non-Ortho PCBs", "mPFD"))))))
+  mutate(Group = ifelse(chem == "lbx118la.l2", "TEQ", 
+                        ifelse(grepl("lbx1", chem), "Non-Dioxin-like PCB",
+                               ifelse(grepl("lbx0", chem), "Non-Dioxin-like PCB",
+                                      ifelse(grepl("lbxp", chem), "Non-Ortho PCB",
+                                             ifelse(grepl("lbxh", chem), "Non-Ortho PCB", "TEQ"))))))
 plot_means_km3 <- means_km3 %>% 
   gather(key = "Cluster", value = "mean", -chem, -Group) %>% as.tibble()
 
@@ -358,11 +349,11 @@ km5_centers <- as.data.frame.matrix(t(km5$centers))
 km5_centers$chem <- row.names(km5_centers)
 
 means_km5 <- km5_centers %>% 
-  mutate(Group = ifelse(chem == "lbx118la.l2", "mPFD", 
-                        ifelse(grepl("lbx1", chem), "Non-Dioxin-like PCBs",
-                               ifelse(grepl("lbx0", chem), "Non-Dioxin-like PCBs",
-                                      ifelse(grepl("lbxp", chem), "Non-Ortho PCBs",
-                                             ifelse(grepl("lbxh", chem), "Non-Ortho PCBs", "mPFD"))))))
+  mutate(Group = ifelse(chem == "lbx118la.l2", "TEQ", 
+                        ifelse(grepl("lbx1", chem), "Non-Dioxin-like PCB",
+                               ifelse(grepl("lbx0", chem), "Non-Dioxin-like PCB",
+                                      ifelse(grepl("lbxp", chem), "Non-Ortho PCB",
+                                             ifelse(grepl("lbxh", chem), "Non-Ortho PCB", "TEQ"))))))
 plot_means_km5 <- means_km5 %>% 
   gather(key = "Cluster", value = "mean", -chem, -Group) %>% as.tibble()
 ```
@@ -748,11 +739,11 @@ hc3.cl <- as.data.frame.matrix(t(hc3.cl))
 hc3.cl$chem <- row.names(hc3.cl)
  
 means_hc3 <- hc3.cl %>%
-  mutate(Group = ifelse(chem == "lbx118la.l2", "mPFD",
-                        ifelse(grepl("lbx1", chem), "Non-Dioxin-like PCBs",
-                               ifelse(grepl("lbx0", chem), "Non-Dioxin-like PCBs",
-                                      ifelse(grepl("lbxp", chem), "Non-Ortho PCBs",
-                                             ifelse(grepl("lbxh", chem), "Non-Ortho PCBs", "mPFD"))))))
+  mutate(Group = ifelse(chem == "lbx118la.l2", "TEQ",
+                        ifelse(grepl("lbx1", chem), "Non-Dioxin-like PCB",
+                               ifelse(grepl("lbx0", chem), "Non-Dioxin-like PCB",
+                                      ifelse(grepl("lbxp", chem), "Non-Ortho PCB",
+                                             ifelse(grepl("lbxh", chem), "Non-Ortho PCB", "TEQ"))))))
  
 plot_means_hc3 <- means_hc3 %>%
   rename("Cluster 3" = V1, "Cluster 2" = V2, "Cluster 1" = V3) %>% 
@@ -768,12 +759,12 @@ plot_chem_means %>% as.tibble() %>% rename(pop_mean = `colMeans(log.x)`) %>%
   geom_hline(yintercept = 0, size = 0.2) +
   labs(title = "Cluster means, N = 3", x = "Chemicals",
        y = "Mean", caption = "*Points indicate population means")
-<<<<<<< Updated upstream
 ```
 
 Dendograms for hierarchical clustering using standardized data
 
 ```{r}
+sd.log.x = scale(log.x)
 sd_hc.complete <- hclust(dist(na.omit(sd.log.x)), method = "complete")
 sd_dend.complete <- dendro_data(sd_hc.complete, type = "rectangle")
 plot.sd_complete <- ggplot(segment(sd_dend.complete)) + 
@@ -791,12 +782,15 @@ sd_dendro.complete %>% color_branches(k = 3) %>%
 Plots for Hierarchical clustering (3 clusters) using standardized data
 
 ```{r}
-
 sd_hc.clusters.3 = cutree(sd_hc.complete, 3)
 sd_hc_health_3 <- as.tibble(cbind(pop, sd_hc.clusters.3)) %>% 
   mutate(sd_hc.clusters.3 = as.factor(sd_hc.clusters.3)) %>% 
   mutate(sd_hc.clusters.3 = fct_relevel(sd_hc.clusters.3, ref = "3"))
  
+summary(sd_hc_health_3)
+table(sd_hc_health_3$sd_hc.clusters.3)
+
+
 sd_hc3.cl <- aggregate(as.matrix(sd.log.x) ~ as.factor(sd_hc.clusters.3), data = sd_hc_health_3, FUN = mean)[,-1]
  
 sd_hc3.cl <- as.data.frame.matrix(t(sd_hc3.cl))
@@ -824,7 +818,7 @@ plot_sd_means_hc3 %>%
 ```
 
 ```{r}
-health_model_sd_hc3 <- lm(logtelomean ~ hc.clusters.3 +
+health_model_sd_hc3 <- lm(logtelomean ~ sd_hc.clusters.3 +
      lbxwbcsi + lbxlypct + lbxmopct + lbxnepct + lbxeopct + lbxbapct + age_cent + age_sq +
      as.factor(bmi_cat3) + as.factor(edu_cat) + as.factor(race_cat) + male, data = sd_hc_health_3)
 
@@ -843,6 +837,3 @@ summary_kmeans_hc
 write.csv(summary_kmeans_hc, file = "summary_kmeans_hc.csv")
 ```
 
-=======
-```
->>>>>>> Stashed changes
