@@ -275,10 +275,13 @@ vs_plot <- plot_all %>%
                                             "1,2,3,4,6,7,8-hpcdd",
                                             "1,2,3,6,7,8-hxcdd",
                                             "PCB 118"))) %>%
+  mutate(color3 = group3) %>% 
+  mutate(color3 = fct_recode(color3, "Mono-Ortho PCB 118,\nFurans and Dioxins" =  "mPFD",
+                             "Non-Ortho\nPCBs" = "Non-Ortho PCBs")) %>% 
   mutate(group3 = fct_relevel(group3, c("Non-Dioxin-like PCBs", "Non-Ortho PCBs", "mPFD"))) %>% 
   mutate(group3 = fct_recode(group3, "Mono-Ortho PCB 118,\nFurans and Dioxins" =  "mPFD",
                             "Non-Ortho\nPCBs" = "Non-Ortho PCBs")) %>% 
-  ggplot(aes(x = variable, y = beta)) + geom_point(aes(color = group3), size = 2.5) +
+  ggplot(aes(x = variable, y = beta, color = color3)) + geom_point(size = 2.5) +
   geom_hline(yintercept = 0, color = "grey", linetype = "dashed") + theme_bw(base_size = 18) +
   facet_grid(group3 ~ method, scales="free_y", space = "free_y") + coord_flip() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "bottom",
