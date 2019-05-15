@@ -1,0 +1,104 @@
+---
+title: "Variable Selection Visualization"
+author: "Lizzy Gibson"
+date: "7/26/2018"
+output: 
+  html_document:
+    toc: TRUE
+    toc_float: TRUE
+---
+
+```{r setup, include=FALSE}
+#install.packages("tidyverse")
+library(tidyverse)
+```
+
+## Combine Effect Estimates
+
+```{r}
+#Need two periods to knit: "../"
+#Need one period to run in console: "./"
+#Or change file path to match your computer
+grouped <- read_csv("../Variable Selection/grouped_betas.csv")
+ind <- read_csv("../Variable Selection/ind_betas.csv")
+
+plot_all <- rbind(grouped, ind) %>% filter(grepl("la$", variable)) 
+```
+
+## Compare Variable Selection Methods
+
+```{r}
+plot_all %>%
+  ggplot(aes(x = method, y = round(beta, 5))) + geom_point(aes(color = method)) +
+  theme_minimal() + geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "none") +
+  facet_wrap( ~ variable) + coord_flip() + 
+  labs(title = "Variable Selection Coefficients", 
+       y = "Beta Coefficients",
+       x = "Variable", 
+       color = "Method")
+```
+
+```{r}
+plot_all <- plot_all %>%
+  filter(method %in% c("Lasso", "Grouped Lasso", "Elastic Net")) %>%   
+  mutate(group3 = case_when(variable == "lbx118la" ~ "mPFD",
+                           grepl("lbxf|d", variable) == TRUE ~ "mPFD",
+                           grepl("lbx1|0", variable) == TRUE ~ "Non-Dioxin-like PCBs",
+                           grepl("lbxh|p", variable) == TRUE ~ "Non-Ortho PCBs")) %>% 
+  mutate(variable = as.factor(variable),
+         group3 = as.factor(group3),
+         method = as.factor(method)) %>% 
+  mutate(method = fct_relevel(method, c("Lasso", "Elastic Net", "Grouped Lasso"))) %>% 
+  mutate(variable = fct_recode(variable, "PCB 74" = "lbx074la",
+                                "PCB 99" = "lbx099la",
+                                "PCB 118" = "lbx118la",
+                                "PCB 138" = "lbx138la",
+                                "PCB 153" = "lbx153la",
+                                "PCB 170" = "lbx170la",
+                                "PCB 180" = "lbx180la",
+                                "PCB 187" = "lbx187la",
+                                "PCB 194" = "lbx194la",
+                                "1,2,3,6,7,8-hxcdd" = "lbxd03la",
+                                "1,2,3,4,6,7,8-hpcdd" = "lbxd05la",
+                               "1,2,3,4,6,7,8,9-ocdd" =  "lbxd07la",
+                               "2,3,4,7,8-pncdf" =  "lbxf03la",
+                               "1,2,3,4,7,8-hxcdf" =  "lbxf04la",
+                               "1,2,3,6,7,8-hxcdf" =  "lbxf05la",
+                               "1,2,3,4,6,7,8-hxcdf" =  "lbxf08la",
+                               "PCB 169" =  "lbxhxcla",
+                                "PCB 126" = "lbxpcbla"))
+  
+table(plot_all$variable, plot_all$group3)                       
+
+plot_all %>% 
+  mutate(variable = as.factor(variable),
+         group = as.factor(group3),
+         method = as.factor(method)) %>% 
+  mutate(method = fct_relevel(method, c("Lasso", "Elastic Net", "Grouped Lasso"))) %>% 
+  group_by(group) %>% 
+  filter(method %in% c("Lasso", "Grouped Lasso", "Elastic Net")) %>% 
+  ggplot(aes(x = variable, y = round(beta, 5))) + geom_point(aes(color = group)) +
+  theme_minimal() + geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "bottom") +
+  facet_wrap( ~ method) + coord_flip() + 
+  labs(title = "Variable Selection Coefficients", 
+       y = "Beta Coefficients",
+       x = "Variables", 
+       color = "POP Group")
+```
+
+```{r}
+plot_all %>% 
+  mutate(group3 = fct_recode(group3, "Mono-Ortho PCB 118,\nFurans and Dioxins" =  "mPFD",
+                            "Non-Ortho\nPCBs" = "Non-Ortho PCBs")) %>% 
+  ggplot(aes(x = variable, y = beta)) + geom_point(aes(color = group3), shape = 19) +
+  geom_hline(yintercept = 0, color = "red", linetype = "dashed") + theme_bw() +
+  facet_grid(group3 ~ method, scales="free_y", space = "free_y") + coord_flip() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "bottom",
+        strip.background = element_rect(fill = "white")) +
+  labs(y = "Beta Coefficients",
+       x = "Variables", 
+       color = "POP Group")
+```
+
