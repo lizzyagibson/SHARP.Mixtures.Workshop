@@ -3,13 +3,12 @@ Columbia University, Mailman School of Public Health. Environmental Mixtures Wor
 
 
 # Repository guide
-Whithin this repository you will find the code materials used during the Mixtures Workshop 2018. To help you navigate the repository, below is a description of what each folder contains.
+Whithin this repository you will find the code materials used during the Mixtures Workshop 2018. To help you navigate the repository, below is a description of the repository organization.
 
-1) Mitro_et_al_materials 
--contains the code and data used by Mitro et al. 
+The repository is organized into two main folders "Unsupervised" and "Supervised" which contained the materials for the unsupervised and supervised methods correspondigly. The Unsupervised folder is subdived into three folders: PCA, FA, and Clustering. And the Supervised folder is subdived into: WQS, Variable Selection, and BKMR. All the coding materials for each respective method are within its folder. 
 
-2) Supervised
--Whithin this folder you will find 3 subfolders:
-a) BKMR:
-b) Variable Selection: has the lasso and grouped_lasso rmd files with their respective html file.  These rmd files contained the main code for each of these methods. The figures_variable_selection rmd file has the code of summary figures for all the variable selection methods. 
-  c) WQS.      
+In addition to the Unsupervised and Supervised folders you will find the following folders: 
+
+1) Data: contains the data and the data dictionary.
+2) Mitro_et_al_materials: contains the code and data used by Mitro et al. 
+3) workshop_paper_figures: contains the figures include in the Gibson et al. paper. 
