@@ -85,7 +85,7 @@ knots100     <- fields::cover.design(lnmixture_z, nd = 100)$design
 #Need one period to run in console: "./"
 #Or change file path to match your computer
 ### Group VS fit with all exposures using GPP and 100 knots 
-load("../BKMR/NHANES_knots100.RData")
+load("../Supervised/BKMR/saved_model/NHANES_knots100.RData")
 
 ##### fit BKMR models WITH Gaussian predictive process using 100 knots
 
@@ -109,7 +109,7 @@ temp <-  kmbayes(y=lnLTL_z, Z=lnmixture_z, X=covariates, iter=100, verbose=TRUE,
 #Need two periods to knit: "../"
 #Need one period to run in console: "./"
 #Or change file path to match your computer
-load("../BKMR/bkmr_NHANES_gvs_knots100.RData")
+load("../Supervised/BKMR/saved_model/bkmr_NHANES_gvs_knots100.RData")
 summary(fit_gvs_knots100)
 ```
 
@@ -121,13 +121,6 @@ ExtractPIPs(fit_gvs_knots100)
 ```
 
 ## Data Visualization
-
-```{r load}
-#Need two periods to knit: "../"
-#Need one period to run in console: "./"
-#Or change file path to match your computer
-load("../BKMR/bkmr_NHANES_gvs_knots100.RData")
-```
 
 ### Correlation Matrix
 
@@ -196,7 +189,7 @@ par(mfrow=c(1,1))
 #Need one period to run in console: "./"
 #Or change file path to match your computer
 
-load(paste0("../BKMR/", modeltoplot.name,"_plots.RData"))
+load(paste0("../Supervised/BKMR/saved_model/", modeltoplot.name,"_plots.RData"))
 ```
 
 ```{r save}
