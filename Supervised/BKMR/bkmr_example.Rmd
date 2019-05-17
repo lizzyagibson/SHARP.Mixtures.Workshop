@@ -9,7 +9,13 @@ output:
     toc_depth: 4
 ---
 
+```{r setup2, include=FALSE, echo=FALSE}
+require("knitr")
+opts_knit$set(root.dir = "../../")
+```
+
 ```{r setup, include = FALSE}
+require("knitr")
 knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
 ## load required libraries 
 library(bkmr)
@@ -27,10 +33,10 @@ library(tidyverse)
 ```{r read_data}
 ## read in data and only consider complete data 
 ## this drops 327 individuals, but BKMR does not handle missing data
-#Need two periods to knit: "../"
+#Need two period sets to knit: "../../"
 #Need one period to run in console: "./"
 #Or change file path to match your computer
-nhanes = na.omit(read.csv("../Data/studypop.csv"))
+nhanes = na.omit(read_csv("./Data/studypop.csv"))
 
 ## center/scale continous covariates and create indicators for categorical covariates
 nhanes$age_z = scale(nhanes$age_cent) ## center and scale age
@@ -73,7 +79,7 @@ covariates = with(nhanes, cbind(age_z, agez_sq, male, bmicat2, bmicat3, educat1,
 ### create knots matrix for Gaussian predictive process (to speed up BKMR with large datasets)
 set.seed(10)
 knots100     <- fields::cover.design(lnmixture_z, nd = 100)$design
-#save(knots100, knots100.PCB, file = "./BKMR/NHANES_knots100.RData") 
+#save(knots100, knots100.PCB, file = "./Supervised/BKMR/saved_model/NHANES_knots100.RData") 
 ```
 
 ## Fit Models
@@ -85,7 +91,7 @@ knots100     <- fields::cover.design(lnmixture_z, nd = 100)$design
 #Need one period to run in console: "./"
 #Or change file path to match your computer
 ### Group VS fit with all exposures using GPP and 100 knots 
-load("../Supervised/BKMR/saved_model/NHANES_knots100.RData")
+load("./Supervised/BKMR/saved_model/NHANES_knots100.RData")
 
 ##### fit BKMR models WITH Gaussian predictive process using 100 knots
 
@@ -109,7 +115,7 @@ temp <-  kmbayes(y=lnLTL_z, Z=lnmixture_z, X=covariates, iter=100, verbose=TRUE,
 #Need two periods to knit: "../"
 #Need one period to run in console: "./"
 #Or change file path to match your computer
-load("../Supervised/BKMR/saved_model/bkmr_NHANES_gvs_knots100.RData")
+load("./Supervised/BKMR/saved_model/bkmr_NHANES_gvs_knots100.RData")
 summary(fit_gvs_knots100)
 ```
 
@@ -131,7 +137,7 @@ cor.Z = cor(lnmixture_z, use = "complete.obs")
 #Need two periods to knit: "../"
 #Need one period to run in console: "./"
 #Or change file path to match your computer
-#pdf(file= "../BKMR/cor_nhanes.pdf", width=12, height=12)
+#pdf(file= "./Supervised/BKMR/saved_model/cor_nhanes.pdf", width=12, height=12)
 corrplot.mixed(cor.Z, upper = "ellipse", lower.col = "black")
 #dev.off()
 ```
@@ -182,14 +188,14 @@ par(mfrow=c(1,1))
 #risks.int <- SingVarIntSummaries(fit = modeltoplot, qs.diff = c(0.25, 0.75), qs.fixed = c(0.25, 0.75))
 
 #Save the data need to plot the summaries of interest generated 
-#save(pred.resp.univar, pred.resp.bivar, pred.resp.bivar.levels, risks.overall, risks.singvar, risks.int, file=paste0(modeltoplot.name,"_plots.RData"))
+#save(pred.resp.univar, pred.resp.bivar, pred.resp.bivar.levels, risks.overall, risks.singvar, risks.int, file=paste0("./Supervised/BKMR/saved_model/", modeltoplot.name,"_plots.RData"))
 
 # Load in the results, which were computed previously and saved using the command just above this
 #Need two periods to knit: "../"
 #Need one period to run in console: "./"
 #Or change file path to match your computer
 
-load(paste0("../Supervised/BKMR/saved_model/", modeltoplot.name,"_plots.RData"))
+load(paste0("./Supervised/BKMR/saved_model/", modeltoplot.name,"_plots.RData"))
 ```
 
 ```{r save}

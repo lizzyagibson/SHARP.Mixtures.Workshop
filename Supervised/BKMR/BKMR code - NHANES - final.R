@@ -88,7 +88,7 @@ ExtractPIPs(fit_gvs_knots100)
 ###        PLOTS                           ###
 ##############################################
 
-load("./BKMR/saved_model/bkmr_NHANES_gvs_knots100.RData")
+#load("./BKMR/saved_model/bkmr_NHANES_gvs_knots100.RData")
 
 ### correlation matrix
 cor.Z <- cor(lnmixture_z, use="complete.obs")

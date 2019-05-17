@@ -5,6 +5,7 @@
 ###  edited for speed for lab session        ###
 ###  by Brent Coull                          ###
 ###  8/22/18                                 ###
+###  Last updated: 5/17/2019                 ###
 ################################################
 
 ## This line is computer specific 
@@ -69,7 +70,7 @@ set.seed(10) #if you want exact reproducibility, you need to also set a seed for
 ##happens at random. 
 knots100     <- fields::cover.design(lnmixture_z, nd = 100)$design ### we have a 18 dimensional space and this code line
 #generates 100 vectors describing this dimensional space. 
-save(knots100, file="NHANES_knots100.RData") 
+#save(knots100, file="NHANES_knots100.RData") 
 
 
 
@@ -78,7 +79,7 @@ save(knots100, file="NHANES_knots100.RData")
 ###         Fit Models                       ###
 ################################################
 
-load("./BKMR/NHANES_knots100.RData")
+load("./Supervised/BKMR/saved_model/NHANES_knots100.RData")
 
 ##### fit BKMR models WITH Gaussian predictive process using 100 knots
 
@@ -88,25 +89,21 @@ set.seed(1000)
 ## For this lab we are only going to generate 100 MCMC samples to get a sense
 ##   for what the program outputs.  
 
-#fit_gvs_knots100 <-  kmbayes(y=lnLTL_z, Z=lnmixture_z, X=covariates, iter=100000, verbose=TRUE, varsel=TRUE, 
-#                             groups=c(rep(1,times=9),rep(2,times=2),rep(3,times=3),rep(4,times=4)), knots=knots100)
-
-###What groups does? is requesting the variables to be group because they are highly correlated and we don't group them,
-#it is very difficult to select among them. 
+# fit_gvs_knots100 <-  kmbayes(y=lnLTL_z, Z=lnmixture_z, X=covariates, iter=100000, verbose=TRUE, varsel=TRUE, 
+#                              groups=c(rep(1,times=2), 2, rep(1,times=6), rep(3,times=2),rep(2,times=7)), knots=knots100)
 
 temp <-  kmbayes(y=lnLTL_z, Z=lnmixture_z, X=covariates, iter=100, verbose=TRUE, varsel=TRUE, 
-                             groups=c(rep(1,times=9),rep(2,times=2),rep(3,times=3),rep(4,times=4)), knots=knots100)
+                             groups=c(rep(1,times=2), 2, rep(1,times=6), rep(3,times=2), rep(2,times=7)), knots=knots100)
 
 ## The following statement saved the model fits using 100,000 MCMC samples. We won't save
 ##    our fit based on 100 samples. Rather we will load in the results from 100,000. 
 
 #save(fit_gvs_knots100,file="bkmr_NHANES_gvs_knots100.RData")
-load("./BKMR/bkmr_NHANES_gvs_knots100.RData")
+load("./Supervised/BKMR/saved_model/bkmr_NHANES_gvs_knots100.RData")
 summary(fit_gvs_knots100)
-###PIP -> refers to the probability of inclusion for the given variable, as you see all variables within the same group have the same 
-#probability of been included. 
 
 ## obtain posterior inclusion probabilities (PIPs)
+## PIP -> refers to the probability of inclusion for the given variable
 ExtractPIPs(fit_gvs_knots100)
 
 
@@ -119,7 +116,7 @@ ExtractPIPs(fit_gvs_knots100)
 ### correlation matrix
 cor.Z <- cor(lnmixture_z, use="complete.obs")
 
-pdf(file="cor_nhanes.pdf", width=12, height=12)
+pdf(file="./Supervised/BKMR/figures_pdf/cor_nhanes.pdf", width=12, height=12)
 corrplot.mixed(cor.Z, upper = "ellipse", lower.col="black")
 dev.off()
 
@@ -137,7 +134,7 @@ Z                <- lnmixture_z        ## Z matrix to match what was used in mod
 sel<-seq(50001,100000,by=50)
 
 
-### access convergence with traceplots 
+### assess convergence with traceplots 
 TracePlot(fit = modeltoplot, par = "beta", sel=sel)
 TracePlot(fit = modeltoplot, par = "sigsq.eps", sel=sel)
 
@@ -147,7 +144,7 @@ TracePlot(fit = modeltoplot, par = "r", comp = 2, sel=sel)
 TracePlot(fit = modeltoplot, par = "r", comp = 3, sel=sel)
 TracePlot(fit = modeltoplot, par = "r", comp = 4, sel=sel)
 par(mfrow=c(1,1))
-##These weight parameter need to be positive. 
+
 
 #### create dataframes for ggplot (this takes a little while to run)
 
@@ -159,24 +156,26 @@ par(mfrow=c(1,1))
 #pred.resp.bivar  <- PredictorResponseBivar(fit = modeltoplot,  min.plot.dist = 1, sel=sel, method="approx")
 #pred.resp.bivar.levels <- PredictorResponseBivarLevels(pred.resp.df = pred.resp.bivar, Z = Z,
 #                                                          both_pairs = TRUE, qs = c(0.25, 0.5, 0.75))
-#risks.overall <- OverallRiskSummaries(fit = modeltoplot, qs = seq(0.25, 0.75, by = 0.05), q.fixed = 0.5, method = "approx",sel=sel)
+#risks.overall <- OverallRiskSummaries(fit = modeltoplot, qs = seq(0.25, 0.75, by = 0.05), q.fixed = 0.5, 
+#method = "approx",sel=sel)
 #risks.singvar <- SingVarRiskSummaries(fit = modeltoplot, qs.diff = c(0.25, 0.75),
 #                                        q.fixed = c(0.25, 0.50, 0.75), method = "approx")
 #risks.int <- SingVarIntSummaries(fit = modeltoplot, qs.diff = c(0.25, 0.75), qs.fixed = c(0.25, 0.75))
 
 ## Save the data need to plot the summaries of interest generated 
-#save(pred.resp.univar, pred.resp.bivar, pred.resp.bivar.levels, risks.overall, risks.singvar, risks.int, file=paste0(modeltoplot.name,"_plots.RData"))
+#save(pred.resp.univar, pred.resp.bivar, pred.resp.bivar.levels, risks.overall, risks.singvar, risks.int, 
+#file=paste0("./Supervised/BKMR/saved_model/", modeltoplot.name,"_plots.RData"))
 
 # Load in the results, which were computed previously and saved using the command just above this
-load(paste0("./BKMR/", modeltoplot.name,"_plots.RData"))
+load(paste0("./Supervised/BKMR/saved_model/", modeltoplot.name,"_plots.RData"))
 
 ### run and save ggplots for each bkmr model
-pdf(file=paste0("univar_",plot.name,".pdf"), width=15, height=15)
+pdf(file=paste0("./Supervised/BKMR/figures_pdf/univar_",plot.name,".pdf"), width=15, height=15)
 ggplot(pred.resp.univar, aes(z, est, ymin = est - 1.96*se, ymax = est + 1.96*se)) + 
   geom_smooth(stat = "identity") + ylab("h(z)") + facet_wrap(~ variable) 
 dev.off()
 
-pdf(file=paste0("bivar_",plot.name,".pdf"), width=30, height=30)
+pdf(file=paste0("./Supervised/BKMR/figures_pdf/bivar_",plot.name,".pdf"), width=30, height=30)
 ggplot(pred.resp.bivar, aes(z1, z2, fill = est)) + 
   geom_raster() + 
   facet_grid(variable2 ~ variable1) +
@@ -186,7 +185,7 @@ ggplot(pred.resp.bivar, aes(z1, z2, fill = est)) +
   ggtitle("h(expos1, expos2)")
 dev.off()
 
-pdf(file=paste0("bivar_levels_",plot.name,".pdf"), width=30, height=30)
+pdf(file=paste0("./Supervised/BKMR/figures_pdf/bivar_levels_",plot.name,".pdf"), width=30, height=30)
 ggplot(pred.resp.bivar.levels, aes(z1, est)) + 
   geom_smooth(aes(col = quantile), stat = "identity") + 
   facet_grid(variable2 ~ variable1) +
@@ -195,16 +194,32 @@ ggplot(pred.resp.bivar.levels, aes(z1, est)) +
 dev.off()
 #in this plot we can see that most of the relationships between the PCBs are linear
 
-pdf(file=paste0("overallrisks_",plot.name,".pdf"), width=10, height=10)
-ggplot(risks.overall, aes(quantile, est, ymin = est - 1.96*sd, ymax = est + 1.96*sd)) +  geom_hline(yintercept=00, linetype="dashed", color="gray")+ 
+pdf(file=paste0("./Supervised/BKMR/figures_pdf/overallrisks_",plot.name,".pdf"), width=10, height=10)
+ggplot(risks.overall, aes(quantile, est, ymin = est - 1.96*sd, ymax = est + 1.96*sd)) +  
+  geom_hline(yintercept=00, linetype="dashed", color="gray") + 
   geom_pointrange() + scale_y_continuous(name="estimate") 
 dev.off()
 
-pdf(file=paste0("singvar_",plot.name,".pdf"), width=5, height=10)
-ggplot(risks.singvar, aes(variable, est, ymin = est - 1.96*sd,  ymax = est + 1.96*sd, col = q.fixed)) +  geom_hline(aes(yintercept=0), linetype="dashed", color="gray")+  geom_pointrange(position = position_dodge(width = 0.75)) +  coord_flip() +  theme(legend.position="none")+scale_x_discrete(name="") + scale_y_continuous(name="estimate") 
+pdf(file=paste0("./Supervised/BKMR/figures_pdf/singvar_",plot.name,".pdf"), width=5, height=10)
+ggplot(risks.singvar, aes(variable, est, ymin = est - 1.96*sd,  ymax = est + 1.96*sd, col = q.fixed)) +  
+  geom_hline(aes(yintercept=0), linetype="dashed", color="gray") +  
+  geom_pointrange(position = position_dodge(width = 0.75)) +  coord_flip() +  
+  theme(legend.position="none")+scale_x_discrete(name="") + scale_y_continuous(name="estimate") 
 dev.off()
 
-pdf(file=paste0("interactplot_",plot.name,".pdf"), width=5, height=10)
-ggplot(risks.int, aes(variable, est, ymin = est - 1.96*sd, ymax = est + 1.96*sd)) + geom_pointrange(position = position_dodge(width = 0.75)) + geom_hline(yintercept = 0, lty = 2, col = "brown") + coord_flip()
+pdf(file=paste0("./Supervised/BKMR/figures_pdf/interactplot_",plot.name,".pdf"), width=5, height=10)
+ggplot(risks.int, aes(variable, est, ymin = est - 1.96*sd, ymax = est + 1.96*sd)) + 
+  geom_pointrange(position = position_dodge(width = 0.75)) + 
+  geom_hline(yintercept = 0, lty = 2, col = "brown") + coord_flip()
 dev.off()
 
+## univariate Furan1 model 
+summary(lm(lnLTL_z ~lnmixture_z[,15] + covariates))
+
+cor(lnmixture_z[,c(10,11,15)], use="complete.obs")
+## Furan1, PCB126 and PCB169 main effects
+summary(lm(lnLTL_z ~lnmixture_z[,15] + lnmixture_z[,10] + lnmixture_z[,11] + covariates))
+
+## Furan1:PCB126 and Furan1:PCB169 interaction 
+summary(lm(lnLTL_z ~lnmixture_z[,15] + lnmixture_z[,10] + lnmixture_z[,11] + 
+             lnmixture_z[,15]:lnmixture_z[,10]+ + lnmixture_z[,15]:lnmixture_z[,11]+covariates))
