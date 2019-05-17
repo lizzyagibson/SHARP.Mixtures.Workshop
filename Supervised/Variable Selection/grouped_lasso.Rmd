@@ -154,7 +154,7 @@ cbind(colnames(x), group4b) #bind by columns
 
 # Grouped Variable Selection
 
-The code chunk below fits a three-group model using lasso, MCP, and SCAD penalties.
+The code chunk below fits a three-group model using group lasso, MCP, and SCAD penalties. MCP (minimax concave penalty) and SCAD (smoothly clipped absolute deviation) are other bias-reducing penalties. They try to give unbiased coefficients for covariates with large effects, but operate under the same general framework as group lasso.
 
 ```{r models_3}
 lasso_3 <- grpreg(x, y, group3, penalty = "grLasso")
