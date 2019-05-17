@@ -9,6 +9,11 @@ output:
     toc_depth : 4
 ---
 
+```{r setup2, include=FALSE, echo=FALSE}
+require("knitr")
+opts_knit$set(root.dir = "../../")
+```
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
 #install.packages("gWQS", dependencies = TRUE)
@@ -23,10 +28,7 @@ options(scipen = 999)
 
 ```{r import}
 # import the dataset
-#Need two periods to knit: "../"
-#Need one period to run in console: "./"
-#Or change file path to match your computer
-dataset = read_csv("../Data/studypop.csv")
+dataset = read_csv("./Data/studypop.csv")
 
 # define the chemicals to include in the mixture
 mixture = c("LBX074LA", "LBX099LA", "LBX118LA", "LBX138LA", "LBX153LA", "LBX170LA", "LBX180LA", "LBX187LA",
