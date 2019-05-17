@@ -9,6 +9,11 @@ output:
     toc_depth: 5
 ---
 
+```{r setup2, include=FALSE, echo=FALSE}
+require("knitr")
+opts_knit$set(root.dir = "../../")
+```
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 #install.packages("tidyverse")
@@ -41,10 +46,7 @@ options(scipen = 999)
 ## Data Import and Cleaning
 
 ```{r data preping}
-#Need two periods to knit: "../"
-#Need one period to run in console: "./"
-#Or change file path to match your computer
-studypop <- read_csv("../Data/studypop.csv") %>% 
+studypop <- read_csv("./Data/studypop.csv") %>% 
   clean_names() %>% 
   na.omit() %>%
   mutate(bmi_cat3 = as.factor(bmi_cat3),
@@ -490,10 +492,7 @@ Combine clusters grouping with original data outcome and covariants for K-means 
 ```{r}
 clu.group <- km5$cluster #cluster group
 
-#Need two periods to knit: "../"
-#Need one period to run in console: "./"
-#Or change file path to match your computer
-pop <- read_csv("../Data/studypop.csv") %>% 
+pop <- read_csv("./Data/studypop.csv") %>% 
   clean_names() %>% 
   na.omit() %>%
   select(-(3:10), -(17:26)) %>% 

@@ -291,17 +291,14 @@ div.tocify {
 
 <div id="combine-effect-estimates" class="section level2">
 <h2>Combine Effect Estimates</h2>
-<pre class="r"><code>#Need two periods to knit: &quot;../&quot;
-#Need one period to run in console: &quot;./&quot;
-#Or change file path to match your computer
-grouped &lt;- read_csv(&quot;../Variable Selection/grouped_betas.csv&quot;)</code></pre>
+<pre class="r"><code>grouped &lt;- read_csv(&quot;./Supervised/Variable Selection/grouped_lasso_betas.csv&quot;)</code></pre>
 <pre><code>## Parsed with column specification:
 ## cols(
 ##   variable = col_character(),
 ##   beta = col_double(),
 ##   method = col_character()
 ## )</code></pre>
-<pre class="r"><code>ind &lt;- read_csv(&quot;../Variable Selection/ind_betas.csv&quot;)</code></pre>
+<pre class="r"><code>ind &lt;- read_csv(&quot;./Supervised/Variable Selection/lasso_elastic_net_betas.csv&quot;)</code></pre>
 <pre><code>## Parsed with column specification:
 ## cols(
 ##   variable = col_character(),
