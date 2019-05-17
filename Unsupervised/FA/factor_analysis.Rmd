@@ -321,7 +321,7 @@ FA_betas_confint <- as.data.frame(c(health_model$coefficients["MR1"], health_mod
 
 FA_betas_confint
 
-write.csv(FA_betas_confint, file = "FA_betas_confint.csv")
+#write.csv(FA_betas_confint, file = "FA_betas_confint.csv")
 ```
 
 ### Categorical
