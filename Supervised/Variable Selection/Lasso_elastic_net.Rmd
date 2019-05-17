@@ -103,6 +103,8 @@ featurePlot(x = x[,19:36],
             y = y,
             between = list(x = 1, y = 1),
             type = c("g", "p", "smooth"))
+
+# Warnings are about plot parameters, fine to ignore
 ```
 
 # Lasso w/ CV
