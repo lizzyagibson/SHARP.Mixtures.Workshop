@@ -40,7 +40,7 @@ options(scipen = 999)
 # Data Import and Cleaning
 
 ```{r data preping}
-studypop <- read_csv("./Data/studypop.csv") %>% 
+studypop <- read_csv("../../Data/studypop.csv") %>% 
   clean_names() %>% 
   na.omit() %>%
   mutate(bmi_cat3 = as.factor(bmi_cat3),
