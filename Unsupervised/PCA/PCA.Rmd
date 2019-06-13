@@ -35,9 +35,6 @@ options(scipen = 999)
 # Data Import and Cleaning
 
 ```{r data preping}
-
-getwd()
-
 studypop <- read_csv("../../Data/studypop.csv") %>% 
   clean_names() %>% 
   na.omit() %>%
