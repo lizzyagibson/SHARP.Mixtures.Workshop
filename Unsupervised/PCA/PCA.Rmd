@@ -8,10 +8,6 @@ output:
     toc_float: TRUE
 ---
 
-```{r setup2, include=FALSE, echo=FALSE}
-require("knitr")
-opts_knit$set(root.dir = "../../")
-```
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -170,7 +166,7 @@ Combine PC scores with original data outcome and covariants
 ```{r}
 x <- pca.ln$x #principal component scores for each chemical
 
-pop <- read_csv("../../Data/studypop.csv") %>% 
+pop <- read_csv("./Data/studypop.csv") %>% 
   clean_names() %>% 
   na.omit() %>%
   dplyr::select(-(3:10), -(17:26)) %>% 
