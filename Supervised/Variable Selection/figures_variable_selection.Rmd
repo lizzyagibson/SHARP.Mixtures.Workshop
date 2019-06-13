@@ -8,11 +8,6 @@ output:
     toc_float: TRUE
 ---
 
-```{r setup2, include=FALSE, echo=FALSE}
-require("knitr")
-opts_knit$set(root.dir = "../../")
-```
-
 ```{r setup, include=FALSE}
 #install.packages("tidyverse")
 library(tidyverse)
@@ -21,8 +16,8 @@ library(tidyverse)
 ## Combine Effect Estimates
 
 ```{r}
-grouped <- read_csv("./Supervised/Variable Selection/grouped_lasso_betas.csv")
-ind <- read_csv("./Supervised/Variable Selection/lasso_elastic_net_betas.csv")
+grouped <- read_csv("./grouped_lasso_betas.csv")
+ind <- read_csv("./lasso_elastic_net_betas.csv")
 
 plot_all <- rbind(grouped, ind) %>% filter(grepl("la$", variable)) 
 ```

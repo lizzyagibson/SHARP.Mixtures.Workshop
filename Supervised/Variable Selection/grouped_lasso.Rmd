@@ -8,11 +8,6 @@ output:
     toc_float: TRUE
 ---
 
-```{r setup2, include=FALSE, echo=FALSE}
-require("knitr")
-opts_knit$set(root.dir = "../../")
-```
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 #install.packages("tidyverse")
@@ -31,7 +26,7 @@ options(scipen = 999)
 First, load the dataset; clean up names as needed; and convert factors to, well, factors. 
 
 ```{r}
-study_pop = read_csv("./Data/studypop.csv") %>% 
+study_pop = read_csv("../../Data/studypop.csv") %>% 
   clean_names(case = c("old_janitor")) %>% 
   mutate(bmi_cat3 = as.factor(bmi_cat3),
          edu_cat = as.factor(edu_cat),
@@ -246,7 +241,7 @@ fit_lasso_4b$beta
 ```{r vizlasso}
 #3 group model
 lasso_beta_3 <- as_tibble(fit_lasso_3$beta, rownames = "variable") %>% 
-  rename(beta = `0.0058`) %>% 
+  rename(beta = 2) %>% 
   filter(variable != "(Intercept)") %>% 
   mutate(group3 = group3,
          group4 = group4,
@@ -263,7 +258,7 @@ lasso_beta_3 %>%
 
 #4 group model
 lasso_beta_4 <- as_tibble(fit_lasso_4$beta, rownames = "variable") %>% 
-  rename(beta = `0.0059`) %>% 
+  rename(beta = 2) %>% 
   filter(variable != "(Intercept)") %>% 
   mutate(group3 = group3,
          group4 = group4)
@@ -281,7 +276,7 @@ lasso_beta_4 %>%
 
 #### 4b group model 
 lasso_beta_4b <- as_tibble(fit_lasso_4b$beta, rownames = "variable") %>% 
-  rename(beta = `0.0051`) %>% 
+  rename(beta = 2) %>% 
   filter(variable != "(Intercept)") %>% 
   mutate(group3 = group3,
          group4b = group4b)
@@ -294,7 +289,6 @@ lasso_beta_4b %>%
   facet_wrap(~ group4b, scales = "free_y") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) + coord_flip() + 
   labs(title = "Lasso Coefficients for 4 (b) Group Model", y = "Beta Coefficient", x = "Variable")
-
 
 ```
 
@@ -338,7 +332,7 @@ fit_mcp_4$beta
 ```{r vizmcp}
 #3 group model
 mcp_beta_3 <- as_tibble(fit_mcp_3$beta, rownames = "variable") %>% 
-  rename(beta = `0.0123`) %>% 
+  rename(beta = 2) %>% 
   filter(variable != "(Intercept)") %>% 
   mutate(group3 = group3,
          group4 = group4,
@@ -355,7 +349,7 @@ mcp_beta_3 %>%
 
 #4 group model
 mcp_beta_4 <- as_tibble(fit_mcp_4$beta, rownames = "variable") %>% 
-  rename(beta = `0.0085`) %>% 
+  rename(beta = 2) %>% 
   filter(variable != "(Intercept)") %>% 
   mutate(group3 = group3,
          group4 = group4)
@@ -408,7 +402,7 @@ fit_scad_4$beta
 ```{r vizscad}
 #3 group model
 scad_beta_3 <- as_tibble(fit_scad_3$beta, rownames = "variable") %>% 
-  rename(beta = `0.0077`) %>% 
+  rename(beta = 2) %>% 
   filter(variable != "(Intercept)") %>% 
   mutate(group3 = group3,
          group4 = group4,
@@ -426,7 +420,7 @@ scad_beta_3 %>%
 
 #4 group model
 scad_beta_4 <- as_tibble(fit_scad_4$beta, rownames = "variable") %>% 
-  rename(beta = `0.0071`) %>% 
+  rename(beta = 2) %>% 
   filter(variable != "(Intercept)") %>% 
   mutate(group3 = group3,
          group4 = group4)
@@ -446,7 +440,7 @@ scad_beta_4 %>%
 grouped <- rbind(lasso_beta_3, mcp_beta_3, scad_beta_3) %>% 
   dplyr::select(-group3, -group4)
 
-write_csv(grouped, "./Supervised/Variable Selection/grouped_lasso_betas.csv")
+write_csv(grouped, "./grouped_lasso_betas.csv")
 ```
 
 ## OLS from MCP Results

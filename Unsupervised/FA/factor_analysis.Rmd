@@ -9,11 +9,6 @@ output:
     toc_depth: 4
 ---
 
-```{r setup2, include=FALSE, echo=FALSE}
-require("knitr")
-opts_knit$set(root.dir = "../../")
-```
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 #install.packages("tidyverse")
@@ -34,7 +29,7 @@ options(scipen = 999)
 ## Data Import and Cleaning
 
 ```{r clean}
-studypop <- read_csv("./Data/studypop.csv") %>% 
+studypop <- read_csv("../../Data/studypop.csv") %>% 
   clean_names() %>% 
   na.omit() %>% #remove missing
   dplyr::select(3:10, 17:26) #only include pollutants for FA, remove outcome and covariates
@@ -278,7 +273,7 @@ scores %>% gather(key = "factor", value = "score", MR1:MR4) %>% dplyr::select(-M
 Combine Factor scores with original data outcome and covariates.
 
 ```{r}
-pop <- read_csv("./Data/studypop.csv") %>% 
+pop <- read_csv("../../Data/studypop.csv") %>% 
   clean_names() %>% 
   na.omit() %>% #remove missing
   dplyr::select(-(3:10), -(17:26)) %>% 
