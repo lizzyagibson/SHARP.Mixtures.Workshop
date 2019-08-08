@@ -5,7 +5,6 @@ utils
 grDevices
 graphics
 stats
-knitr
 tidyverse
 ggplot2
 tibble
@@ -21,8 +20,8 @@ ggfortify
 ggdendro
 ggplotify
 gridExtra
+knitr
 dendextend
 pryr
 reshape2
-bindrcpp
 factoextra

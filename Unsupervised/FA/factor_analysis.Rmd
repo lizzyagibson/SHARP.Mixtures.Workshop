@@ -1,7 +1,7 @@
 ---
 title: "Factor Analysis"
 author: "Lizzy Gibson"
-date: "8/9/2018"
+date: "8/9/2019"
 output: 
   html_document:
     toc: TRUE
