@@ -23,7 +23,7 @@ library(ggplot2)
 
 ## read in data and only consider complete data 
 ## this drops 327 individuals, but BKMR does not handle missing data
-nhanes <- na.omit(read.csv("../../Data/studypop.csv"))
+nhanes <- na.omit(read.csv(here::here("Data/studypop.csv")))
 
 ## center/scale continous covariates and create indicators for categorical covariates
 nhanes$age_z         <- scale(nhanes$age_cent)         ## center and scale age
@@ -78,7 +78,7 @@ knots100     <- fields::cover.design(lnmixture_z, nd = 100)$design ### we have a
 ###         Fit Models                       ###
 ################################################
 
-load("./saved_model/NHANES_knots100.RData")
+load("Supervised/BKMR/saved_model/NHANES_knots100.RData")
 
 ##### fit BKMR models WITH Gaussian predictive process using 100 knots
 
@@ -98,7 +98,7 @@ temp <-  kmbayes(y=lnLTL_z, Z=lnmixture_z, X=covariates, iter=100, verbose=TRUE,
 ##    our fit based on 100 samples. Rather we will load in the results from 100,000. 
 
 #save(fit_gvs_knots100,file="bkmr_NHANES_gvs_knots100.RData")
-load("./saved_model/bkmr_NHANES_gvs_knots100.RData")
+load("Supervised/BKMR/saved_model/bkmr_NHANES_gvs_knots100.RData")
 summary(fit_gvs_knots100)
 
 ## obtain posterior inclusion probabilities (PIPs)
@@ -115,7 +115,7 @@ ExtractPIPs(fit_gvs_knots100)
 ### correlation matrix
 cor.Z <- cor(lnmixture_z, use="complete.obs")
 
-pdf(file="./figures_pdf/cor_nhanes.pdf", width=12, height=12)
+pdf(file="Supervised/BKMR/figures_pdf/cor_nhanes.pdf", width=12, height=12)
 corrplot.mixed(cor.Z, upper = "ellipse", lower.col="black")
 dev.off()
 
@@ -166,15 +166,15 @@ par(mfrow=c(1,1))
 #file=paste0("./Supervised/BKMR/saved_model/", modeltoplot.name,"_plots.RData"))
 
 # Load in the results, which were computed previously and saved using the command just above this
-load(paste0("./saved_model/", modeltoplot.name,"_plots.RData"))
+load(paste0("Supervised/BKMR/saved_model/", modeltoplot.name,"_plots.RData"))
 
 ### run and save ggplots for each bkmr model
-pdf(file=paste0("./figures_pdf/univar_",plot.name,".pdf"), width=15, height=15)
+pdf(file=paste0("Supervised/BKMR/figures_pdf/univar_",plot.name,".pdf"), width=15, height=15)
 ggplot(pred.resp.univar, aes(z, est, ymin = est - 1.96*se, ymax = est + 1.96*se)) + 
   geom_smooth(stat = "identity") + ylab("h(z)") + facet_wrap(~ variable) 
 dev.off()
 
-pdf(file=paste0("./figures_pdf/bivar_",plot.name,".pdf"), width=30, height=30)
+pdf(file=paste0("Supervised/BKMR/figures_pdf/bivar_",plot.name,".pdf"), width=30, height=30)
 ggplot(pred.resp.bivar, aes(z1, z2, fill = est)) + 
   geom_raster() + 
   facet_grid(variable2 ~ variable1) +
@@ -184,7 +184,7 @@ ggplot(pred.resp.bivar, aes(z1, z2, fill = est)) +
   ggtitle("h(expos1, expos2)")
 dev.off()
 
-pdf(file=paste0("./figures_pdf/bivar_levels_",plot.name,".pdf"), width=30, height=30)
+pdf(file=paste0("Supervised/BKMR/figures_pdf/bivar_levels_",plot.name,".pdf"), width=30, height=30)
 ggplot(pred.resp.bivar.levels, aes(z1, est)) + 
   geom_smooth(aes(col = quantile), stat = "identity") + 
   facet_grid(variable2 ~ variable1) +
@@ -193,20 +193,20 @@ ggplot(pred.resp.bivar.levels, aes(z1, est)) +
 dev.off()
 #in this plot we can see that most of the relationships between the PCBs are linear
 
-pdf(file=paste0("./figures_pdf/overallrisks_",plot.name,".pdf"), width=10, height=10)
+pdf(file=paste0("Supervised/BKMR/figures_pdf/overallrisks_",plot.name,".pdf"), width=10, height=10)
 ggplot(risks.overall, aes(quantile, est, ymin = est - 1.96*sd, ymax = est + 1.96*sd)) +  
   geom_hline(yintercept=00, linetype="dashed", color="gray") + 
   geom_pointrange() + scale_y_continuous(name="estimate") 
 dev.off()
 
-pdf(file=paste0("./figures_pdf/singvar_",plot.name,".pdf"), width=5, height=10)
+pdf(file=paste0("Supervised/BKMR/figures_pdf/singvar_",plot.name,".pdf"), width=5, height=10)
 ggplot(risks.singvar, aes(variable, est, ymin = est - 1.96*sd,  ymax = est + 1.96*sd, col = q.fixed)) +  
   geom_hline(aes(yintercept=0), linetype="dashed", color="gray") +  
   geom_pointrange(position = position_dodge(width = 0.75)) +  coord_flip() +  
   theme(legend.position="none")+scale_x_discrete(name="") + scale_y_continuous(name="estimate") 
 dev.off()
 
-pdf(file=paste0("./figures_pdf/interactplot_",plot.name,".pdf"), width=5, height=10)
+pdf(file=paste0("Supervised/BKMR/figures_pdf/interactplot_",plot.name,".pdf"), width=5, height=10)
 ggplot(risks.int, aes(variable, est, ymin = est - 1.96*sd, ymax = est + 1.96*sd)) + 
   geom_pointrange(position = position_dodge(width = 0.75)) + 
   geom_hline(yintercept = 0, lty = 2, col = "brown") + coord_flip()

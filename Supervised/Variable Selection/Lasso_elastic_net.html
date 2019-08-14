@@ -258,7 +258,7 @@ div.tocify {
 <div id="data-import-and-cleaning" class="section level1">
 <h1>Data Import and Cleaning</h1>
 <p>First, load the dataset; clean up names as needed; and convert factors to, well, factors.</p>
-<pre class="r"><code>study_pop = read_csv(&quot;../../Data/studypop.csv&quot;) %&gt;% 
+<pre class="r"><code>study_pop = read_csv(here::here(&quot;Data/studypop.csv&quot;)) %&gt;% 
   clean_names(case = c(&quot;old_janitor&quot;)) %&gt;% 
   mutate(bmi_cat3 = as.factor(bmi_cat3),
          edu_cat = as.factor(edu_cat),

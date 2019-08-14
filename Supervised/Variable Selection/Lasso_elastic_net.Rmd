@@ -27,7 +27,7 @@ library(glmnet)
 First, load the dataset; clean up names as needed; and convert factors to, well, factors. 
 
 ```{r}
-study_pop = read_csv("../../Data/studypop.csv") %>% 
+study_pop = read_csv(here::here("Data/studypop.csv")) %>% 
   clean_names(case = c("old_janitor")) %>% 
   mutate(bmi_cat3 = as.factor(bmi_cat3),
          edu_cat = as.factor(edu_cat),
@@ -38,7 +38,6 @@ study_pop = read_csv("../../Data/studypop.csv") %>%
 Quick data descriptions; because of the length of the output, we don't execute this command here, but encourage you to!
 
 ```{r, eval = FALSE}
-
 describe(study_pop)
 ```
 
@@ -137,7 +136,7 @@ best_lambda
 
 Optional arguments to `glmnet` can be useful -- in particular, `weights` can be used in the context of the adaptive lasso and `penalty.factor` can separate penalized variables from confounders. 
 
-```{r]}
+```{r}
 is_penalized = c(rep(1, ncol(x[,1:18])), rep(0, ncol(x[,19:36])))
 
 lasso = glmnet(x, y, 
@@ -291,7 +290,7 @@ Oddly, although lasso is a special case of the elastic net, the lasso appears to
 coef_summ = merge(enet_beta, lasso_beta, by = "variable")
 
 ind <- rbind(enet_beta, lasso_beta)
-write_csv(ind, "./lasso_elastic_net_betas.csv")
+#write_csv(ind, "./lasso_elastic_net_betas.csv")
 ```
 
 # OLS from Lasso Results

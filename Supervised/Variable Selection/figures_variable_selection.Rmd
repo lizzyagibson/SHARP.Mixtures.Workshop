@@ -16,8 +16,8 @@ library(tidyverse)
 ## Combine Effect Estimates
 
 ```{r}
-grouped <- read_csv("./grouped_lasso_betas.csv")
-ind <- read_csv("./lasso_elastic_net_betas.csv")
+grouped <- read_csv(here::here("Supervised/Variable Selection/grouped_lasso_betas.csv"))
+ind <- read_csv(here::here("Supervised/Variable Selection/lasso_elastic_net_betas.csv"))
 
 plot_all <- rbind(grouped, ind) %>% filter(grepl("la$", variable)) 
 ```

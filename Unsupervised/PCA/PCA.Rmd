@@ -35,7 +35,7 @@ options(scipen = 999)
 # Data Import and Cleaning
 
 ```{r data preping}
-studypop <- read_csv("../../Data/studypop.csv") %>% 
+studypop <- read_csv(here::here("Data/studypop.csv")) %>% 
   clean_names() %>% 
   na.omit() %>%
   mutate(bmi_cat3 = as.factor(bmi_cat3),
@@ -165,7 +165,7 @@ Combine PC scores with original data outcome and covariants
 ```{r}
 x <- pca.ln$x #principal component scores for each chemical
 
-pop <- read_csv("../../Data/studypop.csv") %>% 
+pop <- read_csv(here::here("Data/studypop.csv")) %>% 
   clean_names() %>% 
   na.omit() %>%
   dplyr::select(-(3:10), -(17:26)) %>% 

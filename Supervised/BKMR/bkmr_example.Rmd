@@ -28,7 +28,7 @@ library(tidyverse)
 ```{r read_data}
 ## read in data and only consider complete data 
 ## this drops 327 individuals, but BKMR does not handle missing data
-nhanes = na.omit(read_csv("../../Data/studypop.csv"))
+nhanes = na.omit(read_csv(here::here("Data/studypop.csv")))
 
 ## center/scale continous covariates and create indicators for categorical covariates
 nhanes$age_z = scale(nhanes$age_cent) ## center and scale age
@@ -80,7 +80,7 @@ knots100     <- fields::cover.design(lnmixture_z, nd = 100)$design
 
 ```{r model}
 ### Group VS fit with all exposures using GPP and 100 knots 
-load("./saved_model/NHANES_knots100.RData")
+load(here::here("Supervised/BKMR/saved_model/NHANES_knots100.RData"))
 
 ##### fit BKMR models WITH Gaussian predictive process using 100 knots
 
@@ -101,7 +101,7 @@ temp <-  kmbayes(y=lnLTL_z, Z=lnmixture_z, X=covariates, iter=100, verbose=TRUE,
 ##    our fit based on 100 samples. Rather we will load in the results from 100,000. 
 
 #save(fit_gvs_knots100,file="bkmr_NHANES_gvs_knots100.RData")
-load("./saved_model/bkmr_NHANES_gvs_knots100.RData")
+load(here::here("Supervised/BKMR/saved_model/bkmr_NHANES_gvs_knots100.RData"))
 summary(fit_gvs_knots100)
 ```
 
@@ -175,7 +175,7 @@ par(mfrow=c(1,1))
 
 # Load in the results, which were computed previously and saved using the command just above this
 
-load(paste0("./saved_model/", modeltoplot.name,"_plots.RData"))
+load(paste0(here::here("Supervised/BKMR/saved_model/"), modeltoplot.name,"_plots.RData"))
 ```
 
 ```{r save}
