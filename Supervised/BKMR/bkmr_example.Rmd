@@ -12,6 +12,7 @@ output:
 ```{r setup, include = FALSE}
 require("knitr")
 knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
+
 ## load required libraries 
 library(bkmr)
 #install.packages("bkmr")
