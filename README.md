@@ -12,3 +12,5 @@ In addition to the Unsupervised and Supervised folders you will find the followi
 1) Data: contains the data and the data dictionary.
 2) Mitro_et_al_materials: contains the code and data used by Mitro et al. 
 3) workshop_paper_figures: contains the figures include in the Gibson et al. paper.
+
+**WARNING: This repo was created under R version 3.5.3. Results *will* differ with newer R versions, as R version 3.6.0 changed the default method for generating from a discrete uniform distribution (used in sample()). Additionally, version 3.1-3 of the grpreg package should be used to recreate published results ([here](https://lizzyagibson.github.io/papers/gibson_eh.pdf)).**
